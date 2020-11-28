@@ -1,8 +1,8 @@
 <template>
   <v-container fluid>
-    <v-text
-      class="title py-3"
-    >Thanks for using App X!!! How likely are you to recommend it to your colleagues?</v-text>
+    <span class="title py-3"
+      >Thanks for using App X!!! How likely are you to recommend it to your colleagues?</span
+    >
 
     <v-rating
       v-model="glistenWhisp.data.rating"
@@ -31,15 +31,18 @@
     ></v-switch>
 
     <v-btn color="primary" @click="submitFeedback">Submit feedback</v-btn>
+    <feedback-list :feedbacks="feedbacks" />
   </v-container>
 </template>
 
 <script lang='ts'>
 import { WhispService } from '../services/whisp.service';
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
+import { IFeedback } from '@/interfaces/feedback';
+import FeedbackList from './FeedbackList.vue';
 
 @Component({
-  components: {},
+  components: { FeedbackList },
 })
 export default class GlistenClient extends Vue {
   @Provide() public user = 'user not set';
@@ -59,9 +62,12 @@ export default class GlistenClient extends Vue {
 
   private newWhisp: any = '';
 
+  private feedbacks: IFeedback[] = [];
+
   constructor() {
     super();
     this.data = [];
+    this.fetchFeedbacks();
   }
 
   @Watch('glistenWhisp.data.anonymous', { immediate: true })
@@ -72,6 +78,21 @@ export default class GlistenClient extends Vue {
   private async submitFeedback() {
     // this.sentimentScore = calculateSentiment(this.comment);
     this.newWhisp = await WhispService.createWhisp(this.glistenWhisp);
+  }
+
+  private async fetchFeedbacks() {
+    const result = await WhispService.getFilteredWhisps({ type: 'USER_FEEDBACK' });
+    if (result.data) {
+      this.feedbacks = result.data.whisps as IFeedback[];
+    }
+    if (result.errors) {
+      console.error(result.errors);
+    }
+  }
+
+  private async subscribeToFeedbacks() {
+    const subject = WhispService.subscribeWhisps({ type: 'USER_FEEDBACK' });
+    console.log(subject);
   }
 }
 </script>
