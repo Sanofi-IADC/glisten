@@ -16,7 +16,7 @@
       half-icon="mdi-heart-half-full"
     ></v-rating>
     <v-textarea
-      v-model="glistenWhisp.data.comment"
+      v-model="glistenWhisp.data.feedback"
       outlined
       name="input-7-4"
       label="Leave us a comment"
@@ -40,9 +40,25 @@ import { WhispService } from '../services/whisp.service';
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
 import { IFeedback } from '@/interfaces/feedback';
 import FeedbackList from './FeedbackList.vue';
+import {
+  GET_ALL_FEEDBACKS,
+  SUBCRIPTION_FEEDBACKS,
+  CREATE_WHISP,
+} from '@/graphql/queries/whispQueries';
 
 @Component({
   components: { FeedbackList },
+  apollo: {
+    feedbacks: {
+      query: GET_ALL_FEEDBACKS,
+      subscribeToMore: {
+        document: SUBCRIPTION_FEEDBACKS,
+        updateQuery: (previous, { subscriptionData }) => {
+          return { feedbacks: [...previous.feedbacks, subscriptionData.data.feedbackAdded] };
+        },
+      },
+    },
+  },
 })
 export default class GlistenClient extends Vue {
   @Provide() public user = 'user not set';
@@ -54,7 +70,7 @@ export default class GlistenClient extends Vue {
     openedById: '',
     data: {
       anonymous: false,
-      comment: '',
+      feedback: '',
       rating: 0,
       commentSentimentScore: 0,
     },
@@ -67,7 +83,6 @@ export default class GlistenClient extends Vue {
   constructor() {
     super();
     this.data = [];
-    this.fetchFeedbacks();
   }
 
   @Watch('glistenWhisp.data.anonymous', { immediate: true })
@@ -77,22 +92,10 @@ export default class GlistenClient extends Vue {
 
   private async submitFeedback() {
     // this.sentimentScore = calculateSentiment(this.comment);
-    this.newWhisp = await WhispService.createWhisp(this.glistenWhisp);
-  }
-
-  private async fetchFeedbacks() {
-    const result = await WhispService.getFilteredWhisps({ type: 'USER_FEEDBACK' });
-    if (result.data) {
-      this.feedbacks = result.data.whisps as IFeedback[];
-    }
-    if (result.errors) {
-      console.error(result.errors);
-    }
-  }
-
-  private async subscribeToFeedbacks() {
-    const subject = WhispService.subscribeWhisps({ type: 'USER_FEEDBACK' });
-    console.log(subject);
+    this.newWhisp = this.$apollo.mutate({
+      mutation: CREATE_WHISP,
+      variables: { whisp: this.glistenWhisp },
+    });
   }
 }
 </script>

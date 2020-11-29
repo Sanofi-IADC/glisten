@@ -11,8 +11,30 @@ import gql from 'graphql-tag';
 
 // query for getting all alerts and comments
 export const GET_ALL_WHISPS = gql`
-  query {
+  query whisps {
     whisps {
+      _id
+      readableID
+      type
+      severity
+      description
+      closed
+      applicationID
+      plantID
+      locationID
+      manual
+      openedBy
+      closedBy
+      timestamp
+      updated
+      data
+    }
+  }
+`;
+
+export const GET_ALL_FEEDBACKS = gql`
+  query feedbacks {
+    feedbacks: whisps(filter: { type: "USER_FEEDBACK" }) {
       _id
       readableID
       type
@@ -96,7 +118,7 @@ export type GetFileteredWhispsCountResult = { whispsCount: number };
 // subscription for getting alerts and comments
 
 export const CREATE_WHISP = gql`
-  mutation($whisp: WhispInputType!) {
+  mutation createWhisp($whisp: WhispInputType!) {
     createWhisp(whisp: $whisp) {
       _id
       openedBy
@@ -116,7 +138,7 @@ export type CreateWhispResult = {
 };
 
 export const UPDATE_WHISP = gql`
-  mutation($id: String!, $whisp: WhispInputType!) {
+  mutation updateWhisp($id: String!, $whisp: WhispInputType!) {
     updateWhisp(id: $id, whisp: $whisp) {
       type
       readableID
@@ -141,7 +163,7 @@ export type UpdateWhispResult = {
 };
 
 export const REPLACE_WHISP = gql`
-  mutation($id: String!, $whisp: WhispInputType!) {
+  mutation replaceWhisp($id: String!, $whisp: WhispInputType!) {
     replaceWhisp(id: $id, whisp: $whisp) {
       _id
       readableID
@@ -167,7 +189,7 @@ export type ReplaceWhispResult = {
 };
 
 export const DELETE_WHISP = gql`
-  mutation($id: String!) {
+  mutation deleteWhisp($id: String!) {
     deleteWhisp(id: $id)
   }
 `;
@@ -183,8 +205,30 @@ export type DeleteWhispResult = {
 // subscription for getting alerts and comments
 
 export const SUBSCRIPTION_WHISPS = gql`
-  subscription SUBSCRIPTION_WHISPS($filter: WhispInputType!) {
-    whispAdded(whisp: $filter) {
+  subscription SUBSCRIPTION_WHISPS($filter: JSONObject!) {
+    whispAdded(filter: $filter) {
+      _id
+      readableID
+      type
+      severity
+      description
+      closed
+      applicationID
+      plantID
+      locationID
+      manual
+      openedBy
+      closedBy
+      timestamp
+      updated
+      data
+    }
+  }
+`;
+
+export const SUBCRIPTION_FEEDBACKS = gql`
+  subscription SUBCRIPTION_FEEDBACKS {
+    feedbackAdded: whispAdded(filter: { type: "USER_FEEDBACK" }) {
       _id
       readableID
       type
