@@ -54,7 +54,7 @@ import {
       subscribeToMore: {
         document: SUBCRIPTION_FEEDBACKS,
         updateQuery: (previous, { subscriptionData }) => {
-          return { feedbacks: [...previous.feedbacks, subscriptionData.data.feedbackAdded] };
+          return { feedbacks: [subscriptionData.data.feedbackAdded, ...previous.feedbacks] };
         },
       },
     },
