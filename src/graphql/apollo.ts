@@ -48,7 +48,7 @@ export const apolloClient = (httpURL: string, wsURL: string) => {
 
   return new ApolloClient({
     link,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({ addTypename: false }),
     connectToDevTools: true,
   });
 };

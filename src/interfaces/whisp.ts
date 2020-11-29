@@ -1,4 +1,5 @@
 export interface IWhisp {
+  _id: string;
   readableID: string;
   type: string;
   severity: number;
