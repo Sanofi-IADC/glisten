@@ -31,7 +31,6 @@
     ></v-switch>
 
     <v-btn color="primary" @click="submitFeedback">Submit feedback</v-btn>
-    <feedback-list :feedbacks="feedbacks" @changeStatus="changeStatus" @setNotes="setNotes" />
   </v-container>
 </template>
 
@@ -39,42 +38,9 @@
 import { WhispService } from '../services/whisp.service';
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
 import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
-import FeedbackList from './FeedbackList.vue';
-import {
-  GET_ALL_FEEDBACKS,
-  SUBCRIPTION_FEEDBACKS,
-  CREATE_WHISP,
-  UPDATE_WHISP,
-} from '@/graphql/queries/whispQueries';
+import { CREATE_WHISP } from '@/graphql/queries/whispQueries';
 
-@Component({
-  components: { FeedbackList },
-  apollo: {
-    feedbacks: {
-      query: GET_ALL_FEEDBACKS,
-      subscribeToMore: {
-        document: SUBCRIPTION_FEEDBACKS,
-        updateQuery: (previous, { subscriptionData }) => {
-          // If we added the whisp already don't do anything
-          // This can be caused by an update after a mutation
-          const existingFeedbackIndex = previous.feedbacks.findIndex(
-            (feedback: IFeedback) => feedback._id === subscriptionData.data.feedbackAdded._id,
-          );
-
-          if (existingFeedbackIndex >= 0) {
-            return {
-              feedbacks: Object.assign([], previous.feedbacks, {
-                [existingFeedbackIndex]: subscriptionData.data.feedbackAdded,
-              }),
-            };
-          }
-
-          return { feedbacks: [subscriptionData.data.feedbackAdded, ...previous.feedbacks] };
-        },
-      },
-    },
-  },
-})
+@Component({})
 export default class GlistenClient extends Vue {
   @Provide() public user = 'thomas';
   @Provide() public surveyQuestion = '';
@@ -95,8 +61,6 @@ export default class GlistenClient extends Vue {
 
   private newWhisp: any = '';
 
-  private feedbacks: IFeedback[] = [];
-
   constructor() {
     super();
     this.data = [];
@@ -112,44 +76,6 @@ export default class GlistenClient extends Vue {
     this.newWhisp = this.$apollo.mutate({
       mutation: CREATE_WHISP,
       variables: { whisp: this.glistenWhisp },
-    });
-  }
-
-  private async changeStatus({
-    feedback,
-    status,
-  }: {
-    feedback: IFeedback;
-    status: FeedbackStatus;
-  }): Promise<void> {
-    this.$apollo.mutate({
-      mutation: UPDATE_WHISP,
-      variables: {
-        id: feedback._id,
-        whisp: {
-          ...feedback,
-          data: { ...feedback.data, status },
-        },
-      },
-    });
-  }
-
-  private async setNotes({
-    feedback,
-    notes,
-  }: {
-    feedback: IFeedback;
-    notes: string;
-  }): Promise<void> {
-    this.$apollo.mutate({
-      mutation: UPDATE_WHISP,
-      variables: {
-        id: feedback._id,
-        whisp: {
-          ...feedback,
-          data: { ...feedback.data, notes },
-        },
-      },
     });
   }
 }
