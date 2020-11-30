@@ -1,8 +1,8 @@
 <template>
   <v-container fluid>
-    <v-text
-      class="title py-3"
-    >Thanks for using App X!!! How likely are you to recommend it to your colleagues?</v-text>
+    <span class="title py-3"
+      >Thanks for using App X!!! How likely are you to recommend it to your colleagues?</span
+    >
 
     <v-rating
       v-model="glistenWhisp.data.rating"
@@ -16,7 +16,7 @@
       half-icon="mdi-heart-half-full"
     ></v-rating>
     <v-textarea
-      v-model="glistenWhisp.data.comment"
+      v-model="glistenWhisp.data.feedback"
       outlined
       name="input-7-4"
       label="Leave us a comment"
@@ -37,12 +37,12 @@
 <script lang='ts'>
 import { WhispService } from '../services/whisp.service';
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
+import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
+import { CREATE_WHISP } from '@/graphql/queries/whispQueries';
 
-@Component({
-  components: {},
-})
+@Component({})
 export default class GlistenClient extends Vue {
-  @Provide() public user = 'user not set';
+  @Provide() public user = 'thomas';
   @Provide() public surveyQuestion = '';
   private data!: any;
   private glistenWhisp = {
@@ -50,8 +50,10 @@ export default class GlistenClient extends Vue {
     applicationID: 'GLISTEN',
     openedById: '',
     data: {
+      status: FeedbackStatus.ACTION_NEEDED, // OPENED | CLOSED | NONE
       anonymous: false,
-      comment: '',
+      feedback: '',
+      name: 'thomas',
       rating: 0,
       commentSentimentScore: 0,
     },
@@ -71,7 +73,10 @@ export default class GlistenClient extends Vue {
 
   private async submitFeedback() {
     // this.sentimentScore = calculateSentiment(this.comment);
-    this.newWhisp = await WhispService.createWhisp(this.glistenWhisp);
+    this.newWhisp = this.$apollo.mutate({
+      mutation: CREATE_WHISP,
+      variables: { whisp: this.glistenWhisp },
+    });
   }
 }
 </script>
