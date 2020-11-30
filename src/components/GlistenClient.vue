@@ -76,7 +76,7 @@ import {
   },
 })
 export default class GlistenClient extends Vue {
-  @Provide() public user = 'user not set';
+  @Provide() public user = 'thomas';
   @Provide() public surveyQuestion = '';
   private data!: any;
   private glistenWhisp = {
@@ -87,6 +87,7 @@ export default class GlistenClient extends Vue {
       status: FeedbackStatus.ACTION_NEEDED, // OPENED | CLOSED | NONE
       anonymous: false,
       feedback: '',
+      name: 'thomas',
       rating: 0,
       commentSentimentScore: 0,
     },
@@ -123,7 +124,13 @@ export default class GlistenClient extends Vue {
   }): Promise<void> {
     this.$apollo.mutate({
       mutation: UPDATE_WHISP,
-      variables: { id: feedback._id, whisp: { ...feedback, data: { ...feedback.data, status } } },
+      variables: {
+        id: feedback._id,
+        whisp: {
+          ...feedback,
+          data: { ...feedback.data, status },
+        },
+      },
     });
   }
 
@@ -136,7 +143,13 @@ export default class GlistenClient extends Vue {
   }): Promise<void> {
     this.$apollo.mutate({
       mutation: UPDATE_WHISP,
-      variables: { id: feedback._id, whisp: { ...feedback, data: { ...feedback.data, notes } } },
+      variables: {
+        id: feedback._id,
+        whisp: {
+          ...feedback,
+          data: { ...feedback.data, notes },
+        },
+      },
     });
   }
 }
