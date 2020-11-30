@@ -2,24 +2,19 @@
   "name": "@mestrak/glisten-client",
   "version": "0.0.2",
   "private": false,
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MeStrak/glisten-client.git"
-  },
   "scripts": {
-    "start": "npm run serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "prepare": "npm run build-bundle",
-    "build-bundle": "vue-cli-service build --target lib --name aac src/exports.ts",
-    "test": "npm run test:e2e && npm run test:unit:cov",
-    "test:e2e": "vue-cli-service test:e2e --headless",
     "test:unit": "vue-cli-service test:unit",
-    "test:unit:cov": "vue-cli-service test:unit --coverage",
+    "test:e2e": "vue-cli-service test:e2e --headless",
+    "lint": "vue-cli-service lint",
+    "build-bundle": "vue-cli-service build --target lib --name aac src/exports.ts",
     "docs:build": "vuepress build docs",
-    "docs:dev": "vuepress dev docs"
+    "docs:dev": "vuepress dev docs",
+    "prepare": "npm run build-bundle",
+    "start": "npm run serve",
+    "test": "npm run test:e2e && npm run test:unit:cov",
+    "test:unit:cov": "vue-cli-service test:unit --coverage"
   },
   "main": "dist/aac.umd.js",
   "files": [
@@ -31,6 +26,7 @@
     "*.d.ts"
   ],
   "dependencies": {
+    "apexcharts": "^3.22.2",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",
     "apollo-link-error": "^1.1.12",
@@ -40,10 +36,11 @@
     "babel-polyfill": "^6.26.0",
     "graphql": "^14.5.8",
     "graphql-tag": "^2.10.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.1",
     "node-fetch": "^2.6.0",
     "subscriptions-transport-ws": "^0.9.16",
     "vue": "^2.6.10",
+    "vue-apexcharts": "^1.6.0",
     "vue-apollo": "^3.0.0",
     "vue-property-decorator": "^8.3.0",
     "vuetify": "^2.2.20",
@@ -74,6 +71,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "eslint-plugin-vue": "^5.2.3",
+    "graphql-tag": "^2.9.0",
     "jest": "^24.9.0",
     "lint-staged": "^9.4.2",
     "material-design-icons-iconfont": "^5.0.1",
@@ -81,6 +79,7 @@
     "sass-loader": "^7.3.1",
     "ts-jest": "^23.0.0",
     "typescript": "^3.6.4",
+    "vue-cli-plugin-apollo": "~0.22.2",
     "vue-cli-plugin-vuetify": "^0.6.1",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2"
@@ -102,6 +101,7 @@
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
+  "license": "MIT",
   "lint-staged": {
     "*.{js,vue,ts}": [
       "vue-cli-service lint",
@@ -110,5 +110,9 @@
   },
   "publishConfig": {
     "tag": "latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MeStrak/glisten-client.git"
   }
 }

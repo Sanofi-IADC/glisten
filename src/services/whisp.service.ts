@@ -1,16 +1,30 @@
 import {
-  GET_ALL_COMMENTS,
-  GET_SINGLE_COMMENT,
-  GET_FILTERED_COMMENTS,
-  GET_FILTERED_COMMENTS_COUNT,
+  GET_ALL_WHISPS,
+  GET_SINGLE_WHISP,
+  GET_FILTERED_WHISPS,
+  GET_FILTERED_WHISPS_COUNT,
   CREATE_WHISP,
-  UPDATE_COMMENT,
-  REPLACE_COMMENT,
-  DELETE_COMMENT,
-  SUBSCRIPTION_COMMENTS,
-} from '../graphql/queries/eventQueries';
+  UPDATE_WHISP,
+  REPLACE_WHISP,
+  DELETE_WHISP,
+  SUBSCRIPTION_WHISPS,
+  GetAllWhispsResult,
+  GetSingleResult,
+  GetFileteredWhispsResult,
+  GetFileteredWhispsCountResult,
+  CreateWhispResult,
+  UpdateWhispResult,
+  ReplaceWhispResult,
+  DeleteWhispResult,
+  SubcriptionsWhispsResult,
+} from '../graphql/queries/whispQueries';
 import { apolloClient } from '../graphql/apollo';
 import { Subject } from 'rxjs';
+import { IWhisp } from '@/interfaces/whisp';
+import { ApolloQueryResult } from 'apollo-client/core/types';
+import { FetchResult } from 'apollo-link';
+
+export type WhispsQuery = { whisps: IWhisp[] };
 
 export class WhispService {
   public static httpURL: string;
@@ -19,32 +33,36 @@ export class WhispService {
   /**
    * Queries
    */
-  public static async getAllEvents() {
-    return apolloClient(WhispService.httpURL, WhispService.wsURL).query({
-      query: GET_ALL_COMMENTS,
+  public static async getAllWhisps(): Promise<ApolloQueryResult<GetAllWhispsResult>> {
+    return apolloClient(WhispService.httpURL, WhispService.wsURL).query<WhispsQuery>({
+      query: GET_ALL_WHISPS,
     });
   }
 
-  public static async getOneEvent(eventId: string) {
+  public static async getOneWhisp(whispId: string): Promise<ApolloQueryResult<GetSingleResult>> {
     return apolloClient(WhispService.httpURL, WhispService.wsURL).query({
-      query: GET_SINGLE_COMMENT,
-      variables: { id: eventId },
+      query: GET_SINGLE_WHISP,
+      variables: { id: whispId },
       fetchPolicy: 'network-only',
     });
   }
 
-  public static async getFilteredEvents(event: any) {
+  public static async getFilteredWhisps(
+    filter: Partial<IWhisp>,
+  ): Promise<ApolloQueryResult<GetFileteredWhispsResult>> {
     return apolloClient(WhispService.httpURL, WhispService.wsURL).query({
-      query: GET_FILTERED_COMMENTS,
-      variables: { filter: event },
+      query: GET_FILTERED_WHISPS,
+      variables: { filter: filter },
       fetchPolicy: 'network-only',
     });
   }
 
-  public static async getFilteredEventsCount(event: any) {
+  public static async getFilteredWhispsCount(
+    filter: Partial<IWhisp>,
+  ): Promise<ApolloQueryResult<GetFileteredWhispsCountResult>> {
     return apolloClient(WhispService.httpURL, WhispService.wsURL).query({
-      query: GET_FILTERED_COMMENTS_COUNT,
-      variables: { filter: event },
+      query: GET_FILTERED_WHISPS_COUNT,
+      variables: { filter: filter },
     });
   }
 
@@ -52,36 +70,42 @@ export class WhispService {
    * Mutations
    */
 
-  public static async createWhisp(whisp: any) {
+  public static async createWhisp(whisp: Partial<IWhisp>): Promise<FetchResult<CreateWhispResult>> {
     return apolloClient(WhispService.httpURL, WhispService.wsURL).mutate({
       mutation: CREATE_WHISP,
       variables: { whisp },
     });
   }
 
-  public static async updateEvent(id: string, event: any) {
+  public static async updateWhisp(
+    id: string,
+    whisp: Partial<IWhisp>,
+  ): Promise<FetchResult<UpdateWhispResult>> {
     return apolloClient(WhispService.httpURL, WhispService.wsURL).mutate({
-      mutation: UPDATE_COMMENT,
+      mutation: UPDATE_WHISP,
       variables: {
-        event,
+        whisp,
         id,
       },
     });
   }
 
-  public static async replaceEvent(id: string, event: any) {
+  public static async replaceWhisp(
+    id: string,
+    whisp: Partial<IWhisp>,
+  ): Promise<FetchResult<ReplaceWhispResult>> {
     return apolloClient(WhispService.httpURL, WhispService.wsURL).mutate({
-      mutation: REPLACE_COMMENT,
+      mutation: REPLACE_WHISP,
       variables: {
-        event,
+        whisp,
         id,
       },
     });
   }
 
-  public static async deleteEvent(id: string) {
+  public static async deleteWhisp(id: string): Promise<FetchResult<DeleteWhispResult>> {
     return apolloClient(WhispService.httpURL, WhispService.wsURL).mutate({
-      mutation: DELETE_COMMENT,
+      mutation: DELETE_WHISP,
       variables: { id },
     });
   }
@@ -89,17 +113,21 @@ export class WhispService {
   /**
    * Subscriptions
    */
-  public static subscribeEvents(event: any): Subject<any> {
-    const sub = new Subject();
+  public static subscribeWhisps(filter: Partial<IWhisp>): Subject<IWhisp> {
+    const sub = new Subject<IWhisp>();
 
-    apolloClient(WhispService.httpURL, WhispService.wsURL).subscribe({
-      query: SUBSCRIPTION_COMMENTS,
-      variables: {
-        filter: event,
-      },
-    }).subscribe((data) => {
-      sub.next(data);
-    });
+    apolloClient(WhispService.httpURL, WhispService.wsURL)
+      .subscribe<SubcriptionsWhispsResult>({
+        query: SUBSCRIPTION_WHISPS,
+        variables: {
+          filter: filter,
+        },
+      })
+      .subscribe((data) => {
+        if (data.data) {
+          sub.next(data.data.whispAdded);
+        }
+      });
     return sub;
   }
 }

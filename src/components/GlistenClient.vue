@@ -73,10 +73,10 @@
 <script lang="ts">
 import { WhispService } from '../services/whisp.service';
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
+import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
+import { CREATE_WHISP } from '@/graphql/queries/whispQueries';
 
-@Component({
-  components: {},
-})
+@Component({})
 export default class GlistenClient extends Vue {
   @Prop()
   public sheet!: boolean;
@@ -106,11 +106,11 @@ export default class GlistenClient extends Vue {
     openedBy: '',
     description: '',
     data: {
+      status: FeedbackStatus.NO_ACTION_NEEDED, // OPENED | CLOSED | NONE
       anonymous: false,
       feedback: null,
       rating: 4.5,
       name: '',
-      closed: null,
       commentSentimentScore: 0,
     },
     timestamp: '', // = new Date(Date.now()) '2020-10-22T20:49:06.842Z'
@@ -125,7 +125,9 @@ export default class GlistenClient extends Vue {
 
   @Watch('actionRequired', { immediate: true })
   private onActionChanged(val: boolean, oldVal: boolean) {
-    this.glistenWhisp.data.closed = val ? false : (null as any);
+    this.glistenWhisp.data.status = val
+      ? FeedbackStatus.ACTION_NEEDED
+      : FeedbackStatus.NO_ACTION_NEEDED;
   }
 
   private calculateSentiment(comment: string): number {
@@ -147,18 +149,17 @@ export default class GlistenClient extends Vue {
     this.glistenWhisp.data.commentSentimentScore = this.calculateSentiment(
       this.glistenWhisp.data.feedback!,
     );
-
     this.glistenWhisp.openedBy = this.glistenWhisp.data.name;
-
     const timestamp = new Date(Date.now());
     this.glistenWhisp.timestamp = timestamp.toISOString();
     this.glistenWhisp.description = this.truncateDescription(this.glistenWhisp.data.feedback!);
-
     this.glistenWhisp.data = { ...this.glistenWhisp.data, ...this.data };
 
     console.log(this.glistenWhisp);
-    this.newWhisp = await WhispService.createWhisp(this.glistenWhisp);
-
+    this.newWhisp = this.$apollo.mutate({
+      mutation: CREATE_WHISP,
+      variables: { whisp: this.glistenWhisp },
+    });
     if (this.glistenWhisp.data) {
       const name = this.glistenWhisp.openedBy ? this.glistenWhisp.openedBy : '';
       this.text = `Thanks for your feedback ${name} !`;

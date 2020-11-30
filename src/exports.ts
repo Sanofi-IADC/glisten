@@ -21,18 +21,6 @@ const Plugin = {
 
     WhispService.httpURL = options.httpURL;
     WhispService.wsURL = options.wsURL;
-
-    Vue.prototype.$whisprApi = {
-      getAllEvents: WhispService.getAllEvents,
-      getOneEvent: WhispService.getOneEvent,
-      getFilteredEvents: WhispService.getFilteredEvents,
-      getFilteredEventsCount: WhispService.getFilteredEventsCount,
-      createWhisp: WhispService.createWhisp,
-      updateEvent: WhispService.updateEvent,
-      replaceEvent: WhispService.replaceEvent,
-      deleteEvent: WhispService.deleteEvent,
-      subscribeEvents: WhispService.subscribeEvents,
-    };
   },
 };
 
