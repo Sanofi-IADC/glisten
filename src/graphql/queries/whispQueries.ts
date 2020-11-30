@@ -104,7 +104,7 @@ export const GET_FILTERED_WHISPS = gql`
 export type GetFileteredWhispsResult = { whisps: IWhisp[] };
 
 export const GET_FILTERED_WHISPS_COUNT = gql`
-  query GET_FILTERED_WHISPS_COUNT($filter: WhispInputType!) {
+  query GET_FILTERED_WHISPS_COUNT($filter: JSONObject!) {
     whispsCount(filter: $filter)
   }
 `;
