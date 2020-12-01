@@ -20,6 +20,14 @@
             full-icon="mdi-heart"
             half-icon="mdi-heart-half-full"
           ></v-rating>
+
+          <v-select
+            :items="categories"
+            label="Choose category"
+            outlined
+            v-model="glistenWhisp.data.category"
+          ></v-select>
+
           <v-textarea
             v-model="glistenWhisp.data.feedback"
             outlined
@@ -95,6 +103,16 @@ export default class GlistenClient extends Vue {
     this.$emit('close', val);
   }
 
+  private get categories() {
+    return [
+      { text: 'Idea/Improvement', value: 'idea_improvement' },
+      { text: 'Event/Todo/Info/Handover', value: 'event' },
+      { text: 'General usage/performance', value: 'performance' },
+      { text: 'Device issue', value: 'device_issue' },
+      { text: 'Other', value: 'other' },
+    ];
+  }
+
   private actionRequired = false;
   private snackbar = false;
   private timeout = 3000;
@@ -112,8 +130,9 @@ export default class GlistenClient extends Vue {
       rating: 4.5,
       name: '',
       commentSentimentScore: 0,
+      category: null,
     },
-    timestamp: '', // = new Date(Date.now()) '2020-10-22T20:49:06.842Z'
+    timestamp: '',
   };
 
   private newWhisp: any = '';
