@@ -2,6 +2,7 @@ import { IWhisp } from './whisp';
 
 export interface IFeedback extends IWhisp {
   data: {
+    category: string;
     status: FeedbackStatus;
     feedback: string;
     rating: number;

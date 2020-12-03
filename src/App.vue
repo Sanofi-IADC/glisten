@@ -1,7 +1,16 @@
 <template>
   <v-app>
-    <glisten-client />
+    <v-btn color="green" dark @click="sheet = !sheet">
+      Add feedback
+    </v-btn>
     <feedback-list :feedbacks="feedbacks" @changeStatus="changeStatus" @setNotes="setNotes" />
+
+    <glisten-client
+      :sheet="sheet"
+      :applicationID="applicationID"
+      :data="data"
+      @close="toggleFeedback"
+    />
   </v-app>
 </template>
 
@@ -51,6 +60,13 @@ import { IFeedback, FeedbackStatus } from './interfaces/feedback';
 })
 export default class App extends Vue {
   private feedbacks: IFeedback[] = [];
+  public applicationID = 'GLISTEN';
+  public data = {
+    contextPortal: window.location.href,
+    contextPage: '',
+  };
+
+  public sheet = false;
 
   private async changeStatus({
     feedback,
@@ -88,6 +104,10 @@ export default class App extends Vue {
         },
       },
     });
+  }
+
+  private toggleFeedback(event: any) {
+    this.sheet = false;
   }
 }
 </script>

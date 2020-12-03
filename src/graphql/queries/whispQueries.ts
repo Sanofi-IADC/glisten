@@ -34,7 +34,7 @@ export const GET_ALL_WHISPS = gql`
 
 export const GET_ALL_FEEDBACKS = gql`
   query feedbacks {
-    feedbacks: whisps(filter: { type: "USER_FEEDBACK" }, sort: { timestamp: -1 }) {
+    feedbacks: whisps(filter: { type: "GLISTEN" }, sort: { timestamp: -1 }) {
       _id
       readableID
       type
@@ -228,7 +228,7 @@ export const SUBSCRIPTION_WHISPS = gql`
 
 export const SUBCRIPTION_FEEDBACKS = gql`
   subscription SUBCRIPTION_FEEDBACKS {
-    feedbackAdded: whispAdded(filter: { type: "USER_FEEDBACK" }) {
+    feedbackAdded: whispAdded(filter: { type: "GLISTEN" }) {
       _id
       readableID
       type
