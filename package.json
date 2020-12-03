@@ -1,5 +1,5 @@
 {
-  "name": "@mestrak/glisten-client",
+  "name": "@sanofi-iadc/glisten",
   "version": "0.0.2",
   "private": false,
   "scripts": {
@@ -8,7 +8,7 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e --headless",
     "lint": "vue-cli-service lint",
-    "build-bundle": "vue-cli-service build --target lib --name aac src/exports.ts",
+    "build-bundle": "vue-cli-service build --target lib --name @sanofi-iadc/glisten ./src/components/GlistenClient.vue",
     "docs:build": "vuepress build docs",
     "docs:dev": "vuepress dev docs",
     "prepare": "npm run build-bundle",
@@ -16,7 +16,7 @@
     "test": "npm run test:e2e && npm run test:unit:cov",
     "test:unit:cov": "vue-cli-service test:unit --coverage"
   },
-  "main": "dist/aac.umd.js",
+  "main": "dist/@sanofi-iadc/glisten.umd.js",
   "files": [
     "dist/*",
     "src/*",
