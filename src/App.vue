@@ -4,7 +4,7 @@
       Add feedback
     </v-btn>
     <v-row>
-      <v-col cols="3"><nps-score-card :ratings="ratings"/></v-col>
+      <v-col cols="3"><nps-score-gauge :ratings="ratings"/></v-col>
       <v-col cols="9">
         <nps-bar-chart
           :timedRatings="timedRatings"
@@ -30,7 +30,7 @@ import GlistenClient from './components/GlistenClient.vue';
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import FeedbackList from './components/FeedbackList.vue';
-import NpsScoreCard from './components/NpsScoreCard.vue';
+import NpsScoreGauge from './components/NpsScoreGauge.vue';
 import NpsBarChart, { TimedRating } from './components/NpsBarChart.vue';
 import {
   GET_ALL_FEEDBACKS,
@@ -46,7 +46,7 @@ import moment from 'moment';
  * App component entry default
  */
 @Component({
-  components: { FeedbackList, GlistenClient, NpsScoreCard, NpsBarChart },
+  components: { FeedbackList, GlistenClient, NpsScoreGauge, NpsBarChart },
   apollo: {
     feedbacks: {
       query: GET_ALL_FEEDBACKS,
