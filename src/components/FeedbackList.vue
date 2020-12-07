@@ -17,6 +17,13 @@
     <template v-slot:[`item.name`]="{ item }">
       <span>{{ item.data.anonymous ? 'anonymous' : item.data.name }}</span>
     </template>
+
+    <template v-slot:[`item.rating`]="{ item }">
+      <v-chip :color="getColor(item.data.rating)" dark>
+        {{ item.data.rating }}
+      </v-chip>
+    </template>
+
     <template v-slot:[`item.status`]="{ item }">
       <v-tooltip bottom>
         <template v-slot:activator="{ on, attrs }">
@@ -66,6 +73,8 @@
 import { Vue, Component, Prop, Emit } from 'vue-property-decorator';
 import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
 import { DataTableHeader } from 'vuetify';
+import { Color } from 'vuetify/lib/util/colors';
+import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';
 
 @Component({})
 export default class FeedbackList extends Vue {
@@ -109,11 +118,27 @@ export default class FeedbackList extends Vue {
       { text: 'Name', value: 'name' },
       { text: 'Feedback', value: 'data.feedback' },
       { text: 'Context', value: 'context' },
-      { text: '❤', value: 'data.rating' },
+      { text: '❤', value: 'rating' },
       { text: '😊', value: 'data.commentSentimentScore' },
       { text: 'Status', value: 'status' },
       { text: 'Notes', value: 'notes' },
     ];
+  }
+
+  private getColor(rating: number): string {
+    if (isPromoter(rating)) {
+      return 'green';
+    }
+
+    if (isNeutral(rating)) {
+      return 'orange';
+    }
+
+    if (isDetractor(rating)) {
+      return 'red';
+    }
+
+    return '';
   }
 }
 </script>

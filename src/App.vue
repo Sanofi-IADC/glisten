@@ -3,6 +3,7 @@
     <v-btn color="green" dark @click="sheet = !sheet">
       Add feedback
     </v-btn>
+    <nps-score-card :ratings="ratings" />
     <feedback-list :feedbacks="feedbacks" @changeStatus="changeStatus" @setNotes="setNotes" />
 
     <glisten-client
@@ -20,6 +21,7 @@ import GlistenClient from './components/GlistenClient.vue';
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import FeedbackList from './components/FeedbackList.vue';
+import NpsScoreCard from './components/NpsScoreCard.vue';
 import {
   GET_ALL_FEEDBACKS,
   SUBCRIPTION_FEEDBACKS,
@@ -31,7 +33,7 @@ import { IFeedback, FeedbackStatus } from './interfaces/feedback';
  * App component entry default
  */
 @Component({
-  components: { FeedbackList, GlistenClient },
+  components: { FeedbackList, GlistenClient, NpsScoreCard },
   apollo: {
     feedbacks: {
       query: GET_ALL_FEEDBACKS,
@@ -59,7 +61,10 @@ import { IFeedback, FeedbackStatus } from './interfaces/feedback';
   },
 })
 export default class App extends Vue {
-  private feedbacks: IFeedback[] = [];
+  private get ratings(): number[] {
+    return this.feedbacks.map((x) => x.data.rating).filter((x) => x);
+  }
+
   public applicationID = 'GLISTEN';
   public data = {
     contextPortal: window.location.href,
@@ -67,6 +72,7 @@ export default class App extends Vue {
   };
 
   public sheet = false;
+  private feedbacks: IFeedback[] = [];
 
   private async changeStatus({
     feedback,
