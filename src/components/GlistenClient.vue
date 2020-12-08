@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <v-bottom-sheet v-model="show" max-width="70%">
+    <v-bottom-sheet v-model="show" inset>
       <v-sheet class="text-center sheet--feedback">
         <v-container fluid>
           <div class="title py-3">
@@ -34,8 +34,7 @@
             outlined
             name="input-7-4"
             label="Leave us a comment"
-            auto-grow
-            rows="2"
+            rows="4"
           ></v-textarea>
           <v-row no-gutters row wrap>
             <v-col xs12 sm6 md4>
