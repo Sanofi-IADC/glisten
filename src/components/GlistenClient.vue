@@ -22,7 +22,8 @@
           ></v-rating>
 
           <v-select
-            :items="categories"
+            v-if="customTracker && customTracker.categories"
+            :items="customTracker.categories"
             label="Choose category"
             outlined
             v-model="glistenWhisp.data.category"
@@ -90,7 +91,10 @@ export default class GlistenClient extends Vue {
   public sheet!: boolean;
 
   @Prop()
-  public data!: any;
+  public userName!: string;
+
+  @Prop()
+  public customTracker!: any;
 
   @Prop()
   public applicationID!: string;
@@ -101,16 +105,6 @@ export default class GlistenClient extends Vue {
 
   set show(val) {
     this.$emit('close', val);
-  }
-
-  private get categories() {
-    return [
-      { text: 'Idea/Improvement', value: 'idea_improvement' },
-      { text: 'Event/Todo/Info/Handover', value: 'event' },
-      { text: 'General usage/performance', value: 'performance' },
-      { text: 'Device issue', value: 'device_issue' },
-      { text: 'Other', value: 'other' },
-    ];
   }
 
   private actionRequired = false;
@@ -139,7 +133,7 @@ export default class GlistenClient extends Vue {
 
   @Watch('glistenWhisp.data.anonymous', { immediate: true })
   private onAnonymousChanged(val: boolean, oldVal: boolean) {
-    this.glistenWhisp.data.name = val ? '' : this.glistenWhisp.data.name;
+    this.glistenWhisp.data.name = val ? '' : this.userName;
   }
 
   @Watch('actionRequired', { immediate: true })
@@ -172,14 +166,14 @@ export default class GlistenClient extends Vue {
     const timestamp = new Date(Date.now());
     this.glistenWhisp.timestamp = timestamp.toISOString();
     this.glistenWhisp.description = this.truncateDescription(this.glistenWhisp.data.feedback!);
-    this.glistenWhisp.data = { ...this.glistenWhisp.data, ...this.data };
+    this.glistenWhisp.data = { ...this.glistenWhisp.data, ...this.customTracker };
 
     console.log(this.glistenWhisp);
     this.newWhisp = this.$apollo.mutate({
       mutation: CREATE_WHISP,
       variables: { whisp: this.glistenWhisp },
     });
-    if (this.glistenWhisp.data) {
+    if (this.newWhisp.data) {
       const name = this.glistenWhisp.openedBy ? this.glistenWhisp.openedBy : '';
       this.text = `Thanks for your feedback ${name} !`;
       this.snackbar = true;

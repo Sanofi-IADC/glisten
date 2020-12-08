@@ -18,7 +18,8 @@
     <glisten-client
       :sheet="sheet"
       :applicationID="applicationID"
-      :data="data"
+      :userName="userName"
+      :customTracker="customTracker"
       @close="toggleFeedback"
     />
   </v-app>
@@ -83,9 +84,18 @@ export default class App extends Vue {
   }
 
   public applicationID = 'GLISTEN';
-  public data = {
+  public userName = 'User';
+
+  public customTracker = {
     contextPortal: window.location.href,
     contextPage: '',
+    // categories: [
+    //   { text: 'Idea/Improvement', value: 'idea_improvement' },
+    //   { text: 'Event/Todo/Info/Handover', value: 'event' },
+    //   { text: 'General usage/performance', value: 'performance' },
+    //   { text: 'Device issue', value: 'device_issue' },
+    //   { text: 'Other', value: 'other' },
+    // ],
   };
 
   public sheet = false;

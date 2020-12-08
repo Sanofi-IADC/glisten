@@ -14,16 +14,13 @@ export interface WhisprService {
   deleteEvent(id: string, event: any): Promise<any[]>;
   subscribeEvents(event: any): Subject<any>;
 }
-declare module '@mestrak/glisten-client' {
+declare module '@sanofi-iadc/glisten' {
   export function install(): void;
-  // export class Chat extends Vue { }
-  // export class CommentSummaryTable extends Vue { }
-  // export class AddCommentBtn extends Vue { }
 }
 
 declare module 'vue/types/vue' {
   // 3. Declare augmentation for Vue
   interface Vue {
-    $whisprApi: WhisprService
+    $whisprApi: WhisprService;
   }
 }
