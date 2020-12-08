@@ -1,6 +1,6 @@
 {
   "name": "@sanofi-iadc/glisten",
-  "version": "0.0.2",
+  "version": "0.0.13",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -115,6 +115,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MeStrak/glisten-client.git"
+    "url": "https://github.com/Sanofi-IADC/glisten.git"
   }
 }
