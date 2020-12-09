@@ -1,16 +1,14 @@
 <template>
-  <div class="container d-flex flex-column align-center">
-    <div>
-      <div ref="chartContainer" :style="containerStyle">
-        <apexchart
-          type="donut"
-          :options="chartOptions"
-          :series="[detractors, promoters]"
-        ></apexchart>
-      </div>
+  <div class="container pa-4 d-flex flex-column align-center">
+    <div ref="chartContainer">
+      <apexchart
+        width="300px"
+        height="400px"
+        type="radialBar"
+        :options="chartOptions"
+        :series="[(1 - normalizedScore) * 100]"
+      ></apexchart>
     </div>
-    <span class="display-1">{{ score.toFixed(0) }}</span>
-    <span class="heading">NPS</span>
   </div>
 </template>
 
@@ -41,32 +39,14 @@ export default class NpsScoreGauge extends Vue {
     return computeNPSScore(this.promoters, this.neutrals, this.detractors);
   }
 
-  private async mounted(): Promise<void> {
-    this.handleResize();
-    window.addEventListener('resize', this.handleResize);
-  }
-
-  private beforeDestroy(): void {
-    window.removeEventListener('resize', this.handleResize);
-  }
-
-  private adjustedPadding: number = 0;
-
-  private get containerStyle(): any {
-    return {
-      'margin-bottom': this.adjustedPadding + 'px',
-    };
-  }
-
-  private handleResize(): void {
-    const el = this.$refs.chartContainer as Element;
-    this.adjustedPadding = -(el?.clientHeight ?? 0) / 2 * 3 / 2;
+  private get normalizedScore(): number {
+    return (100 + this.score) / 200;
   }
 
   private get chartOptions(): ApexOptions {
     return {
       chart: {
-        type: 'donut',
+        type: 'radialBar',
       },
       legend: {
         show: false,
@@ -74,26 +54,42 @@ export default class NpsScoreGauge extends Vue {
       dataLabels: {
         enabled: false,
       },
-      colors: ['#FF4560', '#00E396'],
+      colors: ['#FF4560'],
       tooltip: {
         enabled: false,
+        enabledOnSeries: undefined,
+        onDatasetHover: {
+          highlightDataSeries: false,
+        },
       },
-      labels: ['Detractors', 'Promoters'],
       plotOptions: {
-        pie: {
+        radialBar: {
           startAngle: -90,
           endAngle: 90,
+          track: {
+            background: '#00E396',
+          },
+          dataLabels: {
+            show: true,
+            total: {
+              show: true,
+              label: this.score.toFixed(0),
+              fontSize: '30px',
+              formatter: () => 'NPS',
+            },
+            value: {
+              fontSize: '20px',
+            },
+          },
         },
       },
     };
   }
-
-  public testScore: number = 0.01;
 }
 </script>
 
 <style scoped>
-.container {
-  width: 300px;
+.container >>> .apexcharts-datalabels-group {
+  transform: translateY(-30px);
 }
 </style>
