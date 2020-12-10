@@ -1,5 +1,5 @@
 <template>
-  <v-data-table :items="feedbacks" :headers="tableHeaders">
+  <v-data-table :items="feedbacks" :headers="tableHeaders" :loading="loading">
     <template v-slot:[`item.context`]="{ item }">
       <div>Page : {{ item.data.contextPage }}</div>
       <div>URL : {{ item.data.contextPortal }}</div>
@@ -70,15 +70,16 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Emit } from 'vue-property-decorator';
+import { Vue, Component, Prop, Emit, PropSync } from 'vue-property-decorator';
 import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
-import { DataTableHeader } from 'vuetify';
+import { DataTableHeader, DataOptions } from 'vuetify';
 import { Color } from 'vuetify/lib/util/colors';
 import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';
 
 @Component({})
 export default class FeedbackList extends Vue {
   @Prop({ required: true }) public feedbacks!: IFeedback[];
+  @Prop({ required: true }) public loading!: boolean;
 
   @Emit('changeStatus')
   private changeStatus(

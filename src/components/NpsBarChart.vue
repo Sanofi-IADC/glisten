@@ -121,6 +121,9 @@ export default class NpsBarChart extends Vue {
       legend: {
         show: false,
       },
+      dataLabels: {
+        enabled: false,
+      },
     };
   }
 }
