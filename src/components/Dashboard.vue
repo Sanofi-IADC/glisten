@@ -1,21 +1,27 @@
 <template>
-  <v-app>
-    <v-row>
-      <v-col cols="3">
-        <filters :startDate.sync="startDate" :endDate.sync="endDate"/>
-        <nps-score-gauge :ratings="ratings"/></v-col>
-      <v-col cols="9">
-        <nps-bar-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL"
-      /></v-col>
-    </v-row>
+  <v-row>
+    <v-col cols="3 justify-center">
+      <filters
+        :startDate.sync="startDate"
+        :endDate.sync="endDate"
+        :availableApplications="availableApplications"
+        :filteredApplications.sync="filteredApplications"
+      />
+      <nps-score-gauge :ratings="ratings" />
+    </v-col>
+    <v-col cols="9">
+      <nps-bar-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL" />
+    </v-col>
 
-    <feedback-list
-      :feedbacks="feedbacks"
-      :loading="loading"
-      @changeStatus="changeStatus"
-      @setNotes="setNotes"
-    />
-  </v-app>
+    <v-col cols="12">
+      <feedback-list
+        :feedbacks="feedbacks"
+        :loading="loading"
+        @changeStatus="changeStatus"
+        @setNotes="setNotes"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -53,24 +59,47 @@ export default class Dashboard extends Vue {
     return this.feedbacks.map((x) => ({ rating: x.data.rating, timestamp: x.timestamp }));
   }
 
-  public startDate: Date = new Date('2020/11/01');
-  public endDate: Date = new Date('2020/12/01');
+  private startDate: Date = new Date('2020/11/01');
+  private endDate: Date = new Date('2020/12/01');
+  private filteredApplications: string[] = [];
+
+  private _availableApplications: string[] = [];
+  private get availableApplications(): string[] {
+    const newAvailableApplications = _.chain(this.feedbacks)
+      .map((x) => x.applicationID)
+      .concat(this._availableApplications ?? [])
+      .uniq()
+      .sort()
+      .value();
+
+    this._availableApplications = newAvailableApplications;
+
+    return newAvailableApplications;
+  }
 
   private get loading(): boolean {
     return this.$apollo.loading;
+  }
+
+  private get queryFilter(): any {
+    let filter: any = { type: 'GLISTEN' };
+
+    if (this.startDate && this.endDate) {
+      filter = { ...filter, timestamp: { $gte: this.startDate, $lte: this.endDate } };
+    }
+
+    if (this.filteredApplications.length > 0) {
+      filter = { ...filter, applicationID: { $in: this.filteredApplications } };
+    }
+
+    return filter;
   }
 
   @SmartQuery<Dashboard>({
     query: GET_ALL_FEEDBACKS,
     variables() {
       return {
-        filter: {
-          type: 'GLISTEN',
-          timestamp: {
-            $gte: this.startDate,
-            $lte: this.endDate,
-          },
-        },
+        filter: this.queryFilter,
         limit: 1000,
         sort: {},
       };
@@ -91,7 +120,7 @@ export default class Dashboard extends Vue {
   })
   private feedbacks: IFeedback[] = [];
 
-  public updateFeedbacksOnSubscriptionEvent(
+  private updateFeedbacksOnSubscriptionEvent(
     previous: { feedbacks: IFeedback[] },
     update: { subscriptionData: { data: SubcriptionsFeedbackResult } },
   ): { feedbacks: IFeedback[] } {
