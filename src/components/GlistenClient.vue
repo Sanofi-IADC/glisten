@@ -67,7 +67,7 @@
       </v-sheet>
     </v-bottom-sheet>
 
-    <v-snackbar v-model="snackbar" :timeout="timeout" color="success" outlined class="pa-10">
+    <v-snackbar v-model="snackbar" :timeout="timeout" :color="color" outlined class="pa-10">
       <p>{{ text }}</p>
       <template v-slot:action="{ attrs }">
         <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
@@ -110,6 +110,7 @@ export default class GlistenClient extends Vue {
   private snackbar = false;
   private timeout = 3000;
   private text = '';
+  private color = 'success';
 
   private glistenWhisp = {
     type: 'GLISTEN',
@@ -127,8 +128,6 @@ export default class GlistenClient extends Vue {
     },
     timestamp: '',
   };
-
-  private newWhisp: any = '';
 
   @Watch('glistenWhisp.data.anonymous', { immediate: true })
   private onAnonymousChanged(val: boolean, oldVal: boolean) {
@@ -168,15 +167,23 @@ export default class GlistenClient extends Vue {
     this.glistenWhisp.data = { ...this.glistenWhisp.data, ...this.customTracker };
 
     console.log(this.glistenWhisp);
-    this.newWhisp = this.$apollo.mutate({
-      mutation: CREATE_WHISP,
-      variables: { whisp: this.glistenWhisp },
-    });
-    if (this.newWhisp.data) {
-      const name = this.glistenWhisp.openedBy ? this.glistenWhisp.openedBy : '';
-      this.text = `Thanks for your feedback ${name} !`;
-      this.snackbar = true;
-    }
+    this.$apollo
+      .mutate({
+        mutation: CREATE_WHISP,
+        variables: { whisp: this.glistenWhisp },
+      })
+      .then((res) => {
+        if (res.data) {
+          const name = this.glistenWhisp.openedBy ? this.glistenWhisp.openedBy : '';
+          this.text = `Thanks for your feedback ${name} !`;
+          this.color = 'success';
+          this.snackbar = true;
+        } else {
+          this.text = `An error occured`;
+          this.color = 'error';
+          this.snackbar = true;
+        }
+      });
 
     this.$emit('close', this.glistenWhisp);
   }
