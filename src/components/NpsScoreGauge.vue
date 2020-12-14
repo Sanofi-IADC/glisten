@@ -6,7 +6,7 @@
         height="400px"
         type="radialBar"
         :options="chartOptions"
-        :series="[(1 - normalizedScore) * 100]"
+        :series="[normalizedScore * 100]"
       ></apexchart>
     </div>
   </div>
@@ -54,7 +54,7 @@ export default class NpsScoreGauge extends Vue {
       dataLabels: {
         enabled: false,
       },
-      colors: ['#FF4560'],
+      colors: [this.score > 0 ? '#00E396' : '#FF4560'],
       tooltip: {
         enabled: false,
         enabledOnSeries: undefined,
@@ -66,9 +66,6 @@ export default class NpsScoreGauge extends Vue {
         radialBar: {
           startAngle: -90,
           endAngle: 90,
-          track: {
-            background: '#00E396',
-          },
           dataLabels: {
             show: true,
             total: {
