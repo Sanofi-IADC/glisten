@@ -1,8 +1,8 @@
 <template>
   <div class="pa-4">
     <apexchart
-      width="800px"
       type="bar"
+      height="400px"
       :options="chartOptions"
       :series="[
         { name: 'Promoters', data: promoters },
@@ -121,10 +121,12 @@ export default class NpsBarChart extends Vue {
       legend: {
         show: false,
       },
+      dataLabels: {
+        enabled: false,
+      },
     };
   }
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

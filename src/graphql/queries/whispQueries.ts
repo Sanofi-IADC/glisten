@@ -2,6 +2,7 @@
  * In this will put all the queries
  * and mutations of alerts and comments
  */
+import { IFeedback } from '@/interfaces/feedback';
 import { IWhisp } from '@/interfaces/whisp';
 import gql from 'graphql-tag';
 
@@ -33,8 +34,8 @@ export const GET_ALL_WHISPS = gql`
 `;
 
 export const GET_ALL_FEEDBACKS = gql`
-  query feedbacks {
-    feedbacks: whisps(filter: { type: "GLISTEN" }, sort: { timestamp: -1 }) {
+  query feedbacks($limit: Int, $sort: JSONObject, $filter: JSONObject) {
+    feedbacks: whisps(filter: $filter, sort: $sort, limit: $limit) {
       _id
       readableID
       type
@@ -227,8 +228,8 @@ export const SUBSCRIPTION_WHISPS = gql`
 `;
 
 export const SUBCRIPTION_FEEDBACKS = gql`
-  subscription SUBCRIPTION_FEEDBACKS {
-    feedbackAdded: whispAdded(filter: { type: "GLISTEN" }) {
+  subscription SUBCRIPTION_FEEDBACKS($filter: JSONObject!) {
+    feedbackAdded: whispAdded(filter: $filter) {
       _id
       readableID
       type
@@ -248,6 +249,6 @@ export const SUBCRIPTION_FEEDBACKS = gql`
   }
 `;
 
-export type SubcriptionsWhispsResult = {
-  whispAdded: IWhisp;
+export type SubcriptionsFeedbackResult = {
+  feedbackAdded: IFeedback;
 };
