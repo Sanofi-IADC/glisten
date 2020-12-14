@@ -1,4 +1,7 @@
+import Vue, { VueConstructor } from 'vue';
+import VueApollo from 'vue-apollo';
 import GlistenClient from './components/GlistenClient.vue';
+import { apolloProvider } from './graphql/apollo';
 import { WhispService } from './services/whisp.service';
 
 const components = {
@@ -6,10 +9,18 @@ const components = {
 } as any;
 
 const Plugin = {
-  install(Vue: any, options: { httpURL: string; wsURL: string }) {
+  install(Vue: VueConstructor<Vue>, options: { httpURL: string; wsURL: string }) {
     //   if (this.installed) {
     //     return
     //   }
+
+    Vue.use(VueApollo);
+    Vue.extend({
+      apolloProvider: apolloProvider(
+        process.env.VUE_APP_WHISPR_API_HTTP_URL || '',
+        process.env.VUE_APP_WHISPR_API_WS_URL || '',
+      ),
+    });
 
     // this.installed = true
 
