@@ -7,7 +7,6 @@ import {
   UPDATE_WHISP,
   REPLACE_WHISP,
   DELETE_WHISP,
-  SUBSCRIPTION_WHISPS,
   GetAllWhispsResult,
   GetSingleResult,
   GetFileteredWhispsResult,
@@ -16,7 +15,6 @@ import {
   UpdateWhispResult,
   ReplaceWhispResult,
   DeleteWhispResult,
-  SubcriptionsWhispsResult,
 } from '../graphql/queries/whispQueries';
 import { apolloClient } from '../graphql/apollo';
 import { Subject } from 'rxjs';
@@ -108,26 +106,5 @@ export class WhispService {
       mutation: DELETE_WHISP,
       variables: { id },
     });
-  }
-
-  /**
-   * Subscriptions
-   */
-  public static subscribeWhisps(filter: Partial<IWhisp>): Subject<IWhisp> {
-    const sub = new Subject<IWhisp>();
-
-    apolloClient(WhispService.httpURL, WhispService.wsURL)
-      .subscribe<SubcriptionsWhispsResult>({
-        query: SUBSCRIPTION_WHISPS,
-        variables: {
-          filter: filter,
-        },
-      })
-      .subscribe((data) => {
-        if (data.data) {
-          sub.next(data.data.whispAdded);
-        }
-      });
-    return sub;
   }
 }
