@@ -96,7 +96,7 @@ export default class GlistenClient extends Vue {
   public customTracker!: any;
 
   @Prop()
-  public applicationID!: string;
+  public applicationId!: string;
 
   get show() {
     return this.sheet;
@@ -114,7 +114,7 @@ export default class GlistenClient extends Vue {
 
   private glistenWhisp = {
     type: 'GLISTEN',
-    applicationID: this.applicationID,
+    applicationID: this.applicationId,
     openedBy: '',
     description: '',
     data: {
@@ -166,7 +166,6 @@ export default class GlistenClient extends Vue {
     this.glistenWhisp.description = this.truncateDescription(this.glistenWhisp.data.feedback!);
     this.glistenWhisp.data = { ...this.glistenWhisp.data, ...this.customTracker };
 
-    console.log(this.glistenWhisp);
     this.$apollo
       .mutate({
         mutation: CREATE_WHISP,
