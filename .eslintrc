@@ -45,7 +45,7 @@
       "files": ["*.ts"],
       "rules": {
         "no-useless-constructor": "off",
-        "no-var-requires": "off",
+        "no-var-requires": "off"
       }
     }
   ],
