@@ -144,5 +144,4 @@ export default class FeedbackList extends Vue {
 }
 </script>
 
-<style>
-</style>
+<style></style>

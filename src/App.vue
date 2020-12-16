@@ -3,7 +3,7 @@
     <v-btn color="green" dark @click="sheet = !sheet">
       Add feedback
     </v-btn>
-    <dashboard/>
+    <dashboard />
     <glisten-client
       :sheet="sheet"
       :applicationID="applicationID"

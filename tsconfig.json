@@ -4,6 +4,7 @@
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
+    "declaration": true,
     "importHelpers": true,
     "moduleResolution": "node",
     "experimentalDecorators": true,
@@ -28,7 +29,6 @@
       "scripthost"
     ]
   },
-  "files": ["custom.d.ts"],
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",

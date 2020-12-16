@@ -49,6 +49,7 @@ import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
  */
 @Component({
   components: { FeedbackList, NpsScoreGauge, NpsBarChart, Filters },
+  inject: ['$apollo'],
 })
 export default class Dashboard extends Vue {
   private get ratings(): number[] {

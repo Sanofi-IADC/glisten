@@ -17,6 +17,7 @@
     "test:unit:cov": "vue-cli-service test:unit --coverage"
   },
   "main": "dist/@sanofi-iadc/glisten.umd.js",
+  "typings": "types.d.ts",
   "files": [
     "dist/*",
     "src/*",
