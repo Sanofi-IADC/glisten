@@ -79,7 +79,6 @@
 </template>
 
 <script lang="ts">
-import { WhispService } from '../services/whisp.service';
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
 import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
 import { CREATE_WHISP } from '@/graphql/queries/whispQueries';
