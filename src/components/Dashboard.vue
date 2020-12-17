@@ -49,7 +49,6 @@ import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
  */
 @Component({
   components: { FeedbackList, NpsScoreGauge, NpsBarChart, Filters },
-  inject: ['$apollo'],
 })
 export default class Dashboard extends Vue {
   private get ratings(): number[] {
@@ -163,7 +162,6 @@ export default class Dashboard extends Vue {
           ...feedback,
           data: { ...feedback.data, status },
         },
-        timestamp: new Date(feedback.timestamp),
       },
     });
   }
@@ -183,7 +181,6 @@ export default class Dashboard extends Vue {
           ...feedback,
           data: { ...feedback.data, notes },
         },
-        timestamp: new Date(feedback.timestamp),
       },
     });
   }
