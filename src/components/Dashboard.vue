@@ -32,17 +32,23 @@ import Filters from '@/components/Filters.vue';
 import NpsScoreGauge from '@/components/NpsScoreGauge.vue';
 import NpsBarChart, { TimedRating } from '@/components/NpsBarChart.vue';
 import {
-  GET_ALL_FEEDBACKS,
   SUBCRIPTION_FEEDBACKS,
   CREATE_WHISP,
   UPDATE_WHISP,
-  SubcriptionsFeedbackResult,
+  GET_FEEDBACKS,
+  FeedbackQueryResult,
+  FeedbackQueryVariables,
+  FeedbackSubscriptionVariables,
+  FeedbackSubcriptionResult,
+  FeedbackQuerySortVariable,
 } from '@/graphql/queries/whispQueries';
-import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
+import { IFeedback, FeedbackStatus } from '@/types/whisps';
 import _ from 'lodash';
 import moment from 'moment';
 import { DataOptions } from 'vuetify';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
+import { feedbackSchema } from '@/types/whisps';
+import * as z from 'zod';
 
 /**
  * Dashboard component entry default
@@ -52,21 +58,22 @@ import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 })
 export default class Dashboard extends Vue {
   private get ratings(): number[] {
-    return this.feedbacks.map((x) => x.data.rating).filter((x) => x);
+    return this.feedbacks.map((x) => x.data.rating);
   }
 
   private get timedRatings(): TimedRating[] {
     return this.feedbacks.map((x) => ({ rating: x.data.rating, timestamp: x.timestamp }));
   }
 
-  private startDate: Date = new Date('2020/11/01');
-  private endDate: Date = new Date('2020/12/01');
+  private endDate: Date = new Date();
+  private startDate: Date = moment(this.endDate).subtract(2, 'month').toDate();
   private filteredApplications: string[] = [];
 
   private _availableApplications: string[] = [];
   private get availableApplications(): string[] {
     const newAvailableApplications = _.chain(this.feedbacks)
       .map((x) => x.applicationID)
+      .filter((x):x is string => !!x)
       .concat(this._availableApplications ?? [])
       .uniq()
       .sort()
@@ -81,7 +88,7 @@ export default class Dashboard extends Vue {
     return this.$apollo.loading;
   }
 
-  private get queryFilter(): any {
+  private get queryFilter(): Partial<IFeedback> {
     let filter: any = { type: 'GLISTEN' };
 
     if (this.startDate && this.endDate) {
@@ -95,17 +102,22 @@ export default class Dashboard extends Vue {
     return filter;
   }
 
-  @SmartQuery<Dashboard>({
-    query: GET_ALL_FEEDBACKS,
+  private get querySort(): FeedbackQuerySortVariable {
+    return { timestamp: -1 };
+  }
+
+  @SmartQuery<Dashboard, IFeedback[], FeedbackQueryVariables, FeedbackQueryResult>({
+    query: GET_FEEDBACKS,
+    update(data) { return z.array(feedbackSchema).parse(data.feedbacks); },
     variables() {
       return {
         filter: this.queryFilter,
         limit: 1000,
-        sort: {},
+        sort: this.querySort,
       };
     },
   })
-  @SubscribeToMore<Dashboard>({
+  @SubscribeToMore<Dashboard, {feedbacks: IFeedback[]}, FeedbackSubscriptionVariables, FeedbackSubcriptionResult>({
     document: SUBCRIPTION_FEEDBACKS,
     variables() {
       return {
@@ -121,10 +133,10 @@ export default class Dashboard extends Vue {
   private feedbacks: IFeedback[] = [];
 
   private updateFeedbacksOnSubscriptionEvent(
-    previous: { feedbacks: IFeedback[] },
-    update: { subscriptionData: { data: SubcriptionsFeedbackResult } },
+    previous: {feedbacks: IFeedback[]},
+    update: { subscriptionData: { data: FeedbackSubcriptionResult } },
   ): { feedbacks: IFeedback[] } {
-    const feedback = update.subscriptionData.data.feedbackAdded;
+    const feedback = feedbackSchema.parse(update.subscriptionData.data.feedbackAdded);
 
     const existingFeedbackIndex = previous.feedbacks.findIndex(
       (f: IFeedback) => feedback._id === f._id,
@@ -140,7 +152,7 @@ export default class Dashboard extends Vue {
       };
     }
 
-    if (feedback.timestamp >= this.startDate && feedback.timestamp <= this.endDate) {
+    if (moment(feedback.timestamp).isBetween(this.startDate, this.endDate)) {
       return { feedbacks: [feedback, ...previous.feedbacks] };
     }
 

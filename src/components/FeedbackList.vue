@@ -71,7 +71,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, Emit, PropSync } from 'vue-property-decorator';
-import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
+import { IFeedback, FeedbackStatus } from '@/types/whisps';
 import { DataTableHeader, DataOptions } from 'vuetify';
 import { Color } from 'vuetify/lib/util/colors';
 import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';

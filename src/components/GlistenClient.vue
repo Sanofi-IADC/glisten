@@ -80,7 +80,7 @@
 
 <script lang="ts">
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
-import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
+import { IFeedback, FeedbackStatus } from '@/types/whisps';
 import { CREATE_WHISP } from '@/graphql/queries/whispQueries';
 
 @Component({})

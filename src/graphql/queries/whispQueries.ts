@@ -2,38 +2,11 @@
  * In this will put all the queries
  * and mutations of alerts and comments
  */
-import { IFeedback } from '@/interfaces/feedback';
-import { IWhisp } from '@/interfaces/whisp';
+import { IFeedback } from '@/types/whisps';
+import { IWhisp } from '@/types/whisps';
 import gql from 'graphql-tag';
 
-// -----------------------------------------------------------------------------------------
-//                                      QUERIES
-// -----------------------------------------------------------------------------------------
-
-// query for getting all alerts and comments
-export const GET_ALL_WHISPS = gql`
-  query whisps {
-    whisps {
-      _id
-      readableID
-      type
-      severity
-      description
-      closed
-      applicationID
-      plantID
-      locationID
-      manual
-      openedBy
-      closedBy
-      timestamp
-      updated
-      data
-    }
-  }
-`;
-
-export const GET_ALL_FEEDBACKS = gql`
+export const GET_FEEDBACKS = gql`
   query feedbacks($limit: Int, $sort: JSONObject, $filter: JSONObject) {
     feedbacks: whisps(filter: $filter, sort: $sort, limit: $limit) {
       _id
@@ -55,68 +28,17 @@ export const GET_ALL_FEEDBACKS = gql`
   }
 `;
 
-export type GetAllWhispsResult = { whisps: IWhisp[] };
+export type FeedbackQuerySortVariable = Partial<{ [T in keyof IFeedback]: -1 | 1 }>;
 
-export const GET_SINGLE_WHISP = gql`
-  query GET_SINGLE_WHISP($id: String!) {
-    whispById(id: $id) {
-      _id
-      readableID
-      type
-      severity
-      description
-      closed
-      applicationID
-      plantID
-      locationID
-      manual
-      openedBy
-      closedBy
-      timestamp
-      updated
-      data
-    }
-  }
-`;
+export interface FeedbackQueryVariables {
+  limit: number;
+  sort: FeedbackQuerySortVariable;
+  filter: Partial<IFeedback>;
+}
 
-export type GetSingleResult = { whispById: IWhisp };
-
-export const GET_FILTERED_WHISPS = gql`
-  query GET_FILTERED_WHISPS($filter: JSONObject!) {
-    whisps(filter: $filter) {
-      _id
-      readableID
-      type
-      severity
-      description
-      closed
-      applicationID
-      plantID
-      locationID
-      manual
-      openedBy
-      closedBy
-      timestamp
-      updated
-      data
-    }
-  }
-`;
-export type GetFileteredWhispsResult = { whisps: IWhisp[] };
-
-export const GET_FILTERED_WHISPS_COUNT = gql`
-  query GET_FILTERED_WHISPS_COUNT($filter: JSONObject!) {
-    whispsCount(filter: $filter)
-  }
-`;
-
-export type GetFileteredWhispsCountResult = { whispsCount: number };
-
-// -----------------------------------------------------------------------------------------
-//                                      Mutation
-// -----------------------------------------------------------------------------------------
-
-// subscription for getting alerts and comments
+export interface FeedbackQueryResult {
+  feedbacks: IFeedback[];
+}
 
 export const CREATE_WHISP = gql`
   mutation createWhisp($whisp: WhispInputType!) {
@@ -129,14 +51,18 @@ export const CREATE_WHISP = gql`
   }
 `;
 
-export type CreateWhispResult = {
+export interface CreateWhispResult {
   createWhisp: {
     _id: string;
     timestamp: string;
     openedBy: string;
     data: any;
   };
-};
+}
+
+export interface CreateWhispVariables {
+  whisp: IWhisp;
+}
 
 export const UPDATE_WHISP = gql`
   mutation updateWhisp($id: String!, $whisp: WhispInputType!) {
@@ -159,73 +85,14 @@ export const UPDATE_WHISP = gql`
   }
 `;
 
-export type UpdateWhispResult = {
+export interface UpdateWhispVariables {
+  id: string;
+  whisp: IWhisp;
+}
+
+export interface UpdateWhispResult {
   updateWhisp: IWhisp;
-};
-
-export const REPLACE_WHISP = gql`
-  mutation replaceWhisp($id: String!, $whisp: WhispInputType!) {
-    replaceWhisp(id: $id, whisp: $whisp) {
-      _id
-      readableID
-      type
-      severity
-      description
-      closed
-      applicationID
-      plantID
-      locationID
-      manual
-      openedBy
-      closedBy
-      timestamp
-      updated
-      data
-    }
-  }
-`;
-
-export type ReplaceWhispResult = {
-  replaceWhisp: IWhisp;
-};
-
-export const DELETE_WHISP = gql`
-  mutation deleteWhisp($id: String!) {
-    deleteWhisp(id: $id)
-  }
-`;
-
-export type DeleteWhispResult = {
-  deleteWhisp: boolean;
-};
-
-// -----------------------------------------------------------------------------------------
-//                                      Subscription
-// -----------------------------------------------------------------------------------------
-
-// subscription for getting alerts and comments
-
-export const SUBSCRIPTION_WHISPS = gql`
-  subscription SUBSCRIPTION_WHISPS($filter: JSONObject!) {
-    whispAdded(filter: $filter) {
-      _id
-      readableID
-      type
-      severity
-      description
-      closed
-      applicationID
-      plantID
-      locationID
-      manual
-      openedBy
-      closedBy
-      timestamp
-      updated
-      data
-    }
-  }
-`;
+}
 
 export const SUBCRIPTION_FEEDBACKS = gql`
   subscription SUBCRIPTION_FEEDBACKS($filter: JSONObject!) {
@@ -249,6 +116,13 @@ export const SUBCRIPTION_FEEDBACKS = gql`
   }
 `;
 
-export type SubcriptionsFeedbackResult = {
+export interface FeedbackSubcriptionResult {
   feedbackAdded: IFeedback;
-};
+}
+
+export interface FeedbackSubscriptionVariables {
+  filter: {
+    type?: string;
+    applicationID?: string;
+  };
+}

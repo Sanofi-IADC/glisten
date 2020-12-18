@@ -1,6 +1,6 @@
 <template>
   <div class="container pa-4 d-flex flex-column align-center">
-    <div ref="chartContainer">
+    <div v-if="!isEmpty" ref="chartContainer">
       <apexchart
         width="300px"
         height="400px"
@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { IFeedback } from '@/interfaces/feedback';
+import { IFeedback } from '@/types/whisps';
 import { isPromoter, isDetractor, isNeutral, computeNPSScore } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
@@ -22,6 +22,10 @@ import { ApexOptions } from 'apexcharts';
 @Component({ components: { apexchart: VueApexCharts } })
 export default class NpsScoreGauge extends Vue {
   @Prop({ required: true }) public ratings!: number[];
+
+  private get isEmpty(): boolean {
+    return !this.ratings;
+  }
 
   private get promoters(): number {
     return this.ratings.filter(isPromoter).length;
