@@ -16,13 +16,15 @@ npm install @sanofi-iadc/glisten
 npm install @nuxtjs/apollo
 ```
 
-Add a plugin in _plugins/GlistenClient.js_ :
+Add a plugin in _plugins/glisten.client.js_ :
 
 ```sh
 import Vue from 'vue'
-import GlistenClient from '@sanofi-iadc/glisten'
+import Glisten, {GlistenClient, GlistenDashboard} from '@sanofi-iadc/glisten'
 
 Vue.component('GlistenClient', GlistenClient)
+Vue.component('GlistenDashboard', GlistenDashboard)
+Vue.use(Glisten)
 ```
 
 Then, in \*nuxt.config.js add :
@@ -34,13 +36,15 @@ Then, in \*nuxt.config.js add :
     '@nuxtjs/apollo',
   ],
 
-  plugins: [{ src: '@/plugins/GlistenClient', mode: 'client' }],
+  plugins: [{ src: '@/plugins/glisten.client.js', mode: 'client' }],
 
   apollo: {
     clientConfigs: {
       default: {
         httpEndpoint:
-          process.env.WHISPR_BASE_URL,
+          process.env.WHISPR_HTTP_BASE_URL,
+        wsEndpoint: 
+          process.env.WHISPR_WS_BASE_URL,
       },
     },
   },
@@ -52,8 +56,9 @@ Finally, add it to the pages or components where you want to display it
 <template>
   <GlistenClient
     :sheet="sheet"
-    applicationID="you-application-Name"
-    :customTracker="customTracker"
+    application-id="you-application-Name"
+    user-name="your username"
+    :custom-tracker="customTracker"
     @close="toggleFeedback"
   />
 </template>
@@ -64,8 +69,12 @@ In main.js :
 
 
 ```sh
-import GlistenClient from '@sanofi-iadc/glisten';
-Vue.component('GlistenClient', GlistenClient);
+import Vue from 'vue'
+import Glisten, {GlistenClient, GlistenDashboard} from '@sanofi-iadc/glisten'
+
+Vue.component('GlistenClient', GlistenClient)
+Vue.component('GlistenDashboard', GlistenDashboard)
+Vue.use(Glisten)
 ```
 Then add it to the pages or components where you want to display it
 
@@ -73,8 +82,9 @@ Then add it to the pages or components where you want to display it
 <template>
   <GlistenClient
     :sheet="sheet"
-    applicationID="you-application-Name"
-    :customTracker="customTracker"
+    application-id="you-application-Name"
+    user-name="your username"
+    :custom-tracker="customTracker"
     @close="toggleFeedback"
   />
 </template>

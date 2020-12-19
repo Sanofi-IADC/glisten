@@ -67,8 +67,14 @@
       </v-sheet>
     </v-bottom-sheet>
 
-    <v-snackbar v-model="snackbar" :timeout="timeout" :color="color" outlined class="pa-10">
-      <p>{{ text }}</p>
+    <v-snackbar
+      v-model="snackbarDisplayed"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+      outlined
+      class="pa-10"
+    >
+      <p>{{ snackbarText }}</p>
       <template v-slot:action="{ attrs }">
         <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
           Close
@@ -80,21 +86,25 @@
 
 <script lang="ts">
 import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
-import { IFeedback, FeedbackStatus } from '@/types/whisps';
-import { CREATE_WHISP } from '@/graphql/queries/whispQueries';
+import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
+import {
+  CREATE_WHISP,
+  CreateWhispVariables,
+  CreateWhispResult,
+} from '@/graphql/queries/whispQueries';
 
 @Component({})
 export default class GlistenClient extends Vue {
-  @Prop()
+  @Prop({ required: true })
   public sheet!: boolean;
 
-  @Prop()
+  @Prop({ required: true })
   public userName!: string;
 
-  @Prop()
+  @Prop({ required: true })
   public customTracker!: any;
 
-  @Prop()
+  @Prop({ required: true })
   public applicationId!: string;
 
   get show() {
@@ -106,13 +116,13 @@ export default class GlistenClient extends Vue {
   }
 
   private actionRequired = false;
-  private snackbar = false;
-  private timeout = 3000;
-  private text = '';
-  private color = 'success';
+  private snackbarDisplayed = false;
+  private snackbarTimeout = 3000;
+  private snackbarText = '';
+  private snackbarColor = 'success';
 
-  private glistenWhisp = {
-    type: 'GLISTEN',
+  private glistenWhisp: Omit<IFeedback, '_id' | 'readableID' | 'timestamp' | 'updated'> = {
+    type: WHISP_FEEDBACK_TYPE,
     applicationID: this.applicationId,
     openedBy: '',
     description: '',
@@ -125,7 +135,6 @@ export default class GlistenClient extends Vue {
       commentSentimentScore: 0,
       category: null,
     },
-    timestamp: '',
   };
 
   @Watch('glistenWhisp.data.anonymous', { immediate: true })
@@ -160,26 +169,25 @@ export default class GlistenClient extends Vue {
       this.glistenWhisp.data.feedback!,
     );
     this.glistenWhisp.openedBy = this.glistenWhisp.data.name;
-    const timestamp = new Date(Date.now());
-    this.glistenWhisp.timestamp = timestamp.toISOString();
     this.glistenWhisp.description = this.truncateDescription(this.glistenWhisp.data.feedback!);
     this.glistenWhisp.data = { ...this.glistenWhisp.data, ...this.customTracker };
 
     this.$apollo
-      .mutate({
+      .mutate<CreateWhispResult, CreateWhispVariables>({
         mutation: CREATE_WHISP,
+        client: WHISP_GQL_CLIENT,
         variables: { whisp: this.glistenWhisp },
       })
       .then((res) => {
         if (res.data) {
           const name = this.glistenWhisp.openedBy ? this.glistenWhisp.openedBy : '';
-          this.text = `Thanks for your feedback ${name} !`;
-          this.color = 'success';
-          this.snackbar = true;
+          this.snackbarText = `Thanks for your feedback ${name} !`;
+          this.snackbarColor = 'success';
+          this.snackbarDisplayed = true;
         } else {
-          this.text = `An error occured`;
-          this.color = 'error';
-          this.snackbar = true;
+          this.snackbarText = `An error occured`;
+          this.snackbarColor = 'error';
+          this.snackbarDisplayed = true;
         }
       });
 

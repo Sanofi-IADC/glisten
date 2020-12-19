@@ -1,7 +1,10 @@
 import moment from 'moment';
 import * as z from 'zod';
 
-export const whispSchema = z.object({
+export const WHISP_FEEDBACK_TYPE = 'GLISTEN';
+export const WHISP_GQL_CLIENT = 'whispr';
+
+export const WhispSchema = z.object({
   _id: z.string(),
   readableID: z.string(),
   type: z
@@ -68,7 +71,7 @@ export const whispSchema = z.object({
     .optional(),
 });
 
-export type IWhisp = z.infer<typeof whispSchema>;
+export type IWhisp = z.infer<typeof WhispSchema>;
 
 export enum FeedbackStatus {
   ACTION_NEEDED = 'ACTION_NEEDED',
@@ -76,18 +79,26 @@ export enum FeedbackStatus {
   NO_ACTION_NEEDED = 'NO_ACTION_NEEDED',
 }
 
-export const feedbackStatusEnumSchema = z.nativeEnum(FeedbackStatus);
+export const FeedbackStatusEnumSchema = z.nativeEnum(FeedbackStatus);
 
-export const feedbackSchema = whispSchema.extend({
+export const FeedbackSchema = WhispSchema.extend({
   data: z.object({
-    status: feedbackStatusEnumSchema,
+    status: FeedbackStatusEnumSchema,
     feedback: z
       .string()
       .optional()
       .nullable(),
     rating: z.number(),
+    commentSentimentScore: z
+      .number()
+      .optional()
+      .nullable(),
     name: z
       .string()
+      .optional()
+      .nullable(),
+    anonymous: z
+      .boolean()
       .optional()
       .nullable(),
     contextPage: z
@@ -102,7 +113,11 @@ export const feedbackSchema = whispSchema.extend({
       .string()
       .optional()
       .nullable(),
+    category: z
+      .string()
+      .optional()
+      .nullable(),
   }),
 });
 
-export type IFeedback = z.infer<typeof feedbackSchema>;
+export type IFeedback = z.infer<typeof FeedbackSchema>;

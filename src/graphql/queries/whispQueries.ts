@@ -5,6 +5,13 @@
 import { IFeedback } from '@/types/whisps';
 import { IWhisp } from '@/types/whisps';
 import gql from 'graphql-tag';
+import * as z from 'zod';
+
+export const GQLCachedResultSchema = z.object({ __typename: z.string() });
+
+export type GQLCachedResult<T> = T & {
+  __typename: string;
+};
 
 export const GET_FEEDBACKS = gql`
   query feedbacks($limit: Int, $sort: JSONObject, $filter: JSONObject) {
@@ -37,7 +44,7 @@ export interface FeedbackQueryVariables {
 }
 
 export interface FeedbackQueryResult {
-  feedbacks: IFeedback[];
+  feedbacks: GQLCachedResult<IFeedback>[];
 }
 
 export const CREATE_WHISP = gql`
@@ -61,7 +68,7 @@ export interface CreateWhispResult {
 }
 
 export interface CreateWhispVariables {
-  whisp: IWhisp;
+  whisp: Omit<IWhisp, '_id' | 'readableID' | 'updated' | 'timestamp'>;
 }
 
 export const UPDATE_WHISP = gql`
@@ -91,7 +98,7 @@ export interface UpdateWhispVariables {
 }
 
 export interface UpdateWhispResult {
-  updateWhisp: IWhisp;
+  updateWhisp: GQLCachedResult<IWhisp>;
 }
 
 export const SUBCRIPTION_FEEDBACKS = gql`
@@ -117,7 +124,7 @@ export const SUBCRIPTION_FEEDBACKS = gql`
 `;
 
 export interface FeedbackSubcriptionResult {
-  feedbackAdded: IFeedback;
+  feedbackAdded: GQLCachedResult<IFeedback>;
 }
 
 export interface FeedbackSubscriptionVariables {
