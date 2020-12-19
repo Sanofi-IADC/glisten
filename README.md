@@ -14,11 +14,12 @@ npm install @sanofi-iadc/glisten
 
 ```sh
 npm install @nuxtjs/apollo
+npm install @nuxtjs/vuetify
 ```
 
 Add a plugin in _plugins/glisten.client.js_ :
 
-```sh
+```javascript
 import Vue from 'vue'
 import Glisten, {GlistenClient, GlistenDashboard} from '@sanofi-iadc/glisten'
 
@@ -27,12 +28,21 @@ Vue.component('GlistenDashboard', GlistenDashboard)
 Vue.use(Glisten)
 ```
 
-Then, in \*nuxt.config.js add :
+Then, in *nuxt.config.js* add :
 
-```sh
+```javascript
   ssr: false,
+  // ...
+
+  buildModules: [
+    // ...
+    // https://go.nuxtjs.dev/vuetify
+    '@nuxtjs/vuetify',
+  ],
+
 
   modules: [
+    // ...
     '@nuxtjs/apollo',
   ],
 
@@ -40,7 +50,7 @@ Then, in \*nuxt.config.js add :
 
   apollo: {
     clientConfigs: {
-      default: {
+      whispr: {
         httpEndpoint:
           process.env.WHISPR_HTTP_BASE_URL,
         wsEndpoint: 
@@ -68,13 +78,28 @@ Finally, add it to the pages or components where you want to display it
 In main.js : 
 
 
-```sh
+```javascript
 import Vue from 'vue'
+import { apolloProvider } from '@sanofi-iadc/glisten/graphql/apollo';
+import VueApollo from 'vue-apollo';
 import Glisten, {GlistenClient, GlistenDashboard} from '@sanofi-iadc/glisten'
 
 Vue.component('GlistenClient', GlistenClient)
 Vue.component('GlistenDashboard', GlistenDashboard)
+
 Vue.use(Glisten)
+Vue.use(VueApollo)
+Vue.use(Vuetify);
+
+new Vue({
+  vuetify,
+  apolloProvider: apolloProvider(
+    process.env.VUE_APP_WHISPR_API_HTTP_URL,
+    process.env.VUE_APP_WHISPR_API_WS_URL,
+  ),
+  render: (h) => h(App),
+}).$mount('#app');
+
 ```
 Then add it to the pages or components where you want to display it
 
