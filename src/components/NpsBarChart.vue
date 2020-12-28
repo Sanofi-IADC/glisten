@@ -1,6 +1,7 @@
 <template>
   <div class="pa-4">
     <apexchart
+      v-if="!isEmpty"
       type="bar"
       height="400px"
       :options="chartOptions"
@@ -15,7 +16,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { IFeedback } from '@/interfaces/feedback';
+import { IFeedback } from '@/types/whisps';
 import { isPromoter, isDetractor, isNeutral } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
@@ -24,7 +25,7 @@ import _ from 'lodash';
 
 export interface TimedRating {
   rating: number;
-  timestamp: Date;
+  timestamp: string;
 }
 
 @Component({ components: { apexchart: VueApexCharts } })
@@ -32,6 +33,10 @@ export default class NpsBarChart extends Vue {
   @Prop({ required: true }) public timedRatings!: TimedRating[];
   @Prop({ required: true }) public timePeriod!: unitOfTime.Base;
   @Prop({ default: 'LL' }) public displayDateFormat!: string;
+
+  private get isEmpty(): boolean {
+    return !this.timedRatings;
+  }
 
   private getTimePeriodIndex(timestamp: moment.Moment): number {
     return Math.floor(timestamp.diff(this.firstDate) / this.timePeriodDuration);

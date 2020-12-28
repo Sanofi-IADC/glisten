@@ -9,6 +9,7 @@ import fetch from 'node-fetch';
 import { split } from 'apollo-link';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
+import { WHISP_GQL_CLIENT } from '@/types/whisps';
 
 // Create the apollo client
 export const apolloClient = (httpURL: string, wsURL: string) => {
@@ -48,13 +49,17 @@ export const apolloClient = (httpURL: string, wsURL: string) => {
 
   return new ApolloClient({
     link,
-    cache: new InMemoryCache({ addTypename: false }),
+    cache: new InMemoryCache(),
     connectToDevTools: true,
   });
 };
 
 export const apolloProvider = (httpURL: string, wsURL: string) => {
+  const client = apolloClient(httpURL, wsURL);
   return new VueApollo({
-    defaultClient: apolloClient(httpURL, wsURL),
+    defaultClient: client,
+    clients: {
+      [WHISP_GQL_CLIENT]: client,
+    },
   });
 };

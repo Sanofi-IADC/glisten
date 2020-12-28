@@ -32,17 +32,27 @@ import Filters from '@/components/Filters.vue';
 import NpsScoreGauge from '@/components/NpsScoreGauge.vue';
 import NpsBarChart, { TimedRating } from '@/components/NpsBarChart.vue';
 import {
-  GET_ALL_FEEDBACKS,
   SUBCRIPTION_FEEDBACKS,
   CREATE_WHISP,
   UPDATE_WHISP,
-  SubcriptionsFeedbackResult,
+  GET_FEEDBACKS,
+  FeedbackQueryResult,
+  FeedbackQueryVariables,
+  FeedbackSubscriptionVariables,
+  FeedbackSubcriptionResult,
+  FeedbackQuerySortVariable,
+  GQLCachedResult,
+  GQLCachedResultSchema,
+  UpdateWhispVariables,
+  UpdateWhispResult,
 } from '@/graphql/queries/whispQueries';
-import { IFeedback, FeedbackStatus } from '@/interfaces/feedback';
+import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
 import _ from 'lodash';
 import moment from 'moment';
 import { DataOptions } from 'vuetify';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
+import { FeedbackSchema } from '@/types/whisps';
+import * as z from 'zod';
 
 /**
  * Dashboard component entry default
@@ -50,23 +60,24 @@ import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 @Component({
   components: { FeedbackList, NpsScoreGauge, NpsBarChart, Filters },
 })
-export default class Dashboard extends Vue {
+export default class GlistenDashboard extends Vue {
   private get ratings(): number[] {
-    return this.feedbacks.map((x) => x.data.rating).filter((x) => x);
+    return this.feedbacks.map((x) => x.data.rating);
   }
 
   private get timedRatings(): TimedRating[] {
     return this.feedbacks.map((x) => ({ rating: x.data.rating, timestamp: x.timestamp }));
   }
 
-  private startDate: Date = new Date('2020/11/01');
-  private endDate: Date = new Date('2020/12/01');
+  private endDate: Date = new Date();
+  private startDate: Date = moment(this.endDate).subtract(2, 'month').toDate();
   private filteredApplications: string[] = [];
 
   private _availableApplications: string[] = [];
   private get availableApplications(): string[] {
     const newAvailableApplications = _.chain(this.feedbacks)
       .map((x) => x.applicationID)
+      .filter((x):x is string => !!x)
       .concat(this._availableApplications ?? [])
       .uniq()
       .sort()
@@ -81,11 +92,13 @@ export default class Dashboard extends Vue {
     return this.$apollo.loading;
   }
 
-  private get queryFilter(): any {
-    let filter: any = { type: 'GLISTEN' };
+  private get queryFilter(): Partial<IFeedback> {
+    let filter: any = { type: WHISP_FEEDBACK_TYPE };
 
     if (this.startDate && this.endDate) {
-      filter = { ...filter, timestamp: { $gte: this.startDate, $lte: this.endDate } };
+      const startOfDay = (date: Date) => moment(date).startOf('day').toDate();
+      const endOfDay = (date: Date) => moment(date).endOf('day').toDate();
+      filter = { ...filter, timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) } };
     }
 
     if (this.filteredApplications.length > 0) {
@@ -95,22 +108,28 @@ export default class Dashboard extends Vue {
     return filter;
   }
 
-  @SmartQuery<Dashboard>({
-    query: GET_ALL_FEEDBACKS,
+  private get querySort(): FeedbackQuerySortVariable {
+    return { timestamp: -1 };
+  }
+
+  @SmartQuery<GlistenDashboard, IFeedback[], FeedbackQueryVariables, FeedbackQueryResult>({
+    query: GET_FEEDBACKS,
+    update(data) { return z.array(FeedbackSchema).parse(data.feedbacks); }, // validates data and trim extra properties
     variables() {
       return {
         filter: this.queryFilter,
         limit: 1000,
-        sort: {},
+        sort: this.querySort,
       };
     },
+    client: WHISP_GQL_CLIENT,
   })
-  @SubscribeToMore<Dashboard>({
+  @SubscribeToMore<GlistenDashboard, FeedbackQueryResult, FeedbackSubscriptionVariables, FeedbackSubcriptionResult>({
     document: SUBCRIPTION_FEEDBACKS,
     variables() {
       return {
         filter: {
-          type: 'GLISTEN',
+          type: WHISP_FEEDBACK_TYPE,
         },
       };
     },
@@ -121,11 +140,13 @@ export default class Dashboard extends Vue {
   private feedbacks: IFeedback[] = [];
 
   private updateFeedbacksOnSubscriptionEvent(
-    previous: { feedbacks: IFeedback[] },
-    update: { subscriptionData: { data: SubcriptionsFeedbackResult } },
-  ): { feedbacks: IFeedback[] } {
-    const feedback = update.subscriptionData.data.feedbackAdded;
+    previous: FeedbackQueryResult,
+    update: { subscriptionData: { data: FeedbackSubcriptionResult } },
+  ): FeedbackQueryResult {
+    const HasTypename = z.object({ __typename: z.string() });
+    const Schema = FeedbackSchema.merge(HasTypename); // validates data but keep property __typename that is useful for caching purpose
 
+    const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
     const existingFeedbackIndex = previous.feedbacks.findIndex(
       (f: IFeedback) => feedback._id === f._id,
     );
@@ -140,7 +161,7 @@ export default class Dashboard extends Vue {
       };
     }
 
-    if (feedback.timestamp >= this.startDate && feedback.timestamp <= this.endDate) {
+    if (moment(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
       return { feedbacks: [feedback, ...previous.feedbacks] };
     }
 
@@ -154,15 +175,15 @@ export default class Dashboard extends Vue {
     feedback: IFeedback;
     status: FeedbackStatus;
   }): Promise<void> {
-    this.$apollo.mutate({
+    this.$apollo.mutate<UpdateWhispResult, UpdateWhispVariables>({
       mutation: UPDATE_WHISP,
+      client: WHISP_GQL_CLIENT,
       variables: {
         id: feedback._id,
         whisp: {
           ...feedback,
           data: { ...feedback.data, status },
         },
-        timestamp: new Date(feedback.timestamp),
       },
     });
   }
@@ -174,15 +195,15 @@ export default class Dashboard extends Vue {
     feedback: IFeedback;
     notes: string;
   }): Promise<void> {
-    this.$apollo.mutate({
+    this.$apollo.mutate<UpdateWhispResult, UpdateWhispVariables>({
       mutation: UPDATE_WHISP,
+      client: WHISP_GQL_CLIENT,
       variables: {
         id: feedback._id,
         whisp: {
           ...feedback,
           data: { ...feedback.data, notes },
         },
-        timestamp: new Date(feedback.timestamp),
       },
     });
   }
