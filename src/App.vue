@@ -3,7 +3,7 @@
     <v-btn color="green" dark @click="sheet = !sheet">
       Add feedback
     </v-btn>
-    <dashboard />
+    <glisten-dashboard />
     <glisten-client
       :sheet="sheet"
       :application-id="applicationID"
@@ -17,14 +17,14 @@
 <script lang="ts">
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
-import Dashboard from './components/GlistenDashboard.vue';
+import GlistenDashboard from './components/GlistenDashboard.vue';
 import GlistenClient from './components/GlistenClient.vue';
 
 /**
  * App component entry default
  */
 @Component({
-  components: { Dashboard, GlistenClient },
+  components: { GlistenDashboard, GlistenClient },
 })
 export default class App extends Vue {
   public applicationID = 'GLISTEN';
