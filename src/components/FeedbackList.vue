@@ -1,5 +1,14 @@
 <template>
   <v-data-table :items="feedbacks" :headers="tableHeaders" :loading="loading">
+    <template v-slot:[`item._id`]="{ item }">
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on, attrs }">
+          <span v-on="on" v-bind="attrs">{{ item._id | truncate }}</span>
+        </template>
+        <span>{{ item._id }}</span>
+      </v-tooltip>
+    </template>
+
     <template v-slot:[`item.context`]="{ item }">
       <div>Page : {{ item.data.contextPage }}</div>
       <div>URL : {{ item.data.contextPortal }}</div>
@@ -18,10 +27,14 @@
       <span>{{ item.data.anonymous ? 'anonymous' : item.data.name }}</span>
     </template>
 
-    <template v-slot:[`item.rating`]="{ item }">
+    <template v-slot:[`item.data.rating`]="{ item }">
       <v-chip :color="getColor(item.data.rating)" dark>
         {{ item.data.rating }}
       </v-chip>
+    </template>
+
+    <template v-slot:[`item.data.commentSentimentScore`]="{ value }">
+      {{ value.toFixed(1) }}
     </template>
 
     <template v-slot:[`item.status`]="{ item }">
@@ -76,7 +89,11 @@ import { DataTableHeader, DataOptions } from 'vuetify';
 import { Color } from 'vuetify/lib/util/colors';
 import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';
 
-@Component({})
+@Component({
+  filters: {
+    truncate: (value: string) => '...' + value.slice(value.length - 4, value.length - 1),
+  },
+})
 export default class FeedbackList extends Vue {
   @Prop({ required: true }) public feedbacks!: IFeedback[];
   @Prop({ required: true }) public loading!: boolean;
@@ -119,7 +136,7 @@ export default class FeedbackList extends Vue {
       { text: 'Name', value: 'name' },
       { text: 'Feedback', value: 'data.feedback' },
       { text: 'Context', value: 'context' },
-      { text: '❤', value: 'rating' },
+      { text: '❤', value: 'data.rating' },
       { text: '😊', value: 'data.commentSentimentScore' },
       { text: 'Status', value: 'status' },
       { text: 'Notes', value: 'notes' },
@@ -144,4 +161,11 @@ export default class FeedbackList extends Vue {
 }
 </script>
 
-<style></style>
+<style scoped>
+.truncate {
+  max-width: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
