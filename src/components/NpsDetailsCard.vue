@@ -45,6 +45,9 @@ export default class NpsDetailsCard extends Vue {
         toolbar: {
           show: false,
         },
+        animations: {
+          enabled: false,
+        },
       },
       plotOptions: {
         bar: {
@@ -57,6 +60,15 @@ export default class NpsDetailsCard extends Vue {
       },
       xaxis: {
         categories: ['Promoters', 'Neutrals', 'Detractors'],
+        labels: {
+          show: false,
+        },
+        axisBorder: {
+          show: false,
+        },
+      },
+      grid: {
+        show: false,
       },
       colors: ['#00E396', '#FEB019', '#FF4560'],
       tooltip: {

@@ -1,30 +1,46 @@
 <template>
-  <v-row>
-    <v-col cols="3 justify-center">
-      <filters
-        :startDate.sync="startDate"
-        :endDate.sync="endDate"
-        :availableApplications="availableApplications"
-        :filteredApplications.sync="filteredApplications"
-      />
-      <csat-score-card :ratings="ratings" />
-      <nps-details-card :ratings="ratings" />
-      <nps-score-gauge :ratings="ratings" />
-    </v-col>
-    <v-col cols="9">
-      <nps-line-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL" />
-      <nps-bar-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL" />
-    </v-col>
-
-    <v-col cols="12">
-      <feedback-list
-        :feedbacks="feedbacks"
-        :loading="loading"
-        @changeStatus="changeStatus"
-        @setNotes="setNotes"
-      />
-    </v-col>
-  </v-row>
+  <v-container fluid>
+    <v-row v-if="loading" no-gutters>
+      <v-progress-linear indeterminate />
+    </v-row>
+    <v-row>
+      <v-col cols="12" lg="4" md="5" justify-center>
+        <v-row align="center">
+          <v-col cols="12">
+            <filters
+              :startDate.sync="startDate"
+              :endDate.sync="endDate"
+              :availableApplications="availableApplications"
+              :filteredApplications.sync="filteredApplications"
+            />
+          </v-col>
+          <v-col cols="12" sm="4" md="12">
+            <csat-score-card :ratings="ratings" />
+          </v-col>
+          <v-col cols="12" sm="8" md="12">
+            <nps-details-card :ratings="ratings" />
+          </v-col>
+          <v-col cols="12" md="12">
+            <nps-score-gauge :ratings="ratings" />
+          </v-col>
+        </v-row>
+      </v-col>
+      <v-col lg="8" md="7">
+        <nps-line-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL" />
+        <nps-bar-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL" />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        <feedback-list
+          :feedbacks="feedbacks"
+          :loading="loading"
+          @changeStatus="changeStatus"
+          @setNotes="setNotes"
+        />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -215,3 +231,5 @@ export default class GlistenDashboard extends Vue {
   }
 }
 </script>
+
+<style scoped></style>

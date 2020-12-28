@@ -51,6 +51,9 @@ export default class NpsScoreGauge extends Vue {
     return {
       chart: {
         type: 'radialBar',
+        animations: {
+          enabled: false,
+        },
       },
       legend: {
         show: false,

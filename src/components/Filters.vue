@@ -1,24 +1,26 @@
 <template>
-  <div>
+  <div class="pa-2 d-flex flex-column">
     <v-menu>
       <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on"
-          >{{ moment(syncedStartDate).format('LL') }} -
-          {{ moment(syncedEndDate).format('LL') }}</v-btn
+        <v-btn v-bind="attrs" v-on="on">
+          <v-icon left>mdi-calendar-range</v-icon>
+          {{ moment(syncedStartDate).format('ll') }} -
+          {{ moment(syncedEndDate).format('ll') }}</v-btn
         >
       </template>
       <v-date-picker class="pa-2" v-model="internalStartDate"></v-date-picker>
       <v-date-picker class="pa-2" v-model="internalEndDate"></v-date-picker>
     </v-menu>
     <div>
-      <div class="headline">Applications</div>
-      <v-checkbox
-        v-for="application in availableApplications"
+      <v-select
+        chips
+        multiple
+        clearable
+        :items="availableApplications"
+        v-model="syncedFilteredApplications"
         :key="application"
-        :value="isApplicationFiltered(application)"
-        @change="(evt) => applicationFilterToggled(application, evt)"
-        :label="application"
-      ></v-checkbox>
+        label="Filter by application ..."
+      ></v-select>
     </div>
   </div>
 </template>

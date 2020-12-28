@@ -113,6 +113,9 @@ export default class NpsBarChart extends Vue {
         toolbar: {
           show: false,
         },
+        animations: {
+          enabled: false,
+        },
       },
       plotOptions: {
         bar: {

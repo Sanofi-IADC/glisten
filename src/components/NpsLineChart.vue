@@ -107,6 +107,9 @@ export default class NpsLineChart extends Vue {
         toolbar: {
           show: false,
         },
+        animations: {
+          enabled: false,
+        },
       },
       plotOptions: {
         bar: {
