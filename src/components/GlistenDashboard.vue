@@ -10,6 +10,7 @@
       <nps-score-gauge :ratings="ratings" />
     </v-col>
     <v-col cols="9">
+      <nps-line-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL" />
       <nps-bar-chart :timedRatings="timedRatings" timePeriod="days" displayDateFormat="LL" />
     </v-col>
 
@@ -30,6 +31,7 @@ import { Component } from 'vue-property-decorator';
 import FeedbackList from '@/components/FeedbackList.vue';
 import Filters from '@/components/Filters.vue';
 import NpsScoreGauge from '@/components/NpsScoreGauge.vue';
+import NpsLineChart from '@/components/NpsLineChart.vue';
 import NpsBarChart, { TimedRating } from '@/components/NpsBarChart.vue';
 import {
   SUBCRIPTION_FEEDBACKS,
@@ -58,7 +60,7 @@ import * as z from 'zod';
  * Dashboard component entry default
  */
 @Component({
-  components: { FeedbackList, NpsScoreGauge, NpsBarChart, Filters },
+  components: { FeedbackList, NpsScoreGauge, NpsLineChart, NpsBarChart, Filters },
 })
 export default class GlistenDashboard extends Vue {
   private get ratings(): number[] {
