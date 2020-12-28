@@ -1,0 +1,31 @@
+<template>
+  <div class="container pa-4 d-flex flex-row align-center justify-center">
+    <span class="display-3">❤️</span>
+    <div class="d-flex flex-column ml-4">
+      <span class="display-1">{{ meanRating.toFixed(1) }}</span>
+      <span class="body-1">CSAT</span>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Prop, Vue } from 'vue-property-decorator';
+import VueApexCharts from 'vue-apexcharts';
+import { ApexOptions } from 'apexcharts';
+import _ from 'lodash';
+
+@Component({ components: { apexchart: VueApexCharts } })
+export default class CsatScoreCard extends Vue {
+  @Prop({ required: true }) public ratings!: number[];
+
+  private get isEmpty(): boolean {
+    return !this.ratings;
+  }
+
+  private get meanRating(): number {
+    return _.mean(this.ratings);
+  }
+}
+</script>
+
+<style scoped></style>

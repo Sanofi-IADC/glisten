@@ -7,6 +7,7 @@
         :availableApplications="availableApplications"
         :filteredApplications.sync="filteredApplications"
       />
+      <csat-score-card :ratings="ratings" />
       <nps-details-card :ratings="ratings" />
       <nps-score-gauge :ratings="ratings" />
     </v-col>
@@ -34,6 +35,7 @@ import Filters from '@/components/Filters.vue';
 import NpsScoreGauge from '@/components/NpsScoreGauge.vue';
 import NpsLineChart from '@/components/NpsLineChart.vue';
 import NpsDetailsCard from '@/components/NpsDetailsCard.vue';
+import CsatScoreCard from '@/components/CsatScoreCard.vue';
 import NpsBarChart, { TimedRating } from '@/components/NpsBarChart.vue';
 import {
   SUBCRIPTION_FEEDBACKS,
@@ -62,7 +64,7 @@ import * as z from 'zod';
  * Dashboard component entry default
  */
 @Component({
-  components: { FeedbackList, NpsScoreGauge, NpsLineChart, NpsBarChart, NpsDetailsCard, Filters },
+  components: { FeedbackList, NpsScoreGauge, NpsLineChart, NpsBarChart, NpsDetailsCard, CsatScoreCard, Filters },
 })
 export default class GlistenDashboard extends Vue {
   private get ratings(): number[] {
