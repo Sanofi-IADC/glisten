@@ -1,8 +1,14 @@
-# Glisten Client
+# Glisten
 
-This is an NPM package for the Glisten user feedback app POC.
+Glisten is a Vue component library that helps managing feedbacks in a Vue application. It is composed of 2 components, a **client component** that provides a modal and the logic to push a feedback, and a **dashboard component** to manage and monitor these feedbacks.
 
-<!-- USAGE EXAMPLES -->
+It relies on [Whispr](https://github.com/Sanofi-IADC/whispr) as a backend.
+
+![Client component](docs/client.png)
+
+![Dashboard component](docs/dashboard.png)
+
+# Installation
 
 Install the component in your project.
 
@@ -10,7 +16,44 @@ Install the component in your project.
 npm install @sanofi-iadc/glisten
 ```
 
+You need to install [Vuetify](https://github.com/vuetifyjs/vuetify) and [Vue-apollo](https://github.com/vuejs/vue-apollo) to use theses compoents
+
+```sh
+npm install vuetify vue-apollo
+```
+
+Then configure vue-apollo to connect your project to [Whispr](https://github.com/Sanofi-IADC/whispr)
+
+```javascript
+import Vue from 'vue'
+import { apolloProvider } from '@sanofi-iadc/glisten/graphql/apollo';
+import VueApollo from 'vue-apollo';
+import Glisten, {GlistenClient, GlistenDashboard} from '@sanofi-iadc/glisten'
+
+Vue.component('GlistenClient', GlistenClient); // this is not mandatory if you need to use only one component
+Vue.component('GlistenDashboard', GlistenDashboard);
+
+Vue.use(Glisten);
+Vue.use(VueApollo);
+Vue.use(Vuetify);
+
+new Vue({
+  vuetify,
+  apolloProvider: apolloProvider(
+    process.env.VUE_APP_WHISPR_API_HTTP_URL,
+    process.env.VUE_APP_WHISPR_API_WS_URL,
+  ),
+  render: (h) => h(App),
+}).$mount('#app');
+```
+
+You can then use these components anywhere in your project (See usage below)
+
 ## Installation in Nuxt project
+
+**Right now SSR doesn't not work with Glisten !**
+
+In a nuxt project you need to install Nuxt modules for Vuetify and Apollo, and setup it within nuxt config as such 
 
 ```sh
 npm install @nuxtjs/apollo
@@ -20,6 +63,7 @@ npm install @nuxtjs/vuetify
 Add a plugin in _plugins/glisten.client.js_ :
 
 ```javascript
+// glisten.client.js
 import Vue from 'vue'
 import Glisten, {GlistenClient, GlistenDashboard} from '@sanofi-iadc/glisten'
 
@@ -31,7 +75,7 @@ Vue.use(Glisten)
 Then, in *nuxt.config.js* add :
 
 ```javascript
-  ssr: false,
+  ssr: false, // TODO: does not work in SSR yet
   // ...
 
   buildModules: [
@@ -52,60 +96,23 @@ Then, in *nuxt.config.js* add :
     clientConfigs: {
       whispr: {
         httpEndpoint:
-          process.env.WHISPR_HTTP_BASE_URL,
+          process.env.WHISPR_HTTP_BASE_URL, // e.g http://localhost:3000/graphql
         wsEndpoint: 
-          process.env.WHISPR_WS_BASE_URL,
+          process.env.WHISPR_WS_BASE_URL, // e.g ws://localhost:3000/graphql
       },
     },
   },
 ```
 
-Finally, add it to the pages or components where you want to display it
+# Usage
+
+### Client Component
+
+You can either use the client to add a modal on a page like this
 
 ```html
 <template>
-  <GlistenClient
-    :sheet="sheet"
-    application-id="you-application-Name"
-    user-name="your username"
-    :custom-tracker="customTracker"
-    @close="toggleFeedback"
-  />
-</template>
-```
-## Installation in a basic VueJS project
-
-In main.js : 
-
-
-```javascript
-import Vue from 'vue'
-import { apolloProvider } from '@sanofi-iadc/glisten/graphql/apollo';
-import VueApollo from 'vue-apollo';
-import Glisten, {GlistenClient, GlistenDashboard} from '@sanofi-iadc/glisten'
-
-Vue.component('GlistenClient', GlistenClient)
-Vue.component('GlistenDashboard', GlistenDashboard)
-
-Vue.use(Glisten)
-Vue.use(VueApollo)
-Vue.use(Vuetify);
-
-new Vue({
-  vuetify,
-  apolloProvider: apolloProvider(
-    process.env.VUE_APP_WHISPR_API_HTTP_URL,
-    process.env.VUE_APP_WHISPR_API_WS_URL,
-  ),
-  render: (h) => h(App),
-}).$mount('#app');
-
-```
-Then add it to the pages or components where you want to display it
-
-```html
-<template>
-  <GlistenClient
+  <glisten-client
     :sheet="sheet"
     application-id="you-application-Name"
     user-name="your username"
@@ -115,4 +122,30 @@ Then add it to the pages or components where you want to display it
 </template>
 ```
 
-Your config apollo must be done.
+**Props**
+
+- *sheet* (`boolean`) : modal is showed whenever true
+- *application-id* (`string`) : identify the feedback's application
+- *user-name* (`string`) : default username
+- *custom-tracker* (`object`) : tracks context of the feedback (like current page URL)
+```json
+// for instance
+{
+  contextPortal: window.location.href,
+  contextPage: ''
+}
+```
+
+**Events**
+
+- *close* (`void`) : emitted whenever close button is pressed
+
+### Dashboard component
+
+Insert on page the following comonent
+
+```html
+<template>
+  <glisten-dashboard />
+</template>
+```
