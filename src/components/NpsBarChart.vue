@@ -107,6 +107,9 @@ export default class NpsBarChart extends Vue {
 
   private get chartOptions(): ApexOptions {
     return {
+      title: {
+        text: 'Responses (week over week) ',
+      },
       chart: {
         type: 'bar',
         stacked: true,

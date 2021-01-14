@@ -101,6 +101,9 @@ export default class NpsLineChart extends Vue {
 
   private get chartOptions(): ApexOptions {
     return {
+      title: {
+        text: 'Net Promoter Score (week over week) ',
+      },
       chart: {
         type: 'line',
         stacked: true,
