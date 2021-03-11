@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="pa-4" style="width:100%">
     <apexchart
       v-if="!isEmpty"
       type="bar"

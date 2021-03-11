@@ -1,33 +1,71 @@
 <template>
-  <v-row>
-    <v-col cols="3" justify-center>
-      <filters
-        :startDate.sync="startDate"
-        :endDate.sync="endDate"
-        :availableApplications="availableApplications"
-        :filteredApplications.sync="filteredApplications"
-      />
-      <csat-score-card v-if="ratings.length > 0" :ratings="ratings" />
-      <nps-details-card v-if="ratings.length > 0" :ratings="ratings" />
-      <nps-score-gauge v-if="ratings.length > 0" :ratings="ratings" />
-    </v-col>
-    <v-col cols="9" v-if="timedRatings.length > 0">
-      <nps-line-chart :timedRatings="timedRatings" timePeriod="weeks" displayDateFormat="LL" />
-      <nps-bar-chart :timedRatings="timedRatings" timePeriod="weeks" displayDateFormat="LL" />
-    </v-col>
-    <v-col cols="9" v-else>
-      <div class="no-data-label">No data</div>
-    </v-col>
+  <div>
+    <div class="dashoard-container">
+      <v-card class="filter pt-3">
+        <filters
+          :startDate.sync="startDate"
+          :endDate.sync="endDate"
+          :availableApplications="availableApplications"
+          :filteredApplications.sync="filteredApplications"
+        />
+      </v-card>
 
-    <v-col cols="12">
-      <feedback-list
-        :feedbacks="feedbacks"
-        :loading="loading"
-        @changeStatus="changeStatus"
-        @setNotes="setNotes"
-      />
-    </v-col>
-  </v-row>
+      <div class="nps-detail-card">
+        <nps-details-card v-if="ratings.length > 0" :ratings="ratings" />
+      </div>
+      <div class="csat-score-card">
+        <csat-score-card v-if="ratings.length > 0" :ratings="ratings" />
+      </div>
+      <div class="nps-score-gauge">
+        <nps-score-gauge v-if="ratings.length > 0" :ratings="ratings" />
+      </div>
+      <div class="nps-line-chart">
+        <nps-line-chart
+          :timedRatings="timedRatings"
+          timePeriod="weeks"
+          displayDateFormat="MMM D YYYY"
+        />
+      </div>
+      <div class="nps-bar-chart">
+        <nps-bar-chart
+          :timedRatings="timedRatings"
+          timePeriod="weeks"
+          displayDateFormat="MMM D YYYY"
+        />
+      </div>
+      <div class="feedback-list">
+        <feedback-list
+          :feedbacks="feedbacks"
+          :loading="loading"
+          @changeStatus="changeStatus"
+          @setNotes="setNotes"
+        />
+      </div>
+    </div>
+    <!-- <v-row>
+      <v-col cols="3" justify-center>
+        <csat-score-card v-if="ratings.length > 0" :ratings="ratings" />
+        <nps-details-card v-if="ratings.length > 0" :ratings="ratings" />
+        <nps-score-gauge v-if="ratings.length > 0" :ratings="ratings" />
+      </v-col>
+      <v-col cols="9" v-if="timedRatings.length > 0">
+        <nps-line-chart :timedRatings="timedRatings" timePeriod="weeks" displayDateFormat="LL" />
+        <nps-bar-chart :timedRatings="timedRatings" timePeriod="weeks" displayDateFormat="LL" />
+      </v-col>
+      <v-col cols="9" v-else>
+        <div class="no-data-label">No data</div>
+      </v-col>
+
+      <v-col cols="12">
+        <feedback-list
+          :feedbacks="feedbacks"
+          :loading="loading"
+          @changeStatus="changeStatus"
+          @setNotes="setNotes"
+        />
+      </v-col>
+    </v-row> -->
+  </div>
 </template>
 
 <script lang="ts">
@@ -225,5 +263,53 @@ export default class GlistenDashboard extends Vue {
   height: 100%;
   align-items: center;
   justify-content: center;
+}
+
+.dashoard-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 2fr;
+  grid-template-rows: 200px 200px 2fr auto;
+  grid-template-areas:
+    'filter nps-line-chart nps-line-chart nps-line-chart'
+    'filter nps-line-chart nps-line-chart nps-line-chart'
+    'csat-score-card nps-detail-card  nps-bar-chart nps-bar-chart'
+    'nps-score-gauge nps-detail-card  nps-bar-chart nps-bar-chart'
+    'feedback-list feedback-list feedback-list feedback-list';
+  gap: 10px 10px;
+  padding: 10px;
+}
+
+.dashoard-container > * {
+  display: grid;
+  place-items: center;
+}
+
+.filter {
+  grid-area: filter;
+  overflow: scroll;
+}
+
+.csat-score-card {
+  grid-area: csat-score-card;
+}
+
+.nps-score-gauge {
+  grid-area: nps-score-gauge;
+}
+
+.nps-detail-card {
+  grid-area: nps-detail-card;
+}
+
+.nps-line-chart {
+  grid-area: nps-line-chart;
+}
+
+.nps-bar-chart {
+  grid-area: nps-bar-chart;
+}
+
+.feedback-list {
+  grid-area: feedback-list;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="pa-4" style="width:100%">
     <apexchart
       v-if="!isEmpty"
       type="line"
@@ -12,14 +12,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { IFeedback } from '@/types/whisps';
-import {
-  isPromoter,
-  isDetractor,
-  isNeutral,
-  computeNPSScore,
-  computeNPSScoreEvolution,
-} from '@/services/nps.service';
+import { computeNPSScoreEvolution } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
 import moment, { unitOfTime } from 'moment';
@@ -90,12 +83,12 @@ export default class NpsLineChart extends Vue {
 
   private get timePeriods(): string[] {
     const timePeriods = [this.firstDate];
+    console.log(timePeriods);
 
     for (let index = 1; index < this.timePeriodsCount; index++) {
       const lastDate = timePeriods[timePeriods.length - 1];
       timePeriods.push(lastDate.clone().add(this.timePeriodDuration, 'ms'));
     }
-
     return timePeriods.map((x) => x.format(this.displayDateFormat));
   }
 
@@ -121,6 +114,9 @@ export default class NpsLineChart extends Vue {
       },
       xaxis: {
         categories: this.timePeriods,
+        labels: {
+          format: 'MMM d yyyy',
+        },
       },
       yaxis: {
         labels: {

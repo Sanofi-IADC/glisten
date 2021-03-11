@@ -44,7 +44,7 @@ export interface FeedbackQueryVariables {
 }
 
 export interface FeedbackQueryResult {
-  feedbacks: GQLCachedResult<IFeedback>[];
+  feedbacks: Array<GQLCachedResult<IFeedback>>;
 }
 
 export const CREATE_WHISP = gql`

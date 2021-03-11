@@ -1,6 +1,6 @@
 <template>
   <div class="container pa-4 d-flex flex-row align-center justify-center">
-    <span class="display-3">❤️</span>
+    <v-icon size="50" color="red lighten-1">mdi-heart</v-icon>
     <div class="d-flex flex-column ml-4">
       <span class="display-1">{{ meanRating.toFixed(1) }}</span>
       <span class="body-1">CSAT</span>
