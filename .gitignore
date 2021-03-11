@@ -27,3 +27,7 @@ yarn-error.log*
 # local test files (Steffen)
 src/assets/datas/db0.json
 src/assets/datas/routes.json
+
+# docs
+/website
+/docs/.vitepress/dist/
