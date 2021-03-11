@@ -93,17 +93,24 @@ import {
   CreateWhispResult,
 } from '@/graphql/queries/whispQueries';
 
-@Component({})
+@Component
+/**
+ * The modal component to submit a feeback
+ */
 export default class GlistenClient extends Vue {
+  // Modal is showed whenever true
   @Prop({ required: true })
   public sheet!: boolean;
 
+  // The default username
   @Prop({ required: true })
   public userName!: string;
 
+  // Tracks context of the feedback (like current page URL)
   @Prop({ required: true })
   public customTracker!: any;
 
+  // Identify the feedback's application
   @Prop({ required: true })
   public applicationId!: string;
 
@@ -164,6 +171,7 @@ export default class GlistenClient extends Vue {
     return subString.substr(0, subString.lastIndexOf(' ')) + '...';
   }
 
+  // emitted whenever close button is pressed
   private async submitFeedback() {
     this.glistenWhisp.data.commentSentimentScore = this.calculateSentiment(
       this.glistenWhisp.data.feedback!,
