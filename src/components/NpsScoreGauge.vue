@@ -14,7 +14,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { IFeedback } from '@/types/whisps';
 import { isPromoter, isDetractor, isNeutral, computeNPSScore } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';

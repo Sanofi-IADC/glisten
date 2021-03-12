@@ -11,7 +11,6 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import VueApexCharts from 'vue-apexcharts';
-import { ApexOptions } from 'apexcharts';
 import _ from 'lodash';
 
 @Component({ components: { apexchart: VueApexCharts } })

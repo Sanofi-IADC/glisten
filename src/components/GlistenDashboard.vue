@@ -80,7 +80,6 @@ import CsatScoreCard from '@/components/CsatScoreCard.vue';
 import NpsBarChart, { TimedRating } from '@/components/NpsBarChart.vue';
 import {
   SUBCRIPTION_FEEDBACKS,
-  CREATE_WHISP,
   UPDATE_WHISP,
   GET_FEEDBACKS,
   FeedbackQueryResult,
@@ -88,15 +87,12 @@ import {
   FeedbackSubscriptionVariables,
   FeedbackSubcriptionResult,
   FeedbackQuerySortVariable,
-  GQLCachedResult,
-  GQLCachedResultSchema,
   UpdateWhispVariables,
   UpdateWhispResult,
 } from '@/graphql/queries/whispQueries';
 import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
 import _ from 'lodash';
 import moment from 'moment';
-import { DataOptions } from 'vuetify';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import { FeedbackSchema } from '@/types/whisps';
 import * as z from 'zod';
@@ -267,13 +263,13 @@ export default class GlistenDashboard extends Vue {
 
 .dashoard-container {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 2fr;
+  grid-template-columns: 350px 1fr 1fr 1fr;
   grid-template-rows: 200px 200px 2fr auto;
   grid-template-areas:
     'filter nps-line-chart nps-line-chart nps-line-chart'
     'filter nps-line-chart nps-line-chart nps-line-chart'
-    'csat-score-card nps-detail-card  nps-bar-chart nps-bar-chart'
-    'nps-score-gauge nps-detail-card  nps-bar-chart nps-bar-chart'
+    'nps-detail-card csat-score-card  nps-bar-chart nps-bar-chart'
+    'nps-score-gauge csat-score-card  nps-bar-chart nps-bar-chart'
     'feedback-list feedback-list feedback-list feedback-list';
   gap: 10px 10px;
   padding: 10px;
@@ -311,5 +307,21 @@ export default class GlistenDashboard extends Vue {
 
 .feedback-list {
   grid-area: feedback-list;
+}
+
+@media screen and (max-width: 600px) {
+  .dashoard-container {
+    width: 100%;
+    grid-template-columns: 100%;
+    grid-template-rows: repeat(6, auto);
+    grid-template-areas:
+      'filter'
+      'nps-line-chart'
+      'csat-score-card'
+      'nps-detail-card'
+      'nps-score-gauge'
+      'nps-bar-chart'
+      'feedback-list';
+  }
 }
 </style>

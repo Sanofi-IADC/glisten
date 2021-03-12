@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="width:100%">
     <v-data-table
       class="feedback-data-table"
       :items="feedbacks"
@@ -80,7 +80,10 @@
       </template>
     </v-data-table>
     <v-snackbar v-model="snackbar">
-      <span><v-icon left>mdi-content-copy</v-icon>{{ copiedId }} copied to clipboard !</span>
+      <span
+        ><v-icon left color="white">mdi-content-copy</v-icon>{{ copiedId }} copied to clipboard
+        !</span
+      >
     </v-snackbar>
   </div>
 </template>
@@ -131,22 +134,21 @@ export default class FeedbackList extends Vue {
 
   private get tableHeaders(): DataTableHeader[] {
     return [
-      { text: 'ID', value: '_id', sortable: false, width: '6em' },
-      { text: 'Date', value: 'timestamp', width: '10%' },
-      { text: 'Application', value: 'applicationID', width: '10%' },
-      { text: 'Name', value: 'name', width: '10%' },
-      { text: 'Feedback', value: 'data.feedback', sortable: false, width: '15%' },
-      { text: 'Context', value: 'context', width: '20%' },
-      { text: '❤', value: 'rating', sortable: false, align: 'center', width: '5%' },
+      { text: 'ID', value: '_id', sortable: false, width: '10ch' },
+      { text: 'Date', value: 'timestamp' },
+      { text: 'Application', value: 'applicationID' },
+      { text: 'Name', value: 'name' },
+      { text: 'Feedback', value: 'data.feedback', sortable: false },
+      { text: 'Context', value: 'context' },
+      { text: '❤', value: 'rating', sortable: false, align: 'center' },
       {
         text: '😊',
         value: 'data.commentSentimentScore',
         sortable: false,
         align: 'center',
-        width: '5%',
       },
-      { text: 'Status', value: 'status', sortable: false, width: '5%' },
-      { text: 'Notes', value: 'notes', sortable: false, width: '5%' },
+      { text: 'Status', value: 'status', sortable: false },
+      { text: 'Notes', value: 'notes', sortable: false },
     ];
   }
 
@@ -183,12 +185,9 @@ export default class FeedbackList extends Vue {
 </script>
 
 <style>
-.feedback-data-table table {
-  table-layout: fixed;
-}
-
 /* id's column */
 .feedback-data-table tr td:first-child {
+  max-width: 9.8ch;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
@@ -196,6 +195,6 @@ export default class FeedbackList extends Vue {
 }
 
 .feedback-id {
-  cursor: copy;
+  cursor: pointer;
 }
 </style>
