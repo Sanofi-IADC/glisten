@@ -30,4 +30,4 @@ src/assets/datas/routes.json
 
 # docs
 /website
-/docs/.vitepress/dist/
+/docs/.vuepress/dist/
