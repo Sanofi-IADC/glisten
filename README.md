@@ -10,6 +10,10 @@ It relies on [Whispr](https://github.com/Sanofi-IADC/whispr) as a backend.
 
 ![Dashboard component](docs/dashboard.png)
 
+# Documentation
+
+To check out docs, visit https://sanofi-iadc.github.io/glisten/.
+
 # Installation
 
 Install the component in your project.
