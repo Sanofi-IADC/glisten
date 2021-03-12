@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: ./glisten.png
+heroImage: /glisten.png
 heroAlt: glisten logo
 heroText: Glisten
 tagline: Manage feedbacks in Vue applications
