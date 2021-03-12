@@ -2,6 +2,7 @@ module.exports = {
   title: 'Glisten',
   description: 'Glisten documentation page',
   lang: 'en-US',
+  base: '/glisten/',
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
