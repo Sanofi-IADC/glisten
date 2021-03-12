@@ -54,7 +54,7 @@
     "zod": "^2.0.0-beta.29"
   },
   "devDependencies": {
-    "@mdi/font": "5.3.45",
+    "@mdi/font": "5.9.55",
     "@types/jest": "23.3.14",
     "@types/node-fetch": "2.5.2",
     "@types/ws": "6.0.3",
