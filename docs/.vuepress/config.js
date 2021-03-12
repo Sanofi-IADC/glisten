@@ -3,6 +3,7 @@ module.exports = {
   description: 'Glisten documentation page',
   lang: 'en-US',
   base: '/glisten/',
+  head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
