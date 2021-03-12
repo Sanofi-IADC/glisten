@@ -1,6 +1,6 @@
 ## Installation
 
-### Prerequisite
+### Prerequisites
 
 You need to install [Vuetify](https://github.com/vuetifyjs/vuetify) and [Vue-apollo](https://github.com/vuejs/vue-apollo) to use theses compoents
 
