@@ -10,6 +10,7 @@ module.exports = {
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/' },
       { text: 'API', link: '/api/' },
+      { text: 'GitHub', link: 'https://github.com/Sanofi-IADC/glisten' },
     ],
     sidebar: 'auto',
   },
