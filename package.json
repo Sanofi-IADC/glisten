@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@mdi/font": "5.9.55",
-    "@types/jest": "23.3.14",
+    "@types/jest": "26.0.20",
     "@types/node-fetch": "2.5.8",
     "@types/ws": "6.0.3",
     "@typescript-eslint/eslint-plugin": "2.6.0",
