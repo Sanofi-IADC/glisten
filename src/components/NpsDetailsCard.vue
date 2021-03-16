@@ -1,8 +1,7 @@
 <template>
-  <div class="container pa-4 d-flex flex-column align-center">
+  <div class="pa-4 d-flex flex-column align-center" style="width:100%">
     <div v-if="!isEmpty" ref="chartContainer">
       <apexchart
-        width="400px"
         type="bar"
         :options="chartOptions"
         :series="[{ data: [promoters, neutrals, detractors] }]"

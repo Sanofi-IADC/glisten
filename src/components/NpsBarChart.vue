@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="pa-4" style="width:100%">
     <apexchart
       v-if="!isEmpty"
       type="bar"
@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import { IFeedback } from '@/types/whisps';
 import { isPromoter, isDetractor, isNeutral } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
