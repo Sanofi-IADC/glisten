@@ -5,17 +5,24 @@
       :items="feedbacks"
       :headers="tableHeaders"
       :loading="loading"
+      show-expand
+      item-key="_id"
+      :expanded.sync="expanded"
     >
+      <template v-slot:[`header.data.rating`]="{ head }">
+        <v-icon dense>mdi-heart</v-icon>
+      </template>
+
+      <template v-slot:[`header.data.commentSentimentScore`]="{ head }">
+        <v-icon dense>mdi-emoticon</v-icon>
+      </template>
+
       <template v-slot:[`item._id`]="{ item }">
         <span class="feedback-id" :id="item._id" @click="copyToClipboard(item._id)">{{
           item._id
         }}</span>
       </template>
-      <template v-slot:[`item.context`]="{ item }">
-        <span>Page : {{ item.data.contextPage }}</span>
-        <br />
-        <span>URL : {{ item.data.contextPortal }}</span>
-      </template>
+
       <template v-slot:[`item.timestamp`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
@@ -26,11 +33,12 @@
           <span>{{ moment(item.timestamp).format('LLL') }}</span>
         </v-tooltip>
       </template>
-      <template v-slot:[`item.name`]="{ item }">
+
+      <template v-slot:[`item.data.name`]="{ item }">
         <span>{{ item.data.anonymous ? 'anonymous' : item.data.name }}</span>
       </template>
 
-      <template v-slot:[`item.rating`]="{ item }">
+      <template v-slot:[`item.data.rating`]="{ item }">
         <v-chip :color="getColor(item.data.rating)" dark>
           {{ item.data.rating }}
         </v-chip>
@@ -78,6 +86,30 @@
           <span>{{ item.data.notes }}</span>
         </v-tooltip>
       </template>
+
+      <template v-slot:expanded-item="{ headers, item }">
+        <td :colspan="headers.length" class="pa-4">
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title><b>Context</b></v-list-item-title>
+              <v-list-item-subtitle
+                ><span
+                  ><b> Page : </b>{{ item.data.contextPage || 'N/A' }} | <b>URL :</b>
+                  {{ item.data.contextPortal || 'N/A' }}</span
+                ></v-list-item-subtitle
+              >
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title><b>Notes</b></v-list-item-title>
+              <v-list-item-subtitle
+                ><span>{{ item.data.notes || 'N/A' }}</span></v-list-item-subtitle
+              >
+            </v-list-item-content>
+          </v-list-item>
+        </td>
+      </template>
     </v-data-table>
     <v-snackbar v-model="snackbar">
       <span
@@ -101,6 +133,7 @@ export default class FeedbackList extends Vue {
 
   snackbar = false;
   copiedId: string | null = null;
+  expanded: any[] = [];
 
   @Emit('changeStatus')
   private changeStatus(
@@ -134,21 +167,22 @@ export default class FeedbackList extends Vue {
 
   private get tableHeaders(): DataTableHeader[] {
     return [
-      { text: 'ID', value: '_id', sortable: false, width: '10ch' },
-      { text: 'Date', value: 'timestamp' },
-      { text: 'Application', value: 'applicationID' },
-      { text: 'Name', value: 'name' },
-      { text: 'Feedback', value: 'data.feedback', sortable: false },
-      { text: 'Context', value: 'context' },
-      { text: '❤', value: 'rating', sortable: false, align: 'center' },
+      { text: 'ID', value: '_id', sortable: false, width: '6ch' },
+      { text: 'Date', value: 'timestamp', width: '10em' },
+      { text: 'Application', value: 'applicationID', width: '10em' },
+      { text: 'Name', value: 'data.name', width: '10em' },
+      { text: 'Feedback', value: 'data.feedback', sortable: false, width: '100%' },
+      { text: 'rating', value: 'data.rating', sortable: true, align: 'center', width: '7em' },
       {
-        text: '😊',
+        text: 'commentSentimentScore',
         value: 'data.commentSentimentScore',
-        sortable: false,
+        sortable: true,
         align: 'center',
+        width: '6em',
       },
-      { text: 'Status', value: 'status', sortable: false },
-      { text: 'Notes', value: 'notes', sortable: false },
+      { text: 'Status', value: 'status', sortable: false, width: '3em' },
+      { text: 'Notes', value: 'notes', sortable: false, width: '3em' },
+      { text: '', value: 'data-table-expand', width: '3em' },
     ];
   }
 
@@ -185,16 +219,21 @@ export default class FeedbackList extends Vue {
 </script>
 
 <style>
-/* id's column */
-.feedback-data-table tr td:first-child {
-  max-width: 9.8ch;
+.feedback-id {
+  display: block;
+  cursor: pointer;
+  max-width: 6ch;
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
   direction: rtl;
 }
 
-.feedback-id {
-  cursor: pointer;
+.v-data-table__expanded__content {
+  box-shadow: none !important;
+}
+
+.v-data-table-header__icon {
+  position: absolute !important;
 }
 </style>
