@@ -10,10 +10,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import VueApexCharts from 'vue-apexcharts';
 import _ from 'lodash';
 
-@Component({ components: { apexchart: VueApexCharts } })
+@Component
 export default class CsatScoreCard extends Vue {
   @Prop({ required: true }) public ratings!: number[];
 
