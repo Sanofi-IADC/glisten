@@ -3,10 +3,10 @@
     <div class="dashoard-container">
       <v-card class="filter pt-3">
         <filters
-          :startDate.sync="startDate"
-          :endDate.sync="endDate"
-          :availableApplications="availableApplications"
-          :filteredApplications.sync="filteredApplications"
+          :start-date.sync="startDate"
+          :end-date.sync="endDate"
+          :available-applications="availableApplications"
+          :filtered-applications.sync="filteredApplications"
         />
       </v-card>
 
@@ -21,16 +21,16 @@
       </div>
       <div class="nps-line-chart">
         <nps-line-chart
-          :timedRatings="timedRatings"
-          timePeriod="weeks"
-          displayDateFormat="MMM D YYYY"
+          :timed-ratings="timedRatings"
+          time-period="weeks"
+          display-date-format="MMM D YYYY"
         />
       </div>
       <div class="nps-bar-chart">
         <nps-bar-chart
-          :timedRatings="timedRatings"
-          timePeriod="weeks"
-          displayDateFormat="MMM D YYYY"
+          :timed-ratings="timedRatings"
+          time-period="weeks"
+          display-date-format="MMM D YYYY"
         />
       </div>
       <div class="feedback-list">
@@ -97,7 +97,7 @@ export default class GlistenDashboard extends Vue {
   private get availableApplications(): string[] {
     const newAvailableApplications = chain(this.feedbacks)
       .map((x) => x.applicationID)
-      .filter((x):x is string => !!x)
+      .filter((x) : x is string => !!x)
       .concat(this._availableApplications ?? [])
       .uniq()
       .sort()
@@ -164,7 +164,8 @@ export default class GlistenDashboard extends Vue {
     update: { subscriptionData: { data: FeedbackSubcriptionResult } },
   ): FeedbackQueryResult {
     const HasTypename = z.object({ __typename: z.string() });
-    const Schema = FeedbackSchema.merge(HasTypename); // validates data but keep property __typename that is useful for caching purpose
+    // validates data but keep property __typename that is useful for caching purpose
+    const Schema = FeedbackSchema.merge(HasTypename);
 
     const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
     const existingFeedbackIndex = previous.feedbacks.findIndex(
@@ -230,7 +231,7 @@ export default class GlistenDashboard extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .no-data-label {
   display: flex;
   height: 100%;
@@ -241,7 +242,7 @@ export default class GlistenDashboard extends Vue {
 .dashoard-container {
   display: grid;
   grid-template-columns: 350px 1fr 1fr 1fr;
-  grid-template-rows: 200px 200px 2fr auto;
+  grid-template-rows: 200px 200px auto auto;
   grid-template-areas:
     'filter nps-line-chart nps-line-chart nps-line-chart'
     'filter nps-line-chart nps-line-chart nps-line-chart'

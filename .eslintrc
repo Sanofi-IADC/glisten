@@ -5,10 +5,11 @@
     "node": true
   },
   "extends": [
-    "plugin:vue/essential",
+    "plugin:vue/recommended",
     "standard",
     "@vue/standard",
-    "@vue/typescript"
+    "@vue/typescript",
+    "prettier"
   ],
   "globals": {
     "Atomics": "readonly",
@@ -42,7 +43,9 @@
   },
   "overrides": [
     {
-      "files": ["*.ts"],
+      "files": [
+        "*.ts"
+      ],
       "rules": {
         "no-useless-constructor": "off",
         "no-var-requires": "off"

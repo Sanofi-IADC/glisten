@@ -10,7 +10,7 @@
         { name: 'Neutrals', data: neutrals },
         { name: 'Detractors', data: detractors },
       ]"
-    ></apexchart>
+    />
   </div>
 </template>
 
@@ -135,5 +135,3 @@ export default class NpsBarChart extends Vue {
   }
 }
 </script>
-
-<style scoped></style>

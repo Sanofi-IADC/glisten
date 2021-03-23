@@ -2,23 +2,25 @@
   <div>
     <v-menu>
       <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on"
-          >{{ dayjs(syncedStartDate).format('LL') }} -
-          {{ dayjs(syncedEndDate).format('LL') }}</v-btn
-        >
+        <v-btn v-bind="attrs" v-on="on">
+          {{ dayjs(syncedStartDate).format('LL') }} -
+          {{ dayjs(syncedEndDate).format('LL') }}
+        </v-btn>
       </template>
-      <v-date-picker class="pa-2" v-model="internalStartDate"></v-date-picker>
-      <v-date-picker class="pa-2" v-model="internalEndDate"></v-date-picker>
+      <v-date-picker v-model="internalStartDate" class="pa-2" />
+      <v-date-picker v-model="internalEndDate" class="pa-2" />
     </v-menu>
     <div>
-      <div class="headline">Applications</div>
+      <div class="headline">
+        Applications
+      </div>
       <v-checkbox
         v-for="application in availableApplications"
         :key="application"
         :value="isApplicationFiltered(application)"
-        @change="(evt) => applicationFilterToggled(application, evt)"
         :label="application"
-      ></v-checkbox>
+        @change="(evt) => applicationFilterToggled(application, evt)"
+      />
     </div>
   </div>
 </template>
@@ -69,5 +71,3 @@ export default class Filters extends Vue {
   }
 }
 </script>
-
-<style scoped></style>

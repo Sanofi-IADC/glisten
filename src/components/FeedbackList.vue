@@ -9,16 +9,20 @@
       item-key="_id"
       :expanded.sync="expanded"
     >
-      <template v-slot:[`header.data.rating`]="{ head }">
-        <v-icon dense>mdi-heart</v-icon>
+      <template v-slot:[`header.data.rating`]="{}">
+        <v-icon dense>
+          mdi-heart
+        </v-icon>
       </template>
 
-      <template v-slot:[`header.data.commentSentimentScore`]="{ head }">
-        <v-icon dense>mdi-emoticon</v-icon>
+      <template v-slot:[`header.data.commentSentimentScore`]="{}">
+        <v-icon dense>
+          mdi-emoticon
+        </v-icon>
       </template>
 
       <template v-slot:[`item._id`]="{ item }">
-        <span class="feedback-id" :id="item._id" @click="copyToClipboard(item._id)">{{
+        <span :id="item._id" class="feedback-id" @click="copyToClipboard(item._id)">{{
           item._id
         }}</span>
       </template>
@@ -26,7 +30,7 @@
       <template v-slot:[`item.timestamp`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <span v-on="on" v-bind="attrs">
+            <span v-bind="attrs" v-on="on">
               {{ dayjs(item.timestamp).fromNow() }}
             </span>
           </template>
@@ -47,12 +51,12 @@
       <template v-slot:[`item.status`]="{ item }">
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
-            <div v-on="on" v-bind="attrs">
+            <div v-bind="attrs" v-on="on">
               <v-checkbox
                 :disabled="!isActionNeeded(item)"
                 :input-value="isActionDone(item)"
                 @change="(value) => onActionToggled(item, value)"
-              ></v-checkbox>
+              />
             </div>
           </template>
           <span v-if="!isActionNeeded(item)">No action needed for this feedback</span>
@@ -64,12 +68,12 @@
       <template v-slot:[`item.notes`]="{ item }">
         <v-tooltip bottom :disabled="!item.data.notes">
           <template v-slot:activator="{ on, attrs }">
-            <div v-on="on" v-bind="attrs">
+            <div v-bind="attrs" v-on="on">
               <v-menu :close-on-content-click="false">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-icon v-on="on" v-bind="attrs">{{
-                    item.data.notes ? 'mdi-comment-text-outline' : 'mdi-comment-outline'
-                  }}</v-icon>
+                  <v-icon v-bind="attrs" v-on="on">
+                    {{ item.data.notes ? 'mdi-comment-text-outline' : 'mdi-comment-outline' }}
+                  </v-icon>
                 </template>
                 <v-textarea
                   solo
@@ -77,7 +81,7 @@
                   placeholder="..."
                   :value="item.data.notes"
                   @change="(value) => setNotes(item, value)"
-                ></v-textarea>
+                />
               </v-menu>
             </div>
           </template>
@@ -90,20 +94,20 @@
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title><b>Context</b></v-list-item-title>
-              <v-list-item-subtitle
-                ><span
+              <v-list-item-subtitle>
+                <span
                   ><b> Page : </b>{{ item.data.contextPage || 'N/A' }} | <b>URL :</b>
                   {{ item.data.contextPortal || 'N/A' }}</span
-                ></v-list-item-subtitle
-              >
+                >
+              </v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
           <v-list-item>
             <v-list-item-content>
               <v-list-item-title><b>Notes</b></v-list-item-title>
-              <v-list-item-subtitle
-                ><span>{{ item.data.notes || 'N/A' }}</span></v-list-item-subtitle
-              >
+              <v-list-item-subtitle>
+                <span>{{ item.data.notes || 'N/A' }}</span>
+              </v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </td>

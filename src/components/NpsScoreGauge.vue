@@ -3,11 +3,11 @@
     <div v-if="!isEmpty" ref="chartContainer">
       <apexchart
         width="300px"
-        height="400px"
+        height="300px"
         type="radialBar"
         :options="chartOptions"
         :series="[normalizedScore * 100]"
-      ></apexchart>
+      />
     </div>
   </div>
 </template>
@@ -88,7 +88,7 @@ export default class NpsScoreGauge extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .container >>> .apexcharts-datalabels-group {
   transform: translateY(-30px);
 }

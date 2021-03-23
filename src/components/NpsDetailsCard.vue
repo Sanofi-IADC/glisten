@@ -5,7 +5,7 @@
         type="bar"
         :options="chartOptions"
         :series="[{ data: [promoters, neutrals, detractors] }]"
-      ></apexchart>
+      />
     </div>
   </div>
 </template>
@@ -72,5 +72,3 @@ export default class NpsDetailsCard extends Vue {
   }
 }
 </script>
-
-<style scoped></style>

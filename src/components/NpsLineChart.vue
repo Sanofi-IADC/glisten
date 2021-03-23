@@ -6,7 +6,7 @@
       height="400px"
       :options="chartOptions"
       :series="[{ name: 'NPS', data: npsScores }]"
-    ></apexchart>
+    />
   </div>
 </template>
 
@@ -133,5 +133,3 @@ export default class NpsLineChart extends Vue {
   }
 }
 </script>
-
-<style scoped></style>
