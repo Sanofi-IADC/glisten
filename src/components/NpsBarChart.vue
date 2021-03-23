@@ -20,7 +20,7 @@ import { isPromoter, isDetractor, isNeutral } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
 import moment, { unitOfTime } from 'moment';
-import _ from 'lodash';
+import { chain } from 'lodash';
 
 export interface TimedRating {
   rating: number;
@@ -56,7 +56,7 @@ export default class NpsBarChart extends Vue {
   }
 
   private get firstDate(): moment.Moment {
-    const minTimestamp = _.chain(this.timedRatings)
+    const minTimestamp = chain(this.timedRatings)
       .map((x) => moment(x.timestamp))
       .min()
       .value();
@@ -65,7 +65,7 @@ export default class NpsBarChart extends Vue {
   }
 
   private get lastDate(): moment.Moment {
-    const maxTimestamp = _.chain(this.timedRatings)
+    const maxTimestamp = chain(this.timedRatings)
       .map((x) => moment(x.timestamp))
       .max()
       .value();

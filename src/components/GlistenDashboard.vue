@@ -68,7 +68,7 @@ import {
   UpdateWhispResult,
 } from '@/graphql/queries/whispQueries';
 import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
-import _ from 'lodash';
+import { chain } from 'lodash';
 import moment from 'moment';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import { FeedbackSchema } from '@/types/whisps';
@@ -95,7 +95,7 @@ export default class GlistenDashboard extends Vue {
 
   private _availableApplications: string[] = [];
   private get availableApplications(): string[] {
-    const newAvailableApplications = _.chain(this.feedbacks)
+    const newAvailableApplications = chain(this.feedbacks)
       .map((x) => x.applicationID)
       .filter((x):x is string => !!x)
       .concat(this._availableApplications ?? [])

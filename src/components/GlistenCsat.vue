@@ -3,9 +3,16 @@
 </template>
 
 <script lang="ts">
-import { FeedbackQueryResult, FeedbackQuerySortVariable, FeedbackQueryVariables, FeedbackSubcriptionResult, FeedbackSubscriptionVariables, GET_FEEDBACKS, SUBCRIPTION_FEEDBACKS } from '@/graphql/queries/whispQueries';
+import {
+  FeedbackQueryResult,
+  FeedbackQuerySortVariable,
+  FeedbackQueryVariables,
+  FeedbackSubcriptionResult,
+  FeedbackSubscriptionVariables,
+  GET_FEEDBACKS,
+  SUBCRIPTION_FEEDBACKS,
+} from '@/graphql/queries/whispQueries';
 import { FeedbackSchema, IFeedback, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
-import _ from 'lodash';
 import moment from 'moment';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import { Component, Prop, Vue } from 'vue-property-decorator';
@@ -15,24 +22,28 @@ import * as z from 'zod';
 @Component({
   components: {
     CsatScoreCard,
-
   },
 })
 export default class GlistenCsat extends Vue {
   @Prop({ default: () => new Date() })
-  private endDate!: Date ;
+  private endDate!: Date;
 
-  @Prop({ default: () => moment().subtract(2, 'month').toDate() })
+  @Prop({
+    default: () =>
+      moment()
+        .subtract(2, 'month')
+        .toDate(),
+  })
   private startDate!: Date;
 
   @Prop({ required: true, default: [] })
   private filteredApplications!: string[];
 
-  private _availableApplications: string[] = [];
-
   @SmartQuery<GlistenCsat, IFeedback[], FeedbackQueryVariables, FeedbackQueryResult>({
     query: GET_FEEDBACKS,
-    update(data) { return z.array(FeedbackSchema).parse(data.feedbacks); }, // validates data and trim extra properties
+    update(data) {
+      return z.array(FeedbackSchema).parse(data.feedbacks);
+    }, // validates data and trim extra properties
     variables() {
       return {
         filter: this.queryFilter,
@@ -42,7 +53,12 @@ export default class GlistenCsat extends Vue {
     },
     client: WHISP_GQL_CLIENT,
   })
-  @SubscribeToMore<GlistenCsat, FeedbackQueryResult, FeedbackSubscriptionVariables, FeedbackSubcriptionResult>({
+  @SubscribeToMore<
+    GlistenCsat,
+    FeedbackQueryResult,
+    FeedbackSubscriptionVariables,
+    FeedbackSubcriptionResult
+  >({
     document: SUBCRIPTION_FEEDBACKS,
     variables() {
       return {
@@ -57,27 +73,22 @@ export default class GlistenCsat extends Vue {
   })
   private feedbacks: IFeedback[] = [];
 
-  private get availableApplications(): string[] {
-    const newAvailableApplications = _.chain(this.feedbacks)
-      .map((x) => x.applicationID)
-      .filter((x):x is string => !!x)
-      .concat(this._availableApplications ?? [])
-      .uniq()
-      .sort()
-      .value();
-
-    this._availableApplications = newAvailableApplications;
-
-    return newAvailableApplications;
-  }
-
   private get queryFilter(): Partial<IFeedback> {
     let filter: any = { type: WHISP_FEEDBACK_TYPE };
 
     if (this.startDate && this.endDate) {
-      const startOfDay = (date: Date) => moment(date).startOf('day').toDate();
-      const endOfDay = (date: Date) => moment(date).endOf('day').toDate();
-      filter = { ...filter, timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) } };
+      const startOfDay = (date: Date) =>
+        moment(date)
+          .startOf('day')
+          .toDate();
+      const endOfDay = (date: Date) =>
+        moment(date)
+          .endOf('day')
+          .toDate();
+      filter = {
+        ...filter,
+        timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) },
+      };
     }
 
     if (this.filteredApplications.length > 0) {

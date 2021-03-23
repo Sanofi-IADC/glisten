@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import _ from 'lodash';
+import { mean } from 'lodash';
 
 @Component
 export default class CsatScoreCard extends Vue {
@@ -21,7 +21,7 @@ export default class CsatScoreCard extends Vue {
   }
 
   private get meanRating(): number {
-    return _.mean(this.ratings);
+    return mean(this.ratings);
   }
 }
 </script>
