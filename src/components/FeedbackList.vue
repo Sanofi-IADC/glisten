@@ -27,10 +27,10 @@
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <span v-on="on" v-bind="attrs">
-              {{ moment(item.timestamp).fromNow() }}
+              {{ dayjs(item.timestamp).fromNow() }}
             </span>
           </template>
-          <span>{{ moment(item.timestamp).format('LLL') }}</span>
+          <span>{{ dayjs(item.timestamp).format('LLL') }}</span>
         </v-tooltip>
       </template>
 
@@ -124,7 +124,7 @@ import { IFeedback, FeedbackStatus } from '@/types/whisps';
 import { DataTableHeader } from 'vuetify';
 import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';
 
-@Component({})
+@Component
 export default class FeedbackList extends Vue {
   @Prop({ required: true }) public feedbacks!: IFeedback[];
   @Prop({ required: true }) public loading!: boolean;

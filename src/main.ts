@@ -3,11 +3,20 @@ import Vue from 'vue';
 import App from './App.vue';
 import 'vuetify/dist/vuetify.min.css';
 import vuetify from './plugins/vuetify';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import { apolloProvider } from './graphql/apollo';
 import VueApollo from 'vue-apollo';
 
-Vue.prototype.moment = moment;
+dayjs.extend(isBetween);
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
+dayjs.extend(localizedFormat);
+
+Vue.prototype.dayjs = dayjs;
 Vue.config.productionTip = false;
 
 Vue.use(VueApollo);

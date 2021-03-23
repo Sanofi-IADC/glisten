@@ -69,7 +69,7 @@ import {
 } from '@/graphql/queries/whispQueries';
 import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
 import { chain } from 'lodash';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import { FeedbackSchema } from '@/types/whisps';
 import * as z from 'zod';
@@ -90,7 +90,7 @@ export default class GlistenDashboard extends Vue {
   }
 
   private endDate: Date = new Date();
-  private startDate: Date = moment(this.endDate).subtract(2, 'month').toDate();
+  private startDate: Date = dayjs(this.endDate).subtract(2, 'month').toDate();
   private filteredApplications: string[] = [];
 
   private _availableApplications: string[] = [];
@@ -116,8 +116,8 @@ export default class GlistenDashboard extends Vue {
     let filter: any = { type: WHISP_FEEDBACK_TYPE };
 
     if (this.startDate && this.endDate) {
-      const startOfDay = (date: Date) => moment(date).startOf('day').toDate();
-      const endOfDay = (date: Date) => moment(date).endOf('day').toDate();
+      const startOfDay = (date: Date) => dayjs(date).startOf('day').toDate();
+      const endOfDay = (date: Date) => dayjs(date).endOf('day').toDate();
       filter = { ...filter, timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) } };
     }
 
@@ -181,7 +181,7 @@ export default class GlistenDashboard extends Vue {
       };
     }
 
-    if (moment(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
+    if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
       return { feedbacks: [feedback, ...previous.feedbacks] };
     }
 

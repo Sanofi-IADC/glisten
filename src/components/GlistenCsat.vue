@@ -13,7 +13,7 @@ import {
   SUBCRIPTION_FEEDBACKS,
 } from '@/graphql/queries/whispQueries';
 import { FeedbackSchema, IFeedback, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import CsatScoreCard from '@/components/CsatScoreCard.vue';
@@ -30,7 +30,7 @@ export default class GlistenCsat extends Vue {
 
   @Prop({
     default: () =>
-      moment()
+      dayjs()
         .subtract(2, 'month')
         .toDate(),
   })
@@ -78,11 +78,11 @@ export default class GlistenCsat extends Vue {
 
     if (this.startDate && this.endDate) {
       const startOfDay = (date: Date) =>
-        moment(date)
+        dayjs(date)
           .startOf('day')
           .toDate();
       const endOfDay = (date: Date) =>
-        moment(date)
+        dayjs(date)
           .endOf('day')
           .toDate();
       filter = {
@@ -128,7 +128,7 @@ export default class GlistenCsat extends Vue {
       };
     }
 
-    if (moment(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
+    if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
       return { feedbacks: [feedback, ...previous.feedbacks] };
     }
 

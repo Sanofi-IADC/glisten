@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs from 'dayjs';
 import * as z from 'zod';
 
 export const WHISP_FEEDBACK_TYPE = 'GLISTEN';
@@ -55,8 +55,8 @@ export const WhispSchema = z.object({
     .string()
     .optional()
     .nullable(),
-  timestamp: z.string().refine((x) => moment(x).isValid()),
-  updated: z.string().refine((x) => moment(x).isValid()),
+  timestamp: z.string().refine((x) => dayjs(x).isValid()),
+  updated: z.string().refine((x) => dayjs(x).isValid()),
   data: z.any(),
   attachments: z
     .array(
