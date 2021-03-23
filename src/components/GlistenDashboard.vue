@@ -42,29 +42,6 @@
         />
       </div>
     </div>
-    <!-- <v-row>
-      <v-col cols="3" justify-center>
-        <csat-score-card v-if="ratings.length > 0" :ratings="ratings" />
-        <nps-details-card v-if="ratings.length > 0" :ratings="ratings" />
-        <nps-score-gauge v-if="ratings.length > 0" :ratings="ratings" />
-      </v-col>
-      <v-col cols="9" v-if="timedRatings.length > 0">
-        <nps-line-chart :timedRatings="timedRatings" timePeriod="weeks" displayDateFormat="LL" />
-        <nps-bar-chart :timedRatings="timedRatings" timePeriod="weeks" displayDateFormat="LL" />
-      </v-col>
-      <v-col cols="9" v-else>
-        <div class="no-data-label">No data</div>
-      </v-col>
-
-      <v-col cols="12">
-        <feedback-list
-          :feedbacks="feedbacks"
-          :loading="loading"
-          @changeStatus="changeStatus"
-          @setNotes="setNotes"
-        />
-      </v-col>
-    </v-row> -->
   </div>
 </template>
 

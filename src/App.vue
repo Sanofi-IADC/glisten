@@ -11,6 +11,7 @@
       :custom-tracker="customTracker"
       @close="toggleFeedback"
     />
+    <glisten-csat :filteredApplications="['iadc-portal']" />
   </v-app>
 </template>
 
@@ -19,12 +20,13 @@ import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import Dashboard from './components/GlistenDashboard.vue';
 import GlistenClient from './components/GlistenClient.vue';
+import GlistenCsat from '@/components/GlistenCsat.vue';
 
 /**
  * App component entry default
  */
 @Component({
-  components: { Dashboard, GlistenClient },
+  components: { Dashboard, GlistenClient, GlistenCsat },
 })
 export default class App extends Vue {
   public applicationID = 'GLISTEN';
@@ -33,13 +35,6 @@ export default class App extends Vue {
   public customTracker = {
     contextPortal: window.location.href,
     contextPage: '',
-    // categories: [
-    //   { text: 'Idea/Improvement', value: 'idea_improvement' },
-    //   { text: 'Event/Todo/Info/Handover', value: 'event' },
-    //   { text: 'General usage/performance', value: 'performance' },
-    //   { text: 'Device issue', value: 'device_issue' },
-    //   { text: 'Other', value: 'other' },
-    // ],
   };
 
   public sheet = false;

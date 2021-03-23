@@ -83,7 +83,6 @@ export default class NpsLineChart extends Vue {
 
   private get timePeriods(): string[] {
     const timePeriods = [this.firstDate];
-    console.log(timePeriods);
 
     for (let index = 1; index < this.timePeriodsCount; index++) {
       const lastDate = timePeriods[timePeriods.length - 1];
