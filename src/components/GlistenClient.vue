@@ -89,10 +89,10 @@ import {
   CreateWhispResult,
 } from '@/graphql/queries/whispQueries';
 
-@Component
 /**
- * The modal component to submit a feeback
+ * @description Modal component to submit a feeback to glisten
  */
+@Component
 export default class GlistenClient extends Vue {
   // Modal is showed whenever true
   @Prop({ required: true })
