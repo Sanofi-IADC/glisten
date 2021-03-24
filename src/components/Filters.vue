@@ -2,30 +2,32 @@
   <div>
     <v-menu>
       <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on"
-          >{{ moment(syncedStartDate).format('LL') }} -
-          {{ moment(syncedEndDate).format('LL') }}</v-btn
-        >
+        <v-btn v-bind="attrs" v-on="on">
+          {{ dayjs(syncedStartDate).format('LL') }} -
+          {{ dayjs(syncedEndDate).format('LL') }}
+        </v-btn>
       </template>
-      <v-date-picker class="pa-2" v-model="internalStartDate"></v-date-picker>
-      <v-date-picker class="pa-2" v-model="internalEndDate"></v-date-picker>
+      <v-date-picker v-model="internalStartDate" class="pa-2" />
+      <v-date-picker v-model="internalEndDate" class="pa-2" />
     </v-menu>
     <div>
-      <div class="headline">Applications</div>
+      <div class="headline">
+        Applications
+      </div>
       <v-checkbox
         v-for="application in availableApplications"
         :key="application"
         :value="isApplicationFiltered(application)"
-        @change="(evt) => applicationFilterToggled(application, evt)"
         :label="application"
-      ></v-checkbox>
+        @change="(evt) => applicationFilterToggled(application, evt)"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, PropSync } from 'vue-property-decorator';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 @Component({})
 export default class Filters extends Vue {
@@ -37,19 +39,19 @@ export default class Filters extends Vue {
   public syncedFilteredApplications!: string[];
 
   get internalStartDate(): string {
-    return moment(this.syncedStartDate).format('YYYY-MM-DD');
+    return dayjs(this.syncedStartDate).format('YYYY-MM-DD');
   }
 
   set internalStartDate(value: string) {
-    this.syncedStartDate = moment(value).toDate();
+    this.syncedStartDate = dayjs(value).toDate();
   }
 
   get internalEndDate(): string {
-    return moment(this.syncedEndDate).format('YYYY-MM-DD');
+    return dayjs(this.syncedEndDate).format('YYYY-MM-DD');
   }
 
   set internalEndDate(value: string) {
-    this.syncedEndDate = moment(value).toDate();
+    this.syncedEndDate = dayjs(value).toDate();
   }
 
   private isApplicationFiltered(application: string): boolean {
@@ -69,5 +71,3 @@ export default class Filters extends Vue {
   }
 }
 </script>
-
-<style scoped></style>

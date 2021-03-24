@@ -1,6 +1,8 @@
 <template>
   <div class="container pa-4 d-flex flex-row align-center justify-center">
-    <v-icon size="50" color="red lighten-1">mdi-heart</v-icon>
+    <v-icon size="50" color="red lighten-1">
+      mdi-heart
+    </v-icon>
     <div class="d-flex flex-column ml-4">
       <span class="display-1">{{ meanRating.toFixed(1) }}</span>
       <span class="body-1">CSAT</span>
@@ -10,7 +12,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import _ from 'lodash';
+import { mean } from 'lodash';
 
 @Component
 export default class CsatScoreCard extends Vue {
@@ -21,9 +23,7 @@ export default class CsatScoreCard extends Vue {
   }
 
   private get meanRating(): number {
-    return _.mean(this.ratings);
+    return mean(this.ratings);
   }
 }
 </script>
-
-<style scoped></style>

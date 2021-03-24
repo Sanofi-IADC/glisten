@@ -3,10 +3,10 @@
     <div class="dashoard-container">
       <v-card class="filter pt-3">
         <filters
-          :startDate.sync="startDate"
-          :endDate.sync="endDate"
-          :availableApplications="availableApplications"
-          :filteredApplications.sync="filteredApplications"
+          :start-date.sync="startDate"
+          :end-date.sync="endDate"
+          :available-applications="availableApplications"
+          :filtered-applications.sync="filteredApplications"
         />
       </v-card>
 
@@ -21,16 +21,16 @@
       </div>
       <div class="nps-line-chart">
         <nps-line-chart
-          :timedRatings="timedRatings"
-          timePeriod="weeks"
-          displayDateFormat="MMM D YYYY"
+          :timed-ratings="timedRatings"
+          time-period="weeks"
+          display-date-format="MMM D YYYY"
         />
       </div>
       <div class="nps-bar-chart">
         <nps-bar-chart
-          :timedRatings="timedRatings"
-          timePeriod="weeks"
-          displayDateFormat="MMM D YYYY"
+          :timed-ratings="timedRatings"
+          time-period="weeks"
+          display-date-format="MMM D YYYY"
         />
       </div>
       <div class="feedback-list">
@@ -68,8 +68,8 @@ import {
   UpdateWhispResult,
 } from '@/graphql/queries/whispQueries';
 import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
-import _ from 'lodash';
-import moment from 'moment';
+import { chain } from 'lodash';
+import dayjs from 'dayjs';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import { FeedbackSchema } from '@/types/whisps';
 import * as z from 'zod';
@@ -90,14 +90,14 @@ export default class GlistenDashboard extends Vue {
   }
 
   private endDate: Date = new Date();
-  private startDate: Date = moment(this.endDate).subtract(2, 'month').toDate();
+  private startDate: Date = dayjs(this.endDate).subtract(2, 'month').toDate();
   private filteredApplications: string[] = [];
 
   private _availableApplications: string[] = [];
   private get availableApplications(): string[] {
-    const newAvailableApplications = _.chain(this.feedbacks)
+    const newAvailableApplications = chain(this.feedbacks)
       .map((x) => x.applicationID)
-      .filter((x):x is string => !!x)
+      .filter((x) : x is string => !!x)
       .concat(this._availableApplications ?? [])
       .uniq()
       .sort()
@@ -116,8 +116,8 @@ export default class GlistenDashboard extends Vue {
     let filter: any = { type: WHISP_FEEDBACK_TYPE };
 
     if (this.startDate && this.endDate) {
-      const startOfDay = (date: Date) => moment(date).startOf('day').toDate();
-      const endOfDay = (date: Date) => moment(date).endOf('day').toDate();
+      const startOfDay = (date: Date) => dayjs(date).startOf('day').toDate();
+      const endOfDay = (date: Date) => dayjs(date).endOf('day').toDate();
       filter = { ...filter, timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) } };
     }
 
@@ -164,7 +164,8 @@ export default class GlistenDashboard extends Vue {
     update: { subscriptionData: { data: FeedbackSubcriptionResult } },
   ): FeedbackQueryResult {
     const HasTypename = z.object({ __typename: z.string() });
-    const Schema = FeedbackSchema.merge(HasTypename); // validates data but keep property __typename that is useful for caching purpose
+    // validates data but keep property __typename that is useful for caching purpose
+    const Schema = FeedbackSchema.merge(HasTypename);
 
     const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
     const existingFeedbackIndex = previous.feedbacks.findIndex(
@@ -181,7 +182,7 @@ export default class GlistenDashboard extends Vue {
       };
     }
 
-    if (moment(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
+    if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
       return { feedbacks: [feedback, ...previous.feedbacks] };
     }
 
@@ -230,7 +231,7 @@ export default class GlistenDashboard extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .no-data-label {
   display: flex;
   height: 100%;
@@ -241,7 +242,7 @@ export default class GlistenDashboard extends Vue {
 .dashoard-container {
   display: grid;
   grid-template-columns: 350px 1fr 1fr 1fr;
-  grid-template-rows: 200px 200px 2fr auto;
+  grid-template-rows: 200px 200px auto auto;
   grid-template-areas:
     'filter nps-line-chart nps-line-chart nps-line-chart'
     'filter nps-line-chart nps-line-chart nps-line-chart'

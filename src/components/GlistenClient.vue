@@ -19,15 +19,15 @@
             empty-icon="mdi-heart-outline"
             full-icon="mdi-heart"
             half-icon="mdi-heart-half-full"
-          ></v-rating>
+          />
 
           <v-select
             v-if="customTracker && customTracker.categories"
+            v-model="glistenWhisp.data.category"
             :items="customTracker.categories"
             label="Choose category"
             outlined
-            v-model="glistenWhisp.data.category"
-          ></v-select>
+          />
 
           <v-textarea
             v-model="glistenWhisp.data.feedback"
@@ -35,19 +35,15 @@
             name="input-7-4"
             label="Leave us a comment"
             rows="4"
-          ></v-textarea>
+          />
           <v-row no-gutters row wrap>
             <v-col xs12 sm6 md4>
               <v-switch
                 v-model="glistenWhisp.data.anonymous"
                 class="my-0 py-0 px-1"
                 label="Make my feedback anonymous"
-              ></v-switch>
-              <v-switch
-                v-model="actionRequired"
-                class="my-0 py-0 px-1"
-                label="Action expected"
-              ></v-switch>
+              />
+              <v-switch v-model="actionRequired" class="my-0 py-0 px-1" label="Action expected" />
             </v-col>
 
             <v-col xs12 sm6 md4>
@@ -56,13 +52,13 @@
                 v-model="glistenWhisp.data.name"
                 outlined
                 label="Your name"
-              ></v-text-field>
+              />
             </v-col>
           </v-row>
 
-          <v-btn color="primary" :disabled="!glistenWhisp.data.feedback" @click="submitFeedback"
-            >Submit feedback</v-btn
-          >
+          <v-btn color="primary" :disabled="!glistenWhisp.data.feedback" @click="submitFeedback">
+            Submit feedback
+          </v-btn>
         </v-container>
       </v-sheet>
     </v-bottom-sheet>

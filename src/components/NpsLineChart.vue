@@ -6,7 +6,7 @@
       height="400px"
       :options="chartOptions"
       :series="[{ name: 'NPS', data: npsScores }]"
-    ></apexchart>
+    />
   </div>
 </template>
 
@@ -15,8 +15,9 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import { computeNPSScoreEvolution } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
-import moment, { unitOfTime } from 'moment';
-import _ from 'lodash';
+import dayjs, { Dayjs } from 'dayjs';
+import { chain } from 'lodash';
+import { DurationUnitType } from 'dayjs/plugin/duration';
 
 export interface TimedRating {
   rating: number;
@@ -26,7 +27,7 @@ export interface TimedRating {
 @Component({ components: { apexchart: VueApexCharts } })
 export default class NpsLineChart extends Vue {
   @Prop({ required: true }) public timedRatings!: TimedRating[];
-  @Prop({ required: true }) public timePeriod!: unitOfTime.Base;
+  @Prop({ required: true }) public timePeriod!: DurationUnitType;
   @Prop({ default: 'LL' }) public displayDateFormat!: string;
 
   private get npsScores(): number[] {
@@ -37,7 +38,7 @@ export default class NpsLineChart extends Vue {
     return !this.timedRatings;
   }
 
-  private getTimePeriodIndex(timestamp: moment.Moment): number {
+  private getTimePeriodIndex(timestamp: Dayjs): number {
     return Math.floor(timestamp.diff(this.firstDate) / this.timePeriodDuration);
   }
 
@@ -47,7 +48,7 @@ export default class NpsLineChart extends Vue {
     );
 
     for (const timedRating of this.timedRatings) {
-      const index = this.getTimePeriodIndex(moment(timedRating.timestamp));
+      const index = this.getTimePeriodIndex(dayjs(timedRating.timestamp));
 
       ratingsPerTimePeriod[index].push(timedRating.rating);
     }
@@ -55,22 +56,22 @@ export default class NpsLineChart extends Vue {
     return ratingsPerTimePeriod;
   }
 
-  private get firstDate(): moment.Moment {
-    const minTimestamp = _.chain(this.timedRatings)
-      .map((x) => moment(x.timestamp))
+  private get firstDate(): Dayjs {
+    const minTimestamp = chain(this.timedRatings)
+      .map((x) => dayjs(x.timestamp))
       .min()
       .value();
 
-    return moment(minTimestamp).startOf(this.timePeriod);
+    return dayjs(minTimestamp).startOf(this.timePeriod);
   }
 
-  private get lastDate(): moment.Moment {
-    const maxTimestamp = _.chain(this.timedRatings)
-      .map((x) => moment(x.timestamp))
+  private get lastDate(): Dayjs {
+    const maxTimestamp = chain(this.timedRatings)
+      .map((x) => dayjs(x.timestamp))
       .max()
       .value();
 
-    return moment(maxTimestamp).startOf(this.timePeriod);
+    return dayjs(maxTimestamp).startOf(this.timePeriod);
   }
 
   private get timePeriodsCount(): number {
@@ -78,7 +79,7 @@ export default class NpsLineChart extends Vue {
   }
 
   private get timePeriodDuration(): number {
-    return moment.duration(1, this.timePeriod).asMilliseconds();
+    return dayjs.duration(1, this.timePeriod).asMilliseconds();
   }
 
   private get timePeriods(): string[] {
@@ -132,5 +133,3 @@ export default class NpsLineChart extends Vue {
   }
 }
 </script>
-
-<style scoped></style>

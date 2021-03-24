@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <v-btn color="green" dark @click="sheet = !sheet">
+    <v-btn
+      color="green"
+      dark
+      @click="sheet = !sheet"
+    >
       Add feedback
     </v-btn>
     <dashboard />
@@ -11,7 +15,7 @@
       :custom-tracker="customTracker"
       @close="toggleFeedback"
     />
-    <glisten-csat :filteredApplications="['iadc-portal']" />
+    <glisten-csat :filtered-applications="['iadc-portal']" />
   </v-app>
 </template>
 
