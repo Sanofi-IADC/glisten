@@ -1,5 +1,5 @@
 ![CI-CD](https://github.com/Sanofi-IADC/glisten/actions/workflows/cicd.yml/badge.svg)
-![npm](https://img.shields.io/npm/v/@sanofi-iadc/glisten)
+[![npm](https://img.shields.io/npm/v/@sanofi-iadc/glisten)](https://www.npmjs.com/package/@sanofi-iadc/glisten)
 
 # Glisten
 
