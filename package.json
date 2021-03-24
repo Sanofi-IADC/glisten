@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "@mdi/font": "5.9.55",
+    "@semantic-release/changelog": "^5.0.1",
     "@types/jest": "26.0.20",
     "@types/node-fetch": "2.5.8",
     "@types/ws": "6.0.4",
@@ -87,6 +88,7 @@
     "rimraf": "3.0.2",
     "sass": "1.32.8",
     "sass-loader": "7.3.1",
+    "semantic-release": "^17.4.2",
     "ts-jest": "23.10.5",
     "typescript": "3.9.9",
     "vitepress": "0.12.2",
