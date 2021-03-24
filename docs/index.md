@@ -1,8 +1,8 @@
 ---
 home: true
-heroImage: /glisten.png
+heroImage: /BrandLogo.svg
 heroAlt: glisten logo
-heroText: Glisten
+heroText:
 tagline: Manage feedbacks in Vue applications
 actionText: Get Started
 actionLink: /guide/

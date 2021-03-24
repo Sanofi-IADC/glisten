@@ -75,7 +75,7 @@ import { FeedbackSchema } from '@/types/whisps';
 import * as z from 'zod';
 
 /**
- * Dashboard component entry default
+ * @description All in one dashboard to display and filter feedbacks from glisten
  */
 @Component({
   components: { FeedbackList, NpsScoreGauge, NpsLineChart, NpsBarChart, NpsDetailsCard, CsatScoreCard, Filters },

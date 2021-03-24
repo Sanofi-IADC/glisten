@@ -1,17 +1,19 @@
+![glisten logo](docs/Banner.svg)
+
 ![CI-CD](https://github.com/Sanofi-IADC/glisten/actions/workflows/cicd.yml/badge.svg)
 [![npm](https://img.shields.io/npm/v/@sanofi-iadc/glisten)](https://www.npmjs.com/package/@sanofi-iadc/glisten)
-
-# Glisten
-
-![glisten logo](docs/glisten.png)
 
 Glisten is a Vue component library that helps managing feedbacks in a Vue application. It is composed of 2 components, a **client component** that provides a modal and the logic to push a feedback, and a **dashboard component** to manage and monitor these feedbacks.
 
 It relies on [Whispr](https://github.com/Sanofi-IADC/whispr) as a backend.
 
-![Client component](docs/client.png)
+<p align="center">
+  <img src="docs/client.png">
+</p>
 
-![Dashboard component](docs/dashboard.png)
+<p align="center">
+  <img src="docs/dashboard.png">
+</p>
 
 # Documentation
 
@@ -161,5 +163,6 @@ Insert on page the following comonent
 ```
 
 # Roadmap
-* [ ] Split installation of glisten in two npm packages separating feedback and dashboard
-* [ ] Make the dashboard components exported as separate widgets so dashboards are composable and more flexible
+
+- [ ] Split installation of glisten in two npm packages separating feedback and dashboard
+- [ ] Make the dashboard components exported as separate widgets so dashboards are composable and more flexible

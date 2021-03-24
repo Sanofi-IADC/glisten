@@ -19,15 +19,20 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import CsatScoreCard from '@/components/CsatScoreCard.vue';
 import * as z from 'zod';
 
+/**
+ * @description Customer Satisfaction score for given applications in a period of time
+ */
 @Component({
   components: {
     CsatScoreCard,
   },
 })
 export default class GlistenCsat extends Vue {
+  // Ending date of the interval
   @Prop({ default: () => new Date() })
   private endDate!: Date;
 
+  // Starting date of the interval
   @Prop({
     default: () =>
       dayjs()
@@ -36,6 +41,7 @@ export default class GlistenCsat extends Vue {
   })
   private startDate!: Date;
 
+  // Array of applications name
   @Prop({ required: true, default: [] })
   private filteredApplications!: string[];
 

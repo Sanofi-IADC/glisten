@@ -9,13 +9,13 @@
     "test:e2e": "vue-cli-service test:e2e --headless",
     "lint": "vue-cli-service lint",
     "build-bundle": "vue-cli-service build --target lib --name @sanofi-iadc/glisten ./src/exports.ts",
-    "prepare": "npm run build-bundle",
     "start": "npm run serve",
     "test": "npm run test:e2e && npm run test:unit:cov",
     "test:unit:cov": "vue-cli-service test:unit --coverage",
     "docs:prebuild": "rimraf docs/.vuepress/dist",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
+    "docs:generate": "vuedoc.md --config vuedoc.config.js",
     "docs:deploy": "npm run docs:prebuild && npm run docs:build && gh-pages -d docs/.vuepress/dist"
   },
   "main": "dist/@sanofi-iadc/glisten.umd.js",
@@ -29,6 +29,7 @@
     "*.d.ts"
   ],
   "dependencies": {
+    "@vuepress/plugin-back-to-top": "^1.8.2",
     "apexcharts": "^3.25.0",
     "apollo-cache-inmemory": "^1.6.6",
     "apollo-client": "^2.6.10",
@@ -69,7 +70,8 @@
     "@vue/eslint-config-standard": "4.0.0",
     "@vue/eslint-config-typescript": "4.0.0",
     "@vue/test-utils": "1.1.3",
-    "@vuepress/plugin-back-to-top": "1.8.2",
+    "@vuedoc/md": "^3.2.0",
+    "@vuedoc/parser": "^3.3.0",
     "cypress": "3.8.3",
     "cz-conventional-changelog": "3.3.0",
     "eslint": "6.8.0",

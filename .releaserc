@@ -7,7 +7,7 @@
       "changelogFile": "CHANGELOG.md",
     }],
     ["@semantic-release/git", {
-      "assets": ["dist/@sanofi-iadc/*", "docs", "package.json"],
+      "assets": ["package.json"],
       "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
     }],
     "branches": [

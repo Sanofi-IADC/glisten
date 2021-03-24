@@ -1,11 +1,11 @@
 module.exports = {
-  // title: 'Glisten',
+  title: 'Glisten',
   description: 'Glisten documentation page',
   lang: 'en-US',
   base: '/glisten/',
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
   themeConfig: {
-    logo: '/glisten.png',
+    logo: '/BrandLogo.svg',
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/' },
@@ -13,12 +13,12 @@ module.exports = {
       { text: 'GitHub', link: 'https://github.com/Sanofi-IADC/glisten' },
     ],
     sidebar: 'auto',
+    lastUpdated: 'Last Updated',
   },
   plugins: ['@vuepress/back-to-top'],
   markdown: {
     extendMarkdown: (md) => {
       md.set({ breaks: true });
-      // markdown-it plugins
       md.use(require('markdown-it-task-lists'));
     },
   },
