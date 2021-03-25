@@ -1,4 +1,7 @@
 {
+  "branches": [
+    "main"
+  ],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
@@ -13,8 +16,5 @@
       "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
     }],
     "@semantic-release/github",
-    "branches": [
-      'main'
-    ],
   ],
 }
