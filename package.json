@@ -4,7 +4,7 @@
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --target lib --name @sanofi-iadc/glisten ./src/exports.ts",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e --headless",
     "lint": "vue-cli-service lint",
@@ -18,13 +18,11 @@
     "docs:generate": "vuedoc.md --config vuedoc.config.js",
     "docs:deploy": "npm run docs:prebuild && npm run docs:build && gh-pages -d docs/.vuepress/dist"
   },
-  "main": "dist/@sanofi-iadc/glisten.common.js",
-  "module": "dist/@sanofi-iadc/glisten.umd.min.js",
+  "main": "dist/@sanofi-iadc/glisten.umd.min.js",
   "typings": "types.d.ts",
   "files": [
     "dist/*",
     "src/*",
-    "public/*",
     "*.json",
     "*.js",
     "*.d.ts"
