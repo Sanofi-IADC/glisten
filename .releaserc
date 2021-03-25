@@ -2,14 +2,17 @@
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
-    "@semantic-release/npm",
     ["@semantic-release/changelog", {
       "changelogFile": "CHANGELOG.md",
     }],
+    ["@semantic-release/npm", {
+      "tarballDir": "dist",
+    }],
     ["@semantic-release/git", {
-      "assets": ["package.json"],
+      "assets": ["package.json", "CHANGELOG.md"],
       "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
     }],
+    "@semantic-release/github",
     "branches": [
       'master'
     ],
