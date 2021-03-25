@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/Sanofi-IADC/glisten/compare/v1.0.3...v1.0.4) (2021-03-25)
+
+
+### Bug Fixes
+
+* ci ([3ed97e5](https://github.com/Sanofi-IADC/glisten/commit/3ed97e5d0b36e10c4e76426e176acdfdb9659aec))
+
 ## [1.0.3](https://github.com/Sanofi-IADC/glisten/compare/v1.0.2...v1.0.3) (2021-03-25)
 
 
