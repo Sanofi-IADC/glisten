@@ -18,7 +18,8 @@
     "docs:generate": "vuedoc.md --config vuedoc.config.js",
     "docs:deploy": "npm run docs:prebuild && npm run docs:build && gh-pages -d docs/.vuepress/dist"
   },
-  "main": "dist/@sanofi-iadc/glisten.umd.js",
+  "main": "dist/@sanofi-iadc/glisten.common.js",
+  "module": "dist/@sanofi-iadc/glisten.umd.min.js",
   "typings": "types.d.ts",
   "files": [
     "dist/*",
