@@ -188,6 +188,14 @@ export default class GlistenClient extends Vue {
           this.snackbarText = `Thanks for your feedback ${name} !`;
           this.snackbarColor = 'success';
           this.snackbarDisplayed = true;
+          this.glistenWhisp.data = {
+            ...this.glistenWhisp.data,
+            status: FeedbackStatus.NO_ACTION_NEEDED,
+            feedback: null,
+            rating: 4.5,
+            commentSentimentScore: 0,
+            category: null,
+          };
         } else {
           this.snackbarText = `An error occured`;
           this.snackbarColor = 'error';
