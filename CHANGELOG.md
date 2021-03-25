@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/Sanofi-IADC/glisten/compare/v1.0.2...v1.0.3) (2021-03-25)
+
+
+### Bug Fixes
+
+* npm build ([19525d3](https://github.com/Sanofi-IADC/glisten/commit/19525d3a41f27b6721d4544ace45e305d15e39de))
+
 ## [1.0.2](https://github.com/Sanofi-IADC/glisten/compare/v1.0.1...v1.0.2) (2021-03-25)
 
 
