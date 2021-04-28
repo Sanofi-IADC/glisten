@@ -13,8 +13,13 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 import { mean } from 'lodash';
+import { VIcon } from 'vuetify/lib';
 
-@Component
+@Component({
+  components: {
+    VIcon,
+  },
+})
 export default class CsatScoreCard extends Vue {
   @Prop({ required: true }) public ratings!: number[];
 

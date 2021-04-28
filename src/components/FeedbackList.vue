@@ -127,8 +127,37 @@ import { Vue, Component, Prop, Emit } from 'vue-property-decorator';
 import { IFeedback, FeedbackStatus } from '@/types/whisps';
 import { DataTableHeader } from 'vuetify';
 import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';
+import {
+  VDataTable,
+  VIcon,
+  VSnackbar,
+  VTooltip,
+  VListItem,
+  VListItemContent,
+  VListItemTitle,
+  VListItemSubtitle,
+  VMenu,
+  VTextarea,
+  VCheckbox,
+  VChip,
+} from 'vuetify/lib';
 
-@Component
+@Component({
+  components: {
+    VDataTable,
+    VIcon,
+    VSnackbar,
+    VTooltip,
+    VListItem,
+    VListItemContent,
+    VListItemTitle,
+    VListItemSubtitle,
+    VMenu,
+    VTextarea,
+    VCheckbox,
+    VChip,
+  },
+})
 export default class FeedbackList extends Vue {
   @Prop({ required: true }) public feedbacks!: IFeedback[];
   @Prop({ required: true }) public loading!: boolean;

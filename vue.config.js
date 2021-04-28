@@ -1,3 +1,5 @@
+const nodeExternals = require('webpack-node-externals');
+
 module.exports = {
   css: {
     extract: false,
@@ -6,5 +8,10 @@ module.exports = {
     apollo: {
       lintGQL: true,
     },
+  },
+  configureWebpack: (config) => {
+    if (process.env.NODE_ENV === 'production') {
+      config.externals = [nodeExternals()];
+    }
   },
 };

@@ -1,9 +1,63 @@
 import Vue from 'vue';
-import Vuetify from 'vuetify';
+import Vuetify, {
+  VApp,
+  VDataTable,
+  VIcon,
+  VSnackbar,
+  VTooltip,
+  VListItem,
+  VListItemContent,
+  VListItemTitle,
+  VListItemSubtitle,
+  VMenu,
+  VTextarea,
+  VCheckbox,
+  VChip,
+  VBtn,
+  VDatePicker,
+  VBottomSheet,
+  VSheet,
+  VRating,
+  VSelect,
+  VRow,
+  VCol,
+  VContainer,
+  VSwitch,
+  VTextField,
+  VCard,
+} from 'vuetify/lib';
 import 'vuetify/dist/vuetify.min.css';
 import '@mdi/font/css/materialdesignicons.css';
 
-Vue.use(Vuetify);
+Vue.use(Vuetify, {
+  components: {
+    VApp,
+    VDataTable,
+    VIcon,
+    VSnackbar,
+    VTooltip,
+    VListItem,
+    VListItemContent,
+    VListItemTitle,
+    VListItemSubtitle,
+    VMenu,
+    VTextarea,
+    VCheckbox,
+    VChip,
+    VBtn,
+    VDatePicker,
+    VBottomSheet,
+    VSheet,
+    VRating,
+    VSelect,
+    VRow,
+    VCol,
+    VContainer,
+    VSwitch,
+    VTextField,
+    VCard,
+  },
+});
 
 export default new Vuetify({
   icons: {

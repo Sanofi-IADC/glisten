@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --target lib --name @sanofi-iadc/glisten ./src/exports.ts",
+    "report": "vue-cli-service build --target lib --report",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e --headless",
     "lint": "vue-cli-service lint",
@@ -42,15 +43,17 @@
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",
     "subscriptions-transport-ws": "^0.9.18",
-    "vue": "^2.6.12",
     "vue-apexcharts": "^1.6.0",
     "vue-apollo": "^3.0.7",
     "vue-apollo-decorators": "^2.0.0",
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.0.0",
-    "vuetify": "^2.4.6",
     "wink-sentiment": "^5.0.2",
     "zod": "^2.0.0-beta.30"
+  },
+  "peerDependencies": {
+    "vuetify": "^2.4.6",
+    "vue": "^2.6.12"
   },
   "devDependencies": {
     "@mdi/font": "5.9.55",
@@ -94,21 +97,19 @@
     "semantic-release": "^17.4.2",
     "ts-jest": "23.10.5",
     "typescript": "3.9.9",
+    "vue": "^2.6.12",
     "vue-cli-plugin-apollo": "0.22.2",
     "vue-cli-plugin-vuetify": "0.6.3",
     "vue-template-compiler": "2.6.12",
     "vuepress": "1.8.2",
-    "vuetify-loader": "1.7.2"
+    "vuetify": "^2.4.6",
+    "webpack-node-externals": "^3.0.0"
   },
   "postcss": {
     "plugins": {
       "autoprefixer": {}
     }
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ],
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"

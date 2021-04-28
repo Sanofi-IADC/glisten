@@ -28,8 +28,16 @@
 <script lang="ts">
 import { Component, Prop, Vue, PropSync } from 'vue-property-decorator';
 import dayjs from 'dayjs';
+import { VMenu, VCheckbox, VBtn, VDatePicker } from 'vuetify/lib';
 
-@Component({})
+@Component({
+  components: {
+    VMenu,
+    VCheckbox,
+    VBtn,
+    VDatePicker,
+  },
+})
 export default class Filters extends Vue {
   @PropSync('startDate', { required: true }) public syncedStartDate!: Date;
   @PropSync('endDate', { required: true }) public syncedEndDate!: Date;
