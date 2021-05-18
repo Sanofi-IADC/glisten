@@ -1,3 +1,11 @@
+## [1.0.5](https://github.com/Sanofi-IADC/glisten/compare/v1.0.4...v1.0.5) (2021-05-18)
+
+
+### Bug Fixes
+
+* add checking on ratingsPerTimePeriod ([e7e878a](https://github.com/Sanofi-IADC/glisten/commit/e7e878afe9229d04395788d4b173750cd0402302))
+* **deps:** update dependency vue-property-decorator to v9 ([c0f3e74](https://github.com/Sanofi-IADC/glisten/commit/c0f3e74da1fbdd79600d2e9d9ae06aaa1f326b94))
+
 ## [1.0.4](https://github.com/Sanofi-IADC/glisten/compare/v1.0.3...v1.0.4) (2021-03-25)
 
 
