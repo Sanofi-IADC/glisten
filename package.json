@@ -1,6 +1,6 @@
 {
   "name": "@sanofi-iadc/glisten",
-  "version": "1.0.7",
+  "version": "1.0.6",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",

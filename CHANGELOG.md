@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/Sanofi-IADC/glisten/compare/v1.0.5...v1.0.6) (2021-05-18)
+
+
+### Bug Fixes
+
+* release ([fa1d724](https://github.com/Sanofi-IADC/glisten/commit/fa1d724a5ac65ba992fb43ef0e7c17043ab3dc9a))
+
 ## [1.0.5](https://github.com/Sanofi-IADC/glisten/compare/v1.0.4...v1.0.5) (2021-05-18)
 
 
