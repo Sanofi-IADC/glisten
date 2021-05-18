@@ -42,14 +42,15 @@ export default class NpsBarChart extends Vue {
   }
 
   private get ratingsPerTimePeriod(): number[][] {
-    const ratingsPerTimePeriod: number[][] = Array.from(Array(this.timePeriodsCount)).map(
-      (x) => [],
-    );
+    const ratingsPerTimePeriod: number[][] = Array.from(
+      Array(this.timePeriodsCount),
+    ).map((x) => []);
 
     for (const timedRating of this.timedRatings) {
       const index = this.getTimePeriodIndex(dayjs(timedRating.timestamp));
-
-      ratingsPerTimePeriod[index].push(timedRating.rating);
+      if (ratingsPerTimePeriod[index]) {
+        ratingsPerTimePeriod[index].push(timedRating.rating);
+      }
     }
 
     return ratingsPerTimePeriod;
