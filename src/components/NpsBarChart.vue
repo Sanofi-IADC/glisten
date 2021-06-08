@@ -27,7 +27,11 @@ export interface TimedRating {
   timestamp: string;
 }
 
-@Component({ components: { apexchart: VueApexCharts } })
+@Component({
+  components: {
+    apexchart: VueApexCharts,
+  },
+})
 export default class NpsBarChart extends Vue {
   @Prop({ required: true }) public timedRatings!: TimedRating[];
   @Prop({ required: true }) public timePeriod!: UnitTypeShort;

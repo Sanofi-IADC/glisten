@@ -88,11 +88,40 @@ import {
   CreateWhispVariables,
   CreateWhispResult,
 } from '@/graphql/queries/whispQueries';
+import {
+  VIcon,
+  VSnackbar,
+  VTextarea,
+  VBtn,
+  VBottomSheet,
+  VSheet,
+  VRating,
+  VSelect,
+  VRow,
+  VCol,
+  VContainer,
+  VSwitch,
+} from 'vuetify/lib';
 
 /**
  * @description Modal component to submit a feeback to glisten
  */
-@Component
+@Component({
+  components: {
+    VIcon,
+    VSnackbar,
+    VTextarea,
+    VBtn,
+    VBottomSheet,
+    VSheet,
+    VRating,
+    VSelect,
+    VRow,
+    VCol,
+    VContainer,
+    VSwitch,
+  },
+})
 export default class GlistenClient extends Vue {
   // Modal is showed whenever true
   @Prop({ required: true })

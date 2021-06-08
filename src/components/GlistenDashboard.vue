@@ -73,12 +73,22 @@ import dayjs from 'dayjs';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import { FeedbackSchema } from '@/types/whisps';
 import * as z from 'zod';
+import { VCard } from 'vuetify/lib';
 
 /**
  * @description All in one dashboard to display and filter feedbacks from glisten
  */
 @Component({
-  components: { FeedbackList, NpsScoreGauge, NpsLineChart, NpsBarChart, NpsDetailsCard, CsatScoreCard, Filters },
+  components: {
+    FeedbackList,
+    NpsScoreGauge,
+    NpsLineChart,
+    NpsBarChart,
+    NpsDetailsCard,
+    CsatScoreCard,
+    Filters,
+    VCard,
+  },
 })
 export default class GlistenDashboard extends Vue {
   private get ratings(): number[] {
@@ -90,14 +100,24 @@ export default class GlistenDashboard extends Vue {
   }
 
   private endDate: Date = new Date();
-  private startDate: Date = dayjs(this.endDate).subtract(2, 'month').toDate();
+  private startDate: Date = dayjs(this.endDate)
+    .subtract(2, 'month')
+    .toDate();
+
   private filteredApplications: string[] = [];
 
   private _availableApplications: string[] = [];
+
+  private hasMounted: boolean = false;
+
+  mounted() {
+    this.hasMounted = true;
+  }
+
   private get availableApplications(): string[] {
     const newAvailableApplications = chain(this.feedbacks)
       .map((x) => x.applicationID)
-      .filter((x) : x is string => !!x)
+      .filter((x): x is string => !!x)
       .concat(this._availableApplications ?? [])
       .uniq()
       .sort()
@@ -108,17 +128,29 @@ export default class GlistenDashboard extends Vue {
     return newAvailableApplications;
   }
 
-  private get loading(): boolean {
-    return this.$apollo.loading;
+  get loading(): boolean {
+    if (this.hasMounted) {
+      return this.$apollo.loading;
+    }
+    return true;
   }
 
   private get queryFilter(): Partial<IFeedback> {
     let filter: any = { type: WHISP_FEEDBACK_TYPE };
 
     if (this.startDate && this.endDate) {
-      const startOfDay = (date: Date) => dayjs(date).startOf('day').toDate();
-      const endOfDay = (date: Date) => dayjs(date).endOf('day').toDate();
-      filter = { ...filter, timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) } };
+      const startOfDay = (date: Date) =>
+        dayjs(date)
+          .startOf('day')
+          .toDate();
+      const endOfDay = (date: Date) =>
+        dayjs(date)
+          .endOf('day')
+          .toDate();
+      filter = {
+        ...filter,
+        timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) },
+      };
     }
 
     if (this.filteredApplications.length > 0) {
@@ -134,7 +166,9 @@ export default class GlistenDashboard extends Vue {
 
   @SmartQuery<GlistenDashboard, IFeedback[], FeedbackQueryVariables, FeedbackQueryResult>({
     query: GET_FEEDBACKS,
-    update(data) { return z.array(FeedbackSchema).parse(data.feedbacks); }, // validates data and trim extra properties
+    update(data) {
+      return z.array(FeedbackSchema).parse(data.feedbacks);
+    }, // validates data and trim extra properties
     variables() {
       return {
         filter: this.queryFilter,
@@ -144,7 +178,12 @@ export default class GlistenDashboard extends Vue {
     },
     client: WHISP_GQL_CLIENT,
   })
-  @SubscribeToMore<GlistenDashboard, FeedbackQueryResult, FeedbackSubscriptionVariables, FeedbackSubcriptionResult>({
+  @SubscribeToMore<
+    GlistenDashboard,
+    FeedbackQueryResult,
+    FeedbackSubscriptionVariables,
+    FeedbackSubcriptionResult
+  >({
     document: SUBCRIPTION_FEEDBACKS,
     variables() {
       return {

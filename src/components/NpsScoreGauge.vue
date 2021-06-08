@@ -18,7 +18,11 @@ import { isPromoter, isDetractor, isNeutral, computeNPSScore } from '@/services/
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
 
-@Component({ components: { apexchart: VueApexCharts } })
+@Component({
+  components: {
+    apexchart: VueApexCharts,
+  },
+})
 export default class NpsScoreGauge extends Vue {
   @Prop({ required: true }) public ratings!: number[];
 

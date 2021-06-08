@@ -16,7 +16,11 @@ import { isPromoter, isDetractor, isNeutral } from '@/services/nps.service';
 import VueApexCharts from 'vue-apexcharts';
 import { ApexOptions } from 'apexcharts';
 
-@Component({ components: { apexchart: VueApexCharts } })
+@Component({
+  components: {
+    apexchart: VueApexCharts,
+  },
+})
 export default class NpsDetailsCard extends Vue {
   @Prop({ required: true }) public ratings!: number[];
 
