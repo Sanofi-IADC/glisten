@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/Sanofi-IADC/glisten/compare/v1.0.6...v1.1.0) (2021-06-08)
+
+
+### Features
+
+* **bundle:** reduce bundle size ([#73](https://github.com/Sanofi-IADC/glisten/issues/73)) ([bcbcb27](https://github.com/Sanofi-IADC/glisten/commit/bcbcb27b198024854ce1bf098df14a09eb1da49a))
+
 ## [1.0.6](https://github.com/Sanofi-IADC/glisten/compare/v1.0.5...v1.0.6) (2021-05-18)
 
 
