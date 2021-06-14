@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/Sanofi-IADC/glisten/compare/v1.1.0...v1.1.1) (2021-06-14)
+
+
+### Bug Fixes
+
+* out of scope css ([#80](https://github.com/Sanofi-IADC/glisten/issues/80)) ([4985c1a](https://github.com/Sanofi-IADC/glisten/commit/4985c1a2059de241edf71ee6aebf18abe0e41da4))
+
 # [1.1.0](https://github.com/Sanofi-IADC/glisten/compare/v1.0.6...v1.1.0) (2021-06-08)
 
 
