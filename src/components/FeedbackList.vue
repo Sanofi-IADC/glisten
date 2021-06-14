@@ -259,12 +259,12 @@ export default class FeedbackList extends Vue {
   text-align: left;
   direction: rtl;
 }
-.v-menu__content,
-.v-data-table__expanded__content {
+.feedback-data-table .v-menu__content,
+.feedback-data-table .v-data-table__expanded__content {
   box-shadow: none !important;
 }
 
-.v-data-table-header__icon {
+.feedback-data-table .v-data-table-header__icon {
   position: absolute !important;
 }
 </style>
