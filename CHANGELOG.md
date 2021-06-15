@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/Sanofi-IADC/glisten/compare/v1.1.1...v1.1.2) (2021-06-15)
+
+
+### Bug Fixes
+
+* more generic peer dependancies ([5153529](https://github.com/Sanofi-IADC/glisten/commit/5153529970b6594a12c932b587cafb63e39e448f))
+
 ## [1.1.1](https://github.com/Sanofi-IADC/glisten/compare/v1.1.0...v1.1.1) (2021-06-14)
 
 
