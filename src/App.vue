@@ -3,7 +3,7 @@
     <v-btn color="green" dark @click="sheet = !sheet">
       Add feedback
     </v-btn>
-    <dashboard />
+    <!-- <dashboard /> -->
     <glisten-client
       :sheet="sheet"
       :application-id="applicationID"
@@ -11,7 +11,7 @@
       :custom-tracker="customTracker"
       @close="toggleFeedback"
     />
-    <glisten-csat :filtered-applications="['iadc-portal']" />
+    <!-- <glisten-csat :filtered-applications="['iadc-portal']" /> -->
   </v-app>
 </template>
 

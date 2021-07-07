@@ -70,7 +70,7 @@ export default class NpsDetailsCard extends Vue {
         },
       },
       dataLabels: {
-        formatter: (value) => value.toFixed(0) + '%',
+        formatter: (value) => Number(value).toFixed(0) + '%',
       },
     };
   }
