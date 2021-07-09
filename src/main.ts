@@ -59,6 +59,13 @@ const vueLifecycles = singleSpaVue({
     ),
   },
 });
-export const bootstrap = vueLifecycles.bootstrap;
-export const mount = vueLifecycles.mount;
-export const unmount = vueLifecycles.unmount;
+// export const bootstrap = vueLifecycles.bootstrap;
+// export const mount = vueLifecycles.mount;
+// export const unmount = vueLifecycles.unmount;
+export const GlistenParcel = {
+
+  bootstrap: vueLifecycles.bootstrap,
+  mount: vueLifecycles.mount,
+  unmount: vueLifecycles.unmount,
+  
+};
