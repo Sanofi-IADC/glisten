@@ -14,10 +14,8 @@ module.exports = {
   //     config.externals = [nodeExternals()];
   //   }
   // },
-  publicPath:'/',
+  publicPath: '/',
   chainWebpack: (config) => {
-    // config.output.filename('[name].js');
-    // config.output.publicPath('/js/');
     config.externals(['vue', 'vue-router', 'vue-matomo', 'vuetify']);
   },
 };
