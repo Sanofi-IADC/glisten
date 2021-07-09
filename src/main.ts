@@ -46,7 +46,9 @@ const vueLifecycles = singleSpaVue({
           name: this.name,
           mountParcel: this.mountParcel,
           singleSpa: this.singleSpa,
-          */
+          */          
+          applicationId:this.applicationId, // this is set in the root config application
+          userName:this.userName, // this is set in the root config application
         },
       });
     },

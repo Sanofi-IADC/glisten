@@ -1,12 +1,12 @@
 <template>
   <v-app>
-    <v-btn color="green" dark @click="sheet = !sheet">
+    <!-- <v-btn color="green" dark @click="sheet = !sheet">
       Add feedback
-    </v-btn>
+    </v-btn> -->
     <!-- <dashboard /> -->
     <glisten-client
       :sheet="sheet"
-      :application-id="applicationID"
+      :application-id="applicationId"
       :user-name="userName"
       :custom-tracker="customTracker"
       @close="toggleFeedback"
@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { Prop, Component } from 'vue-property-decorator';
 import Dashboard from './components/GlistenDashboard.vue';
 import GlistenClient from './components/GlistenClient.vue';
 import GlistenCsat from '@/components/GlistenCsat.vue';
@@ -85,15 +85,22 @@ import {
   },
 })
 export default class App extends Vue {
-  public applicationID = 'GLISTEN';
-  public userName = 'User';
+  @Prop({ required: true })
+  public userName!: string;
+
+  // Identify the feedback's application
+  @Prop({ required: true })
+  public applicationId!: string;
+
+  // public applicationID = 'GLISTEN';
+  // public userName = 'User';
 
   public customTracker = {
     contextPortal: window.location.href,
     contextPage: '',
   };
 
-  public sheet = false;
+  public sheet = true;
 
   private toggleFeedback(event: any) {
     this.sheet = false;

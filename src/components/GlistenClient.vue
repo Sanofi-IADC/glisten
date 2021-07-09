@@ -71,7 +71,7 @@
       class="pa-10"
     >
       <p>{{ snackbarText }}</p>
-      <template v-slot:action="{ attrs }">
+      <template #action="{ attrs }">
         <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
           Close
         </v-btn>
