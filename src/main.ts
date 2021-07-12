@@ -24,6 +24,7 @@ Vue.config.productionTip = false;
 
 Vue.use(VueApollo);
 
+// normal Vue.js solution
 // new Vue({
 //   vuetify,
 //   apolloProvider: apolloProvider(
@@ -33,6 +34,8 @@ Vue.use(VueApollo);
 //   render: (h) => h(App),
 // }).$mount('#app');
 
+
+// Single-SPA solution:
 const vueLifecycles = singleSpaVue({
   Vue,
   appOptions: {
@@ -59,9 +62,6 @@ const vueLifecycles = singleSpaVue({
     ),
   },
 });
-// export const bootstrap = vueLifecycles.bootstrap;
-// export const mount = vueLifecycles.mount;
-// export const unmount = vueLifecycles.unmount;
 export const GlistenParcel = {
 
   bootstrap: vueLifecycles.bootstrap,
