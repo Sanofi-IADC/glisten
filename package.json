@@ -71,7 +71,7 @@
     "@vue/cli-plugin-unit-jest": "3.12.1",
     "@vue/cli-service": "3.12.1",
     "@vue/eslint-config-standard": "4.0.0",
-    "@vue/eslint-config-typescript": "4.0.0",
+    "@vue/eslint-config-typescript": "7.0.0",
     "@vue/test-utils": "1.1.3",
     "@vuedoc/md": "3.2.0",
     "@vuedoc/parser": "3.3.0",
