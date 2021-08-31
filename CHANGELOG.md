@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/Sanofi-IADC/glisten/compare/v1.1.2...v1.1.3) (2021-08-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency graphql to v15 ([b05b324](https://github.com/Sanofi-IADC/glisten/commit/b05b3242982da6fb6eb2b5604a45323f8ff757a0))
+
 ## [1.1.2](https://github.com/Sanofi-IADC/glisten/compare/v1.1.1...v1.1.2) (2021-06-15)
 
 
