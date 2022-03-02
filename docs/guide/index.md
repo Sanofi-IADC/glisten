@@ -130,7 +130,7 @@ You can either use the client to add a modal on a page like this
 
 ### Dashboard component
 
-Insert on page the following comonent
+Insert on page the following component
 
 ```html
 <template>
