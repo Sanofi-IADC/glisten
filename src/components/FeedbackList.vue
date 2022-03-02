@@ -67,11 +67,11 @@
 
       <template v-slot:[`item.notes`]="{ item }">
         <v-tooltip bottom :disabled="!item.data.notes">
-          <template v-slot:activator="{ on, attrs }">
-            <div v-bind="attrs" v-on="on">
+          <template v-slot:activator="scopeDataFromVTooltip">
+            <div v-bind="scopeDataFromVTooltip.attrs" v-on="scopeDataFromVTooltip.on">
               <v-menu :close-on-content-click="false">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon v-bind="attrs" v-on="on">
+                <template v-slot:activator="scopeDataFromVMenu">
+                  <v-icon v-bind="scopeDataFromVMenu.attrs" v-on="scopeDataFromVMenu.on">
                     {{ item.data.notes ? 'mdi-comment-text-outline' : 'mdi-comment-outline' }}
                   </v-icon>
                 </template>
