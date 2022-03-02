@@ -1,3 +1,12 @@
+## [1.1.4](https://github.com/Sanofi-IADC/glisten/compare/v1.1.3...v1.1.4) (2022-03-02)
+
+
+### Bug Fixes
+
+* warnings on variables declared twice with same name ([d747a7a](https://github.com/Sanofi-IADC/glisten/commit/d747a7a5583427bd833a03c970883753ebfbe345))
+* **glisten-dashboard:** filter feedbacks containing null data which results in dashboard crash ([fb2a005](https://github.com/Sanofi-IADC/glisten/commit/fb2a0050155ce96e9ef9c1fc7ff914919a37ebc7))
+* upstream dependencies conflit ([0178426](https://github.com/Sanofi-IADC/glisten/commit/01784262b844fca9190905b413493f43f3302db5))
+
 ## [1.1.3](https://github.com/Sanofi-IADC/glisten/compare/v1.1.2...v1.1.3) (2021-08-19)
 
 
