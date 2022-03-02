@@ -136,7 +136,7 @@ export default class GlistenDashboard extends Vue {
   }
 
   private get queryFilter(): Partial<IFeedback> {
-    let filter: any = { type: WHISP_FEEDBACK_TYPE };
+    let filter: any = { type: WHISP_FEEDBACK_TYPE, data: { "$ne": null } };
 
     if (this.startDate && this.endDate) {
       const startOfDay = (date: Date) =>
@@ -189,6 +189,7 @@ export default class GlistenDashboard extends Vue {
       return {
         filter: {
           type: WHISP_FEEDBACK_TYPE,
+          data: { "$ne": null },
         },
       };
     },
