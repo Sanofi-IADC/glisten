@@ -80,7 +80,13 @@ export default class GlistenCsat extends Vue {
   private feedbacks: IFeedback[] = [];
 
   private get queryFilter(): Partial<IFeedback> {
-    let filter: any = { type: WHISP_FEEDBACK_TYPE };
+    let filter: any = {
+      type: WHISP_FEEDBACK_TYPE,
+      data: { $ne: null },
+      'data.status': { $in: ['ACTION_NEEDED', 'ACTION_DONE', 'NO_ACTION_NEEDED'] },
+      'data.feedback': { $ne: null },
+      'data.rating': { $gte: 0, $lte: 5 },
+    };
 
     if (this.startDate && this.endDate) {
       const startOfDay = (date: Date) =>
