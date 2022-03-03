@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/Sanofi-IADC/glisten/compare/v1.1.4...v1.1.5) (2022-03-03)
+
+
+### Bug Fixes
+
+* dashboard crashing when data.status, data.feedback or data.rating is incorrect + websockets ([20fa7ce](https://github.com/Sanofi-IADC/glisten/commit/20fa7cea81f0f047804c3a89fcc1a89042b354d1))
+
 ## [1.1.4](https://github.com/Sanofi-IADC/glisten/compare/v1.1.3...v1.1.4) (2022-03-02)
 
 
