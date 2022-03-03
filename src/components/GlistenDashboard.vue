@@ -204,6 +204,8 @@ export default class GlistenDashboard extends Vue {
       };
     },
     updateQuery(previous, options) {
+      console.log(previous);
+      console.log(options);
       return this.updateFeedbacksOnSubscriptionEvent(previous, options);
     },
   })
@@ -213,29 +215,33 @@ export default class GlistenDashboard extends Vue {
     previous: FeedbackQueryResult,
     update: { subscriptionData: { data: FeedbackSubcriptionResult } },
   ): FeedbackQueryResult {
-    const HasTypename = z.object({ __typename: z.string() });
-    // validates data but keep property __typename that is useful for caching purpose
-    const Schema = FeedbackSchema.merge(HasTypename);
+    try {
+      const HasTypename = z.object({ __typename: z.string() });
 
-    const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
-    const existingFeedbackIndex = previous.feedbacks.findIndex(
-      (f: IFeedback) => feedback._id === f._id,
-    );
+      // validates data but keep property __typename that is useful for caching purpose
+      const Schema = FeedbackSchema.merge(HasTypename);
 
-    // If the whisp is already in the collection we update it
-    // Else we add it to the top
-    if (existingFeedbackIndex >= 0) {
-      return {
-        feedbacks: Object.assign([], previous.feedbacks, {
-          [existingFeedbackIndex]: feedback,
-        }),
-      };
+      const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
+      const existingFeedbackIndex = previous.feedbacks.findIndex(
+        (f: IFeedback) => feedback._id === f._id,
+      );
+
+      // If the whisp is already in the collection we update it
+      // Else we add it to the top
+      if (existingFeedbackIndex >= 0) {
+        return {
+          feedbacks: Object.assign([], previous.feedbacks, {
+            [existingFeedbackIndex]: feedback,
+          }),
+        };
+      }
+
+      if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
+        return { feedbacks: [feedback, ...previous.feedbacks] };
+      }
+    } catch (err) {
+      console.log('Invalid Data received.');
     }
-
-    if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
-      return { feedbacks: [feedback, ...previous.feedbacks] };
-    }
-
     return previous;
   }
 

@@ -122,26 +122,30 @@ export default class GlistenCsat extends Vue {
     previous: FeedbackQueryResult,
     update: { subscriptionData: { data: FeedbackSubcriptionResult } },
   ): FeedbackQueryResult {
-    const HasTypename = z.object({ __typename: z.string() });
-    const Schema = FeedbackSchema.merge(HasTypename); // validates data but keep property __typename that is useful for caching purpose
+    try {
+      const HasTypename = z.object({ __typename: z.string() });
+      const Schema = FeedbackSchema.merge(HasTypename); // validates data but keep property __typename that is useful for caching purpose
 
-    const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
-    const existingFeedbackIndex = previous.feedbacks.findIndex(
-      (f: IFeedback) => feedback._id === f._id,
-    );
+      const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
+      const existingFeedbackIndex = previous.feedbacks.findIndex(
+        (f: IFeedback) => feedback._id === f._id,
+      );
 
-    // If the whisp is already in the collection we update it
-    // Else we add it to the top
-    if (existingFeedbackIndex >= 0) {
-      return {
-        feedbacks: Object.assign([], previous.feedbacks, {
-          [existingFeedbackIndex]: feedback,
-        }),
-      };
-    }
+      // If the whisp is already in the collection we update it
+      // Else we add it to the top
+      if (existingFeedbackIndex >= 0) {
+        return {
+          feedbacks: Object.assign([], previous.feedbacks, {
+            [existingFeedbackIndex]: feedback,
+          }),
+        };
+      }
 
-    if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
-      return { feedbacks: [feedback, ...previous.feedbacks] };
+      if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
+        return { feedbacks: [feedback, ...previous.feedbacks] };
+      }
+    } catch (err) {
+      console.log('Invalid Data received.');
     }
 
     return previous;
