@@ -204,8 +204,6 @@ export default class GlistenDashboard extends Vue {
       };
     },
     updateQuery(previous, options) {
-      console.log(previous);
-      console.log(options);
       return this.updateFeedbacksOnSubscriptionEvent(previous, options);
     },
   })
