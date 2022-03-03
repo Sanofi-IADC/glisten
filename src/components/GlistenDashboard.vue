@@ -67,11 +67,16 @@ import {
   UpdateWhispVariables,
   UpdateWhispResult,
 } from '@/graphql/queries/whispQueries';
-import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
+import {
+  IFeedback,
+  FeedbackStatus,
+  WHISP_FEEDBACK_TYPE,
+  WHISP_GQL_CLIENT,
+  FeedbackSchema,
+} from '@/types/whisps';
 import { chain } from 'lodash';
 import dayjs from 'dayjs';
 import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
-import { FeedbackSchema } from '@/types/whisps';
 import * as z from 'zod';
 import { VCard } from 'vuetify/lib';
 
@@ -136,7 +141,13 @@ export default class GlistenDashboard extends Vue {
   }
 
   private get queryFilter(): Partial<IFeedback> {
-    let filter: any = { type: WHISP_FEEDBACK_TYPE, data: { "$ne": null } };
+    let filter: any = {
+      type: WHISP_FEEDBACK_TYPE,
+      data: { $ne: null },
+      'data.status': { $in: ['ACTION_NEEDED', 'ACTION_DONE', 'NO_ACTION_NEEDED'] },
+      'data.feedback': { $ne: null },
+      'data.rating': { $gte: 0, $lte: 5 },
+    };
 
     if (this.startDate && this.endDate) {
       const startOfDay = (date: Date) =>
@@ -189,7 +200,6 @@ export default class GlistenDashboard extends Vue {
       return {
         filter: {
           type: WHISP_FEEDBACK_TYPE,
-          data: { "$ne": null },
         },
       };
     },
@@ -203,29 +213,33 @@ export default class GlistenDashboard extends Vue {
     previous: FeedbackQueryResult,
     update: { subscriptionData: { data: FeedbackSubcriptionResult } },
   ): FeedbackQueryResult {
-    const HasTypename = z.object({ __typename: z.string() });
-    // validates data but keep property __typename that is useful for caching purpose
-    const Schema = FeedbackSchema.merge(HasTypename);
+    try {
+      const HasTypename = z.object({ __typename: z.string() });
 
-    const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
-    const existingFeedbackIndex = previous.feedbacks.findIndex(
-      (f: IFeedback) => feedback._id === f._id,
-    );
+      // validates data but keep property __typename that is useful for caching purpose
+      const Schema = FeedbackSchema.merge(HasTypename);
 
-    // If the whisp is already in the collection we update it
-    // Else we add it to the top
-    if (existingFeedbackIndex >= 0) {
-      return {
-        feedbacks: Object.assign([], previous.feedbacks, {
-          [existingFeedbackIndex]: feedback,
-        }),
-      };
+      const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
+      const existingFeedbackIndex = previous.feedbacks.findIndex(
+        (f: IFeedback) => feedback._id === f._id,
+      );
+
+      // If the whisp is already in the collection we update it
+      // Else we add it to the top
+      if (existingFeedbackIndex >= 0) {
+        return {
+          feedbacks: Object.assign([], previous.feedbacks, {
+            [existingFeedbackIndex]: feedback,
+          }),
+        };
+      }
+
+      if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
+        return { feedbacks: [feedback, ...previous.feedbacks] };
+      }
+    } catch (err) {
+      console.log('Invalid Data received.');
     }
-
-    if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
-      return { feedbacks: [feedback, ...previous.feedbacks] };
-    }
-
     return previous;
   }
 
