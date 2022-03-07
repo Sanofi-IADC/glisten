@@ -15,7 +15,7 @@ export type GQLCachedResult<T> = T & {
 
 export const GET_FEEDBACKS = gql`
   query feedbacks($limit: Int, $sort: JSONObject, $filter: JSONObject) {
-    feedbacks: whisps(filter: $filter, sort: $sort, limit: $limit) {
+    feedbacks: whispsAuthBeta(filter: $filter, sort: $sort, limit: $limit) {
       _id
       readableID
       type

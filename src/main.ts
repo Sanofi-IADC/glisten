@@ -26,6 +26,7 @@ new Vue({
   apolloProvider: apolloProvider(
     process.env.VUE_APP_WHISPR_API_HTTP_URL || '',
     process.env.VUE_APP_WHISPR_API_WS_URL || '',
+    process.env.VUE_APP_SECURE_TOKEN || '',
   ),
   render: (h) => h(App),
 }).$mount('#app');

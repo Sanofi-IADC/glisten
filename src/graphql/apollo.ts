@@ -2,6 +2,7 @@ import Vue from 'vue';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { onError } from 'apollo-link-error';
+import { setContext } from '@apollo/client/link/context';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import VueApollo from 'vue-apollo';
 import fetch from 'node-fetch';
@@ -12,16 +13,35 @@ import { getMainDefinition } from 'apollo-utilities';
 import { WHISP_GQL_CLIENT } from '@/types/whisps';
 
 // Create the apollo client
-export const apolloClient = (httpURL: string, wsURL: string) => {
+export const apolloClient = (httpURL: string, wsURL: string, token: string) => {
+
   const httpLink = new HttpLink({
     fetch: fetch as any,
     uri: httpURL,
+  });
+
+
+  //Auth checking link
+  const authLink = setContext((_, { headers }) => {
+    return {
+      headers: {
+        ...headers,
+        Authorization: `Bearer ${token}`,
+      },
+    };
   });
 
   const wsLink = new WebSocketLink({
     uri: wsURL,
     options: {
       reconnect: true,
+      connectionParams: async() => {
+        return {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+      },
     },
   });
 
@@ -32,7 +52,7 @@ export const apolloClient = (httpURL: string, wsURL: string) => {
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
     wsLink,
-    httpLink,
+    authLink.concat(httpLink),
   );
 
   // Error Handling
@@ -56,8 +76,9 @@ export const apolloClient = (httpURL: string, wsURL: string) => {
   });
 };
 
-export const apolloProvider = (httpURL: string, wsURL: string) => {
-  const client = apolloClient(httpURL, wsURL);
+export const apolloProvider = (httpURL: string, wsURL: string, token: string) => {
+  const client = apolloClient(httpURL, wsURL, token);
+  console.log(token);
   return new VueApollo({
     defaultClient: client,
     clients: {
