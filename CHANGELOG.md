@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/Sanofi-IADC/glisten/compare/v1.1.5...v1.1.6) (2022-07-04)
+
+
+### Bug Fixes
+
+* snackbar not closing on click ([eb81b72](https://github.com/Sanofi-IADC/glisten/commit/eb81b72674aefec27c3f7d77d7b6acf7f841e59c))
+
 ## [1.1.5](https://github.com/Sanofi-IADC/glisten/compare/v1.1.4...v1.1.5) (2022-03-03)
 
 
