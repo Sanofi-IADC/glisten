@@ -9,6 +9,9 @@
       :application-id="applicationID"
       :user-name="userName"
       :custom-tracker="customTracker"
+      text-field-label='Put a comment!'
+      greetings="Give your feedback please!"
+      heart-color="#7A00E6"
       @close="toggleFeedback"
     />
     <glisten-csat :filtered-applications="['iadc-portal']" />
@@ -91,6 +94,11 @@ export default class App extends Vue {
   public customTracker = {
     contextPortal: window.location.href,
     contextPage: '',
+    categories: [
+      'Features',
+      'Ergonomy',
+      'Documentation',
+    ],
   };
 
   public sheet = false;
