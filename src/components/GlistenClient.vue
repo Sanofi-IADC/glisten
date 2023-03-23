@@ -4,13 +4,12 @@
       <v-sheet class="text-center sheet--feedback">
         <v-container fluid>
           <div class="title py-3">
-            Thanks for letting us know how do you like this and sending your feedback to further
-            improve.
+            {{ greetings }}
           </div>
 
           <v-rating
             v-model="glistenWhisp.data.rating"
-            color="red"
+            :color="heartColor"
             background-color="grey darken-1"
             half-increments
             hover
@@ -33,7 +32,7 @@
             v-model="glistenWhisp.data.feedback"
             outlined
             name="input-7-4"
-            label="Leave us a comment"
+            :label="textFieldLabel"
             rows="4"
           />
           <v-row no-gutters row wrap>
@@ -68,11 +67,11 @@
       :timeout="snackbarTimeout"
       :color="snackbarColor"
       outlined
-      class="pa-10"
+      class="glisten-snackbar pa-10"
     >
       <p>{{ snackbarText }}</p>
       <template v-slot:action="{ attrs }">
-        <v-btn color="blue" text v-bind="attrs" @click="snackbarDisplayed = false">
+        <v-btn color="primary" text v-bind="attrs" @click="snackbarDisplayed = false">
           Close
         </v-btn>
       </template>
