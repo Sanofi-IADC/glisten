@@ -128,6 +128,9 @@ You can either use the client to add a modal on a page like this
     application-id="you-application-Name"
     user-name="your username"
     :custom-tracker="customTracker"
+    text-field-label='Speak your mind'
+    greetings="We're always looking to improve. Please share your feedback with us!"
+    heart-color="#df323b"
     @close="toggleFeedback"
   />
 </template>
@@ -138,13 +141,17 @@ You can either use the client to add a modal on a page like this
 - _sheet_ (`boolean`) : modal is showed whenever true
 - _application-id_ (`string`) : identify the feedback's application
 - _user-name_ (`string`) : default username
+- _text-field-label_=(`string`) : text displayed in the text field before the user enters something)
+- _greetings_=(`string`) : greeting text displayed in the top of the component)
+- _heart-color_=(`string`) : color of the heart symbols)
 - _custom-tracker_ (`object`) : tracks context of the feedback (like current page URL)
 
 ```json
 // for instance
 {
   "contextPortal": window.location.href,
-  "contextPage": ""
+  "contextPage": "",
+  "categories": ['First category, 'Second category']
 }
 ```
 

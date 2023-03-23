@@ -4,13 +4,12 @@
       <v-sheet class="text-center sheet--feedback">
         <v-container fluid>
           <div class="title py-3">
-            Thanks for letting us know how do you like this and sending your feedback to further
-            improve.
+            {{ greetings }}
           </div>
 
           <v-rating
             v-model="glistenWhisp.data.rating"
-            color="red"
+            :color="heartColor"
             background-color="grey darken-1"
             half-increments
             hover
@@ -33,7 +32,7 @@
             v-model="glistenWhisp.data.feedback"
             outlined
             name="input-7-4"
-            label="Leave us a comment"
+            :label="textFieldLabel"
             rows="4"
           />
           <v-row no-gutters row wrap>
@@ -68,11 +67,11 @@
       :timeout="snackbarTimeout"
       :color="snackbarColor"
       outlined
-      class="pa-10"
+      class="glisten-snackbar pa-10"
     >
       <p>{{ snackbarText }}</p>
       <template v-slot:action="{ attrs }">
-        <v-btn color="blue" text v-bind="attrs" @click="snackbarDisplayed = false">
+        <v-btn color="primary" text v-bind="attrs" @click="snackbarDisplayed = false">
           Close
         </v-btn>
       </template>
@@ -138,6 +137,18 @@ export default class GlistenClient extends Vue {
   // Identify the feedback's application
   @Prop({ required: true })
   public applicationId!: string;
+
+  // Greetings displayed at the top of the component
+  @Prop({ required: false, default: 'Thank you so much for taking the time to share your feedback with us! We appreciate hearing your thoughts on how we\'re doing, and we\'re excited to use your feedback to become even better.' })
+  public greetings!: string;
+
+  // Label displayed in text field
+  @Prop({ required: false, default: 'We\'re always looking to improve. Please share your feedback with us' })
+  public textFieldLabel!: string;
+
+  // Color of rating hearts
+  @Prop({ required: false, default: 'red' })
+  public heartColor!: string;
 
   get show() {
     return this.sheet;
