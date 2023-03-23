@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/Sanofi-IADC/glisten/compare/v1.1.6...v1.2.0) (2023-03-23)
+
+
+### Bug Fixes
+
+* restructured text ([8721a8d](https://github.com/Sanofi-IADC/glisten/commit/8721a8d7b5eadda818c4d1ee716d83918586219e))
+* restructured text ([66c1bbd](https://github.com/Sanofi-IADC/glisten/commit/66c1bbd3fa530cbce4aa2c120bbdbe2d74eca1db))
+
+
+### Features
+
+* add new props to the GlistenClient component ([a883539](https://github.com/Sanofi-IADC/glisten/commit/a883539adc75a422d3185a938f44825b51507d1f))
+
 ## [1.1.6](https://github.com/Sanofi-IADC/glisten/compare/v1.1.5...v1.1.6) (2022-07-04)
 
 
