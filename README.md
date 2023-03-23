@@ -128,8 +128,8 @@ You can either use the client to add a modal on a page like this
     application-id="you-application-Name"
     user-name="your username"
     :custom-tracker="customTracker"
-    text-field-label='Put a comment!'
-    greetings="Give your feedback please!"
+    text-field-label='Speak your mind'
+    greetings="We're always looking to improve. Please share your feedback with us!"
     heart-color="#df323b"
     @close="toggleFeedback"
   />

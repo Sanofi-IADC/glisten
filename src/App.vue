@@ -9,8 +9,8 @@
       :application-id="applicationID"
       :user-name="userName"
       :custom-tracker="customTracker"
-      text-field-label='Put a comment!'
-      greetings="Give your feedback please!"
+      text-field-label='Speak your mind'
+      greetings="We're always looking to improve. Please share your feedback with us!"
       heart-color="#7A00E6"
       @close="toggleFeedback"
     />
