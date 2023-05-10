@@ -14,6 +14,8 @@ export { default as GlistenClient } from '@/components/GlistenClient.vue';
 export { default as GlistenDashboard } from '@/components/GlistenDashboard.vue';
 export { default as GlistenCsat } from '@/components/GlistenCsat.vue';
 
+export { apolloProvider as ApolloProvider } from '@/graphql/apollo';
+
 const Plugin = {
   install: (vue: VueConstructor, options: any) => {
     Vue.prototype.dayjs = dayjs;
