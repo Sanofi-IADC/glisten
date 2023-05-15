@@ -37,9 +37,8 @@ Then configure vue-apollo to connect your project to [Whispr](https://github.com
 
 ```javascript
 import Vue from 'vue';
-import { apolloProvider } from '@sanofi-iadc/glisten/graphql/apollo';
 import VueApollo from 'vue-apollo';
-import Glisten, { GlistenClient, GlistenDashboard } from '@sanofi-iadc/glisten';
+import Glisten, { GlistenClient, GlistenDashboard, ApolloProvider } from '@sanofi-iadc/glisten';
 
 Vue.component('GlistenClient', GlistenClient); // this is not mandatory if you need to use only one component
 Vue.component('GlistenDashboard', GlistenDashboard);
@@ -50,7 +49,7 @@ Vue.use(Vuetify);
 
 new Vue({
   vuetify,
-  apolloProvider: apolloProvider(
+  apolloProvider: ApolloProvider(
     process.env.VUE_APP_WHISPR_API_HTTP_URL,
     process.env.VUE_APP_WHISPR_API_WS_URL,
   ),
