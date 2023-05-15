@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/Sanofi-IADC/glisten/compare/v1.2.0...v1.2.1) (2023-05-15)
+
+
+### Bug Fixes
+
+* export apollo provider function ([24d4428](https://github.com/Sanofi-IADC/glisten/commit/24d4428a12fe953ccf71912577843485811f0789))
+
 # [1.2.0](https://github.com/Sanofi-IADC/glisten/compare/v1.1.6...v1.2.0) (2023-03-23)
 
 
