@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/Sanofi-IADC/glisten/compare/v1.2.1...v1.2.2) (2023-05-16)
+
+
+### Bug Fixes
+
+* add apollo provider to typings definition ([a38ee6c](https://github.com/Sanofi-IADC/glisten/commit/a38ee6ce9ecf3f4c7fca47873c5cbe529cd126bc))
+
 ## [1.2.1](https://github.com/Sanofi-IADC/glisten/compare/v1.2.0...v1.2.1) (2023-05-15)
 
 
