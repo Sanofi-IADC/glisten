@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Inject, Provide, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
 import {
   CREATE_WHISP,
@@ -100,6 +100,7 @@ import {
   VCol,
   VContainer,
   VSwitch,
+  VTextField,
 } from 'vuetify/lib';
 
 /**
@@ -119,6 +120,7 @@ import {
     VCol,
     VContainer,
     VSwitch,
+    VTextField,
   },
 })
 export default class GlistenClient extends Vue {
