@@ -6,13 +6,13 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import VueApollo from 'vue-apollo';
 import fetch from 'node-fetch';
 
-import { split } from 'apollo-link';
+import { split, from } from 'apollo-link';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
 import { WHISP_GQL_CLIENT } from '@/types/whisps';
 
 // Create the apollo client
-export const apolloClient = (httpURL: string, wsURL: string) => {
+export const apolloClient = (httpURL: string, wsURL: string, token?: string) => {
   const httpLink = new HttpLink({
     fetch: fetch as any,
     uri: httpURL,
@@ -21,7 +21,15 @@ export const apolloClient = (httpURL: string, wsURL: string) => {
   const wsLink = new WebSocketLink({
     uri: wsURL,
     options: {
+      ...token != null ? {
+        connectionParams: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      } : {},
       reconnect: true,
+      lazy: true,
     },
   });
 
@@ -50,14 +58,14 @@ export const apolloClient = (httpURL: string, wsURL: string) => {
   });
 
   return new ApolloClient({
-    link,
+    link: from([errorLink, link]),
     cache: new InMemoryCache(),
     connectToDevTools: true,
   });
 };
 
-export const apolloProvider = (httpURL: string, wsURL: string) => {
-  const client = apolloClient(httpURL, wsURL);
+export const apolloProvider = (httpURL: string, wsURL: string, token?: string) => {
+  const client = apolloClient(httpURL, wsURL, token);
   return new VueApollo({
     defaultClient: client,
     clients: {
