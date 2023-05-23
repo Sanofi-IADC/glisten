@@ -1,3 +1,11 @@
+## [1.2.3](https://github.com/Sanofi-IADC/glisten/compare/v1.2.2...v1.2.3) (2023-05-23)
+
+
+### Bug Fixes
+
+* **GlistenClient:** register VTextField ([4ddde21](https://github.com/Sanofi-IADC/glisten/commit/4ddde21a9e96e6d0f16619340250da2ffb7bf0ab))
+* **graphql:** add auth token to wsLink ([ecf09a8](https://github.com/Sanofi-IADC/glisten/commit/ecf09a8f283d0d3ee3e746efc24f9ce1597ecbcc))
+
 ## [1.2.2](https://github.com/Sanofi-IADC/glisten/compare/v1.2.1...v1.2.2) (2023-05-16)
 
 
