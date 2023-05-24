@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/Sanofi-IADC/glisten/compare/v1.2.3...v1.3.0) (2023-05-24)
+
+
+### Features
+
+* **apollo:** make web socket optional ([e2306d2](https://github.com/Sanofi-IADC/glisten/commit/e2306d2d44d554515b9a4362305be7426d912eb4))
+
 ## [1.2.3](https://github.com/Sanofi-IADC/glisten/compare/v1.2.2...v1.2.3) (2023-05-23)
 
 
