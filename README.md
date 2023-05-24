@@ -51,7 +51,8 @@ new Vue({
   vuetify,
   apolloProvider: ApolloProvider(
     process.env.VUE_APP_WHISPR_API_HTTP_URL,
-    process.env.VUE_APP_WHISPR_API_WS_URL,
+    process.env.VUE_APP_WHISPR_API_WS_URL, // this is not needed if you use only GlistenClient
+    authToken, // this is not needed if you use only GlistenClient
   ),
   render: (h) => h(App),
 }).$mount('#app');

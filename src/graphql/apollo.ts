@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import { onError } from 'apollo-link-error';
@@ -12,36 +11,11 @@ import { getMainDefinition } from 'apollo-utilities';
 import { WHISP_GQL_CLIENT } from '@/types/whisps';
 
 // Create the apollo client
-export const apolloClient = (httpURL: string, wsURL: string, token?: string) => {
+export const apolloClient = (httpURL: string, wsURL?: string, token?: string) => {
   const httpLink = new HttpLink({
     fetch: fetch as any,
     uri: httpURL,
   });
-
-  const wsLink = new WebSocketLink({
-    uri: wsURL,
-    options: {
-      ...token != null ? {
-        connectionParams: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      } : {},
-      reconnect: true,
-      lazy: true,
-    },
-  });
-
-  const link = split(
-    // split based on operation type
-    ({ query }) => {
-      const definition = getMainDefinition(query);
-      return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
-    },
-    wsLink,
-    httpLink,
-  );
 
   // Error Handling
   const errorLink = onError(({ graphQLErrors, networkError }) => {
@@ -57,14 +31,49 @@ export const apolloClient = (httpURL: string, wsURL: string, token?: string) => 
     }
   });
 
+  if (wsURL) {
+    let optionsConnectionParams = {};
+    if (token) {
+      optionsConnectionParams = {
+        connectionParams: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      };
+    }
+    const wsLink = new WebSocketLink({
+      uri: wsURL,
+      options: {
+        ...optionsConnectionParams,
+        reconnect: true,
+        lazy: true,
+      },
+    });
+    const link = split(
+      // split based on operation type
+      ({ query }) => {
+        const definition = getMainDefinition(query);
+        return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
+      },
+      wsLink,
+      httpLink,
+    );
+    return new ApolloClient({
+      link: from([errorLink, link]),
+      cache: new InMemoryCache(),
+      connectToDevTools: true,
+    });
+  }
+
   return new ApolloClient({
-    link: from([errorLink, link]),
+    link: from([errorLink, httpLink]),
     cache: new InMemoryCache(),
     connectToDevTools: true,
   });
 };
 
-export const apolloProvider = (httpURL: string, wsURL: string, token?: string) => {
+export const apolloProvider = (httpURL: string, wsURL?: string, token?: string) => {
   const client = apolloClient(httpURL, wsURL, token);
   return new VueApollo({
     defaultClient: client,
