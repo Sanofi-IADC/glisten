@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/Sanofi-IADC/glisten/compare/v1.3.0...v1.4.0) (2023-05-31)
+
+
+### Features
+
+* WEB-1824 Based on prop admin access right allow to remove feedback ([b1bcf54](https://github.com/Sanofi-IADC/glisten/commit/b1bcf54a879390c243f738237b73bc701d9be7e1))
+
 # [1.3.0](https://github.com/Sanofi-IADC/glisten/compare/v1.2.3...v1.3.0) (2023-05-24)
 
 
