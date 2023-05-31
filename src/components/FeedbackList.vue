@@ -210,6 +210,7 @@ import {
   VCardText,
   VCardActions,
   VSpacer,
+  VBtn,
 } from 'vuetify/lib';
 import { DataTableHeader } from 'vuetify';
 import { ConfirmationDialog, ItemActionTypes } from '@/types/feedbackList';
@@ -236,6 +237,7 @@ import { ConfirmationDialog, ItemActionTypes } from '@/types/feedbackList';
     VCardText,
     VCardActions,
     VSpacer,
+    VBtn,
   },
 })
 export default class FeedbackList extends Vue {
