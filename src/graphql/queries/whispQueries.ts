@@ -133,3 +133,17 @@ export interface FeedbackSubscriptionVariables {
     applicationID?: string;
   };
 }
+
+export const DELETE_WHISP = gql`
+  mutation DeleteWhisp($id: String!) {
+    deleteWhisp(id: $id)
+  }
+`;
+
+export interface DeleteWhispVariables {
+  id: string;
+}
+
+export interface DeleteWhispResult {
+  deleteWhisp: GQLCachedResult<Boolean>;
+}

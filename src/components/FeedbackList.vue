@@ -1,5 +1,35 @@
 <template>
   <div style="width:100%">
+    <v-dialog
+      v-if="confirmationDialog.visible"
+      v-model="confirmationDialog.visible"
+      width="500"
+    >
+      <v-card>
+        <v-card-title class="text-h5 white--text primary">
+          {{ confirmationDialog.title }}
+        </v-card-title>
+        <v-card-text>
+          <div class="mt-5">{{ confirmationDialog.description }}</div>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="flex justify-end">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            @click="onAcceptConfirmationDialog"
+          >
+            Confirm
+          </v-btn>
+          <v-btn
+            text
+            @click="onCancelConfirmationDialog"
+          >
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-data-table
       class="feedback-data-table"
       :items="feedbacks"
@@ -89,6 +119,39 @@
         </v-tooltip>
       </template>
 
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-menu offset-y>
+          <template v-slot:activator="scopeActionDataFromVTooltip">
+            <v-icon
+              dense
+              v-bind="scopeActionDataFromVTooltip.attrs"
+              v-on="scopeActionDataFromVTooltip.on"
+            >
+              mdi-dots-vertical
+            </v-icon>
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="(actionItem, index) in itemActionTypes"
+              :key="`${actionItem.text}-${index}-action`"
+              :value="actionItem.text"
+              @click="actionItem.onClickHandler(item)"
+            >
+              <v-list-item-title>
+                <div class="d-flex align-center">
+                  <v-icon dense :color="actionItem.iconColor">
+                    {{ actionItem.icon }}
+                  </v-icon>
+                  <span class="ml-2">
+                    {{ actionItem.text }}
+                  </span>
+                </div>
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
+
       <template v-slot:expanded-item="{ headers, item }">
         <td :colspan="headers.length" class="pa-4">
           <v-list-item>
@@ -125,13 +188,13 @@
 <script lang="ts">
 import { Vue, Component, Prop, Emit } from 'vue-property-decorator';
 import { IFeedback, FeedbackStatus } from '@/types/whisps';
-import { DataTableHeader } from 'vuetify';
 import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';
 import {
   VDataTable,
   VIcon,
   VSnackbar,
   VTooltip,
+  VList,
   VListItem,
   VListItemContent,
   VListItemTitle,
@@ -140,7 +203,16 @@ import {
   VTextarea,
   VCheckbox,
   VChip,
+  VDialog,
+  VDivider,
+  VCard,
+  VCardTitle,
+  VCardText,
+  VCardActions,
+  VSpacer,
 } from 'vuetify/lib';
+import { DataTableHeader } from 'vuetify';
+import { ConfirmationDialog, ItemActionTypes } from '@/types/feedbackList';
 
 @Component({
   components: {
@@ -148,6 +220,7 @@ import {
     VIcon,
     VSnackbar,
     VTooltip,
+    VList,
     VListItem,
     VListItemContent,
     VListItemTitle,
@@ -156,15 +229,29 @@ import {
     VTextarea,
     VCheckbox,
     VChip,
+    VDialog,
+    VDivider,
+    VCard,
+    VCardTitle,
+    VCardText,
+    VCardActions,
+    VSpacer,
   },
 })
 export default class FeedbackList extends Vue {
   @Prop({ required: true }) public feedbacks!: IFeedback[];
   @Prop({ required: true }) public loading!: boolean;
+  @Prop({ required: true }) public adminPermissions!: boolean;
 
   snackbar = false;
   copiedId: string | null = null;
   expanded: any[] = [];
+  confirmationDialog: ConfirmationDialog = {
+    confirmCallback: () => {},
+    title: 'Warning',
+    description: 'Confirmation of the operation will cause irreversible changes, do you want to confirm ?',
+    visible: false,
+  };
 
   @Emit('changeStatus')
   private changeStatus(
@@ -172,6 +259,11 @@ export default class FeedbackList extends Vue {
     status: FeedbackStatus,
   ): { feedback: IFeedback; status: FeedbackStatus } {
     return { feedback, status };
+  }
+
+  @Emit('removeFeedback')
+  private removeFeedback(feedback: IFeedback) {
+    return { feedback };
   }
 
   private isActionNeeded(feedback: IFeedback): boolean {
@@ -191,9 +283,37 @@ export default class FeedbackList extends Vue {
     }
   }
 
+  private openConfirmationDialog({ confirmCallback }: { confirmCallback: ConfirmationDialog['confirmCallback'] }) {
+    this.confirmationDialog.visible = true;
+    this.confirmationDialog.confirmCallback = confirmCallback;
+  }
+
+  private onAcceptConfirmationDialog() {
+    this.confirmationDialog.confirmCallback();
+    this.onCancelConfirmationDialog();
+  }
+
+  private onCancelConfirmationDialog() {
+    this.confirmationDialog.visible = false;
+    this.confirmationDialog.confirmCallback = () => {};
+  }
+
   @Emit('setNotes')
   private setNotes(feedback: IFeedback, notes: string): { feedback: IFeedback; notes: string } {
     return { feedback, notes };
+  }
+
+  private get itemActionTypes(): ItemActionTypes {
+    return [
+      {
+        text: 'Remove',
+        icon: 'mdi-trash-can-outline',
+        iconColor: 'red',
+        onClickHandler: (feedback: IFeedback) => this.openConfirmationDialog({
+          confirmCallback: () => this.removeFeedback(feedback),
+        }),
+      },
+    ];
   }
 
   private get tableHeaders(): DataTableHeader[] {
@@ -213,8 +333,15 @@ export default class FeedbackList extends Vue {
       },
       { text: 'Status', value: 'status', sortable: false, width: '3em' },
       { text: 'Notes', value: 'notes', sortable: false, width: '3em' },
+      {
+        text: 'Actions',
+        value: 'actions',
+        width: '3em',
+        align: 'center',
+        adminPermission: true,
+      },
       { text: '', value: 'data-table-expand', width: '3em' },
-    ];
+    ].filter((header) => header.adminPermission ? this.adminPermissions : true) as DataTableHeader[];
   }
 
   private getColor(rating: number): string {

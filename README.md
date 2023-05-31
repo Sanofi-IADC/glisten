@@ -169,6 +169,10 @@ Insert on page the following comonent
 </template>
 ```
 
+**Props**
+
+- _admin-access-rights_ (`boolean`) : Allows you to remove feedback from the actions column of the FeedbackList component
+
 # Roadmap
 
 - [ ] Split installation of glisten in two npm packages separating feedback and dashboard
