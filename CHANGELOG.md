@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/Sanofi-IADC/glisten/compare/v1.4.0...v1.5.0) (2023-05-31)
+
+
+### Features
+
+* WEB-1824 Added missing import VBtn in FeedbackList component ([2ed2a82](https://github.com/Sanofi-IADC/glisten/commit/2ed2a82e5a18363d0333ac62eb259b2cec0ce64e))
+
 # [1.4.0](https://github.com/Sanofi-IADC/glisten/compare/v1.3.0...v1.4.0) (2023-05-31)
 
 
