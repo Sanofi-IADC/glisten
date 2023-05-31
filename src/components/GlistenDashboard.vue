@@ -37,8 +37,10 @@
         <feedback-list
           :feedbacks="feedbacks"
           :loading="loading"
+          :admin-permissions="adminPermissions"
           @changeStatus="changeStatus"
           @setNotes="setNotes"
+          @removeFeedback="removeFeedback"
         />
       </div>
     </div>
@@ -47,7 +49,7 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import FeedbackList from '@/components/FeedbackList.vue';
 import Filters from '@/components/Filters.vue';
 import NpsScoreGauge from '@/components/NpsScoreGauge.vue';
@@ -66,6 +68,9 @@ import {
   FeedbackQuerySortVariable,
   UpdateWhispVariables,
   UpdateWhispResult,
+  DeleteWhispResult,
+  DeleteWhispVariables,
+  DELETE_WHISP,
 } from '@/graphql/queries/whispQueries';
 import {
   IFeedback,
@@ -96,6 +101,13 @@ import { VCard } from 'vuetify/lib';
   },
 })
 export default class GlistenDashboard extends Vue {
+  @Prop({ required: false, default: () => false })
+  public adminAccessRights!: boolean;
+
+  private get adminPermissions(): boolean {
+    return this.adminAccessRights ?? false;
+  }
+
   private get ratings(): number[] {
     return this.feedbacks.map((x) => x.data.rating);
   }
@@ -280,6 +292,28 @@ export default class GlistenDashboard extends Vue {
           data: { ...feedback.data, notes },
         },
       },
+    });
+  }
+
+  private updateFeedbackListAfterRemove(feedback: IFeedback) {
+    this.feedbacks = this.feedbacks.filter(({ _id }: IFeedback) =>
+      _id !== feedback._id,
+    );
+  }
+
+  private async removeFeedback({
+    feedback,
+  }: {
+    feedback: IFeedback;
+  }): Promise<void> {
+    this.$apollo.mutate<DeleteWhispResult, DeleteWhispVariables>({
+      mutation: DELETE_WHISP,
+      client: WHISP_GQL_CLIENT,
+      variables: {
+        id: feedback._id,
+      },
+    }).then(() => {
+      this.updateFeedbackListAfterRemove(feedback);
     });
   }
 }
