@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/Sanofi-IADC/glisten/compare/v1.5.0...v1.5.1) (2023-07-12)
+
+
+### Bug Fixes
+
+* action required field gui refresh ([6ba3005](https://github.com/Sanofi-IADC/glisten/commit/6ba300557f2d76fc33dee43ef014bf7747828949))
+
 # [1.5.0](https://github.com/Sanofi-IADC/glisten/compare/v1.4.0...v1.5.0) (2023-05-31)
 
 
