@@ -243,6 +243,7 @@ export default class GlistenClient extends Vue {
           this.snackbarColor = 'error';
           this.snackbarDisplayed = true;
         }
+        this.actionRequired = false;
       });
 
     this.$emit('close', this.glistenWhisp);
