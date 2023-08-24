@@ -173,6 +173,22 @@ Insert on page the following comonent
 
 - _admin-access-rights_ (`boolean`) : Allows you to remove feedback from the actions column of the FeedbackList component
 
+
+### Glisten Client Micro front-end
+
+You can either use the micro front-end application deployed in dedicated place. The proposed solution to use Glisten Client as a micro front-end application is [Single SPA](https://single-spa.js.org) library. Communication via micro front-end application is implemented via event emitter instance.
+
+
+To build a micro front-end instance, You need to run the command:
+```sh
+npm run build:glisten-client:microfrontend
+```
+
+To run instance locally, You need to run the command:
+```sh
+npm run serve:microfrontends
+```
+
 # Roadmap
 
 - [ ] Split installation of glisten in two npm packages separating feedback and dashboard

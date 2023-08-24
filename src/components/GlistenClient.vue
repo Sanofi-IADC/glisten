@@ -194,6 +194,11 @@ export default class GlistenClient extends Vue {
       : FeedbackStatus.NO_ACTION_NEEDED;
   }
 
+  @Watch('applicationId', { immediate: true })
+  private onApplicationIdChanged(val: string) {
+    this.glistenWhisp.applicationID = val;
+  }
+
   private calculateSentiment(comment: string): number {
     const sentiment = require('wink-sentiment');
     const sentimentResult = sentiment(comment);
