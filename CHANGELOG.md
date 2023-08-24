@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/Sanofi-IADC/glisten/compare/v1.5.1...v1.6.0) (2023-08-24)
+
+
+### Features
+
+* WEB-2001 Integared Glisten client as a micro front-end ([ba3311a](https://github.com/Sanofi-IADC/glisten/commit/ba3311a699f78ae7186ea2e10f67875fa5185470))
+
 ## [1.5.1](https://github.com/Sanofi-IADC/glisten/compare/v1.5.0...v1.5.1) (2023-07-12)
 
 
