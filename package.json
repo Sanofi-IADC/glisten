@@ -106,7 +106,7 @@
     "typescript": "3.9.10",
     "vue": "2.6.12",
     "vue-cli-plugin-apollo": "0.22.2",
-    "vue-cli-plugin-vuetify": "0.6.3",
+    "vue-cli-plugin-vuetify": "2.5.8",
     "vue-template-compiler": "2.6.12",
     "vuepress": "1.8.2",
     "vuetify": "2.4.8",
