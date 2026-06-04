@@ -12,6 +12,9 @@ jobs:
     name: Quality
     if: "!contains(github.event.head_commit.message, 'chore(release):')"
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,13 +41,27 @@ jobs:
         run: npm run build-bundle
 
       - name: E2E tests
+        id: cypress
         uses: cypress-io/github-action@v6
+        env:
+          CI: true
         with:
           install: false
           start: npm run serve
           wait-on: 'http://localhost:8080'
           wait-on-timeout: 120
-          command: npx cypress run
+          command: npx cypress run --config video=true
+
+      - name: Upload Cypress videos and screenshots
+        if: always() && steps.cypress.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-e2e-${{ github.event.pull_request.number || github.run_id }}
+          path: |
+            tests/e2e/videos
+            tests/e2e/screenshots
+          retention-days: 14
+          if-no-files-found: ignore
 
   release:
     name: Release
