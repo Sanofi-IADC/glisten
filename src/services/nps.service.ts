@@ -14,7 +14,11 @@ export function isDetractor(rating: number): boolean {
 }
 
 export function computeNPSScore(promoters: number, neutrals: number, detractors: number): number {
-  return ((promoters - detractors) / (promoters + neutrals + detractors)) * 100;
+  const total = promoters + neutrals + detractors;
+  if (total === 0) {
+    return 0;
+  }
+  return ((promoters - detractors) / total) * 100;
 }
 
 /**
