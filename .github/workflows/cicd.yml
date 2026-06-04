@@ -53,7 +53,7 @@ jobs:
           command: npx cypress run --config video=true
 
       - name: Upload Cypress videos and screenshots
-        if: always() && steps.cypress.outcome == 'failure'
+        if: always() && steps.cypress.outcome != 'skipped'
         uses: actions/upload-artifact@v4
         with:
           name: cypress-e2e-${{ github.event.pull_request.number || github.run_id }}
