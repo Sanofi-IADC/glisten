@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+env:
+  # Run JavaScript actions on Node.js 24 (Node 20 runtime deprecated on GitHub-hosted runners).
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   quality:
     name: Quality
@@ -17,10 +21,10 @@ jobs:
       actions: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.x
           cache: npm
@@ -42,7 +46,7 @@ jobs:
 
       - name: E2E tests
         id: cypress
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         env:
           CI: true
         with:
@@ -54,7 +58,7 @@ jobs:
 
       - name: Upload Cypress videos and screenshots
         if: always() && steps.cypress.outcome != 'skipped'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cypress-e2e-${{ github.event.pull_request.number || github.run_id }}
           path: |
@@ -70,12 +74,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.SEMANTIC_RELEASE_TOKEN }}
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22.x
           cache: npm
