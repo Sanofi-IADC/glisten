@@ -36,7 +36,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        api: 'modern-compiler',
+        // Use Dart Sass (pure JS) so CI does not require platform-specific sass-embedded binaries.
+        api: 'modern',
       },
     },
   },

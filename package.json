@@ -103,7 +103,6 @@
     "rimraf": "^6.0.1",
     "rollup-plugin-visualizer": "^5.12.0",
     "sass": "^1.83.0",
-    "sass-embedded": "^1.83.0",
     "semantic-release": "^24.2.0",
     "start-server-and-test": "^3.0.5",
     "systemjs-webpack-interop": "^2.3.7",
