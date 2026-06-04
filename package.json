@@ -142,5 +142,8 @@
     "plugin",
     "whispr",
     "glisten"
-  ]
+  ],
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.61.0"
+  }
 }
