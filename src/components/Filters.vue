@@ -1,81 +1,87 @@
 <template>
   <div>
-    <v-menu>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on">
-          {{ dayjs(syncedStartDate).format('LL') }} -
-          {{ dayjs(syncedEndDate).format('LL') }}
+    <v-menu :close-on-content-click="false">
+      <template #activator="{ props: menuProps }">
+        <v-btn v-bind="menuProps">
+          {{ dayjs(startDate).format('LL') }} -
+          {{ dayjs(endDate).format('LL') }}
         </v-btn>
       </template>
-      <v-date-picker v-model="internalStartDate" class="pa-2" />
-      <v-date-picker v-model="internalEndDate" class="pa-2" />
+      <v-date-picker
+        multiple="range"
+        :model-value="dateRangeValue"
+        class="pa-2"
+        title="Select date range"
+        @update:model-value="onDateRangeChange"
+      />
     </v-menu>
     <div>
-      <div class="headline">
-        Applications
-      </div>
+      <div class="text-h5">Applications</div>
       <v-checkbox
         v-for="application in availableApplications"
         :key="application"
-        :value="isApplicationFiltered(application)"
+        :model-value="isApplicationFiltered(application)"
         :label="application"
-        @change="(evt) => applicationFilterToggled(application, evt)"
+        @update:model-value="(evt) => applicationFilterToggled(application, !!evt)"
       />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue, PropSync } from 'vue-property-decorator';
+<script setup lang="ts">
+import { computed } from 'vue';
 import dayjs from 'dayjs';
-import { VMenu, VCheckbox, VBtn, VDatePicker } from 'vuetify/lib';
 
-@Component({
-  components: {
-    VMenu,
-    VCheckbox,
-    VBtn,
-    VDatePicker,
-  },
-})
-export default class Filters extends Vue {
-  @PropSync('startDate', { required: true }) public syncedStartDate!: Date;
-  @PropSync('endDate', { required: true }) public syncedEndDate!: Date;
+const props = defineProps<{
+  startDate: Date;
+  endDate: Date;
+  availableApplications: string[];
+  filteredApplications: string[];
+}>();
 
-  @Prop({ required: true }) public availableApplications!: string[];
-  @PropSync('filteredApplications', { required: true })
-  public syncedFilteredApplications!: string[];
+const emit = defineEmits<{
+  (e: 'update:startDate', value: Date): void;
+  (e: 'update:endDate', value: Date): void;
+  (e: 'update:filteredApplications', value: string[]): void;
+}>();
 
-  get internalStartDate(): string {
-    return dayjs(this.syncedStartDate).format('YYYY-MM-DD');
+const dateRangeValue = computed(() => [
+  dayjs(props.startDate).format('YYYY-MM-DD'),
+  dayjs(props.endDate).format('YYYY-MM-DD'),
+]);
+
+function onDateRangeChange(value: string | string[] | Date | Date[] | null) {
+  if (!value) {
+    return;
   }
 
-  set internalStartDate(value: string) {
-    this.syncedStartDate = dayjs(value).toDate();
+  const dates = (Array.isArray(value) ? value : [value]).map((entry) =>
+    dayjs(entry).format('YYYY-MM-DD'),
+  );
+
+  if (dates.length < 2) {
+    return;
   }
 
-  get internalEndDate(): string {
-    return dayjs(this.syncedEndDate).format('YYYY-MM-DD');
-  }
+  const sorted = [...dates].sort((a, b) => dayjs(a).valueOf() - dayjs(b).valueOf());
+  emit('update:startDate', dayjs(sorted[0]).toDate());
+  emit('update:endDate', dayjs(sorted[sorted.length - 1]).toDate());
+}
 
-  set internalEndDate(value: string) {
-    this.syncedEndDate = dayjs(value).toDate();
-  }
+function isApplicationFiltered(application: string): boolean {
+  return props.filteredApplications.indexOf(application) !== -1;
+}
 
-  private isApplicationFiltered(application: string): boolean {
-    return this.syncedFilteredApplications.indexOf(application) !== -1;
-  }
+function applicationFilterToggled(application: string, value: boolean): void {
+  const index = props.filteredApplications.indexOf(application);
 
-  private applicationFilterToggled(application: string, value: boolean): void {
-    const index = this.syncedFilteredApplications.indexOf(application);
-
-    if (value && index === -1) {
-      this.syncedFilteredApplications = [application, ...this.syncedFilteredApplications];
-    } else if (!value && index !== -1) {
-      this.syncedFilteredApplications = this.syncedFilteredApplications.filter(
-        (_, i) => i !== index,
-      );
-    }
+  if (value && index === -1) {
+    emit('update:filteredApplications', [application, ...props.filteredApplications]);
+  } else if (!value && index !== -1) {
+    emit(
+      'update:filteredApplications',
+      props.filteredApplications.filter((_, i) => i !== index),
+    );
   }
 }
 </script>

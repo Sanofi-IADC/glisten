@@ -1,66 +1,48 @@
 <template>
-  <div style="width:100%">
-    <v-dialog
-      v-if="confirmationDialog.visible"
-      v-model="confirmationDialog.visible"
-      width="500"
-    >
+  <div style="width: 100%">
+    <v-dialog v-if="confirmationDialog.visible" v-model="confirmationDialog.visible" width="500">
       <v-card>
-        <v-card-title class="text-h5 white--text primary">
+        <v-card-title class="text-h5 text-white bg-primary">
           {{ confirmationDialog.title }}
         </v-card-title>
         <v-card-text>
           <div class="mt-5">{{ confirmationDialog.description }}</div>
         </v-card-text>
         <v-divider></v-divider>
-        <v-card-actions class="flex justify-end">
+        <v-card-actions class="d-flex justify-end">
           <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            @click="onAcceptConfirmationDialog"
-          >
-            Confirm
-          </v-btn>
-          <v-btn
-            text
-            @click="onCancelConfirmationDialog"
-          >
-            Cancel
-          </v-btn>
+          <v-btn color="primary" @click="onAcceptConfirmationDialog"> Confirm </v-btn>
+          <v-btn variant="text" @click="onCancelConfirmationDialog"> Cancel </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <v-data-table
+      v-model:expanded="expanded"
       class="feedback-data-table"
       :items="feedbacks"
       :headers="tableHeaders"
       :loading="loading"
       show-expand
-      item-key="_id"
-      :expanded.sync="expanded"
+      item-value="_id"
     >
-      <template v-slot:[`header.data.rating`]="{}">
-        <v-icon dense>
-          mdi-heart
-        </v-icon>
+      <template #[`header.data.rating`]>
+        <v-icon density="compact" :icon="mdiHeart" />
       </template>
 
-      <template v-slot:[`header.data.commentSentimentScore`]="{}">
-        <v-icon dense>
-          mdi-emoticon
-        </v-icon>
+      <template #[`header.data.commentSentimentScore`]>
+        <v-icon density="compact" :icon="mdiEmoticon" />
       </template>
 
-      <template v-slot:[`item._id`]="{ item }">
+      <template #[`item._id`]="{ item }">
         <span :id="item._id" class="feedback-id" @click="copyToClipboard(item._id)">{{
           item._id
         }}</span>
       </template>
 
-      <template v-slot:[`item.timestamp`]="{ item }">
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <span v-bind="attrs" v-on="on">
+      <template #[`item.timestamp`]="{ item }">
+        <v-tooltip location="bottom">
+          <template #activator="{ props: tooltipProps }">
+            <span v-bind="tooltipProps">
               {{ dayjs(item.timestamp).fromNow() }}
             </span>
           </template>
@@ -68,24 +50,26 @@
         </v-tooltip>
       </template>
 
-      <template v-slot:[`item.data.name`]="{ item }">
+      <template #[`item.data.name`]="{ item }">
         <span>{{ item.data.anonymous ? 'anonymous' : item.data.name }}</span>
       </template>
 
-      <template v-slot:[`item.data.rating`]="{ item }">
-        <v-chip :color="getColor(item.data.rating)" dark>
+      <template #[`item.data.rating`]="{ item }">
+        <v-chip :color="getColor(item.data.rating)" variant="flat">
           {{ item.data.rating }}
         </v-chip>
       </template>
 
-      <template v-slot:[`item.status`]="{ item }">
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on, attrs }">
-            <div v-bind="attrs" v-on="on">
+      <template #[`item.status`]="{ item }">
+        <v-tooltip location="bottom">
+          <template #activator="{ props: tooltipProps }">
+            <div v-bind="tooltipProps">
               <v-checkbox
                 :disabled="!isActionNeeded(item)"
-                :input-value="isActionDone(item)"
-                @change="(value) => onActionToggled(item, value)"
+                :model-value="isActionDone(item)"
+                :aria-label="isActionDone(item) ? 'Action done' : 'Action needed'"
+                hide-details
+                @update:model-value="(value) => onActionToggled(item, !!value)"
               />
             </div>
           </template>
@@ -95,22 +79,23 @@
         </v-tooltip>
       </template>
 
-      <template v-slot:[`item.notes`]="{ item }">
-        <v-tooltip bottom :disabled="!item.data.notes">
-          <template v-slot:activator="scopeDataFromVTooltip">
-            <div v-bind="scopeDataFromVTooltip.attrs" v-on="scopeDataFromVTooltip.on">
+      <template #[`item.notes`]="{ item }">
+        <v-tooltip location="bottom" :disabled="!item.data.notes">
+          <template #activator="{ props: tooltipProps }">
+            <div v-bind="tooltipProps">
               <v-menu :close-on-content-click="false">
-                <template v-slot:activator="scopeDataFromVMenu">
-                  <v-icon v-bind="scopeDataFromVMenu.attrs" v-on="scopeDataFromVMenu.on">
-                    {{ item.data.notes ? 'mdi-comment-text-outline' : 'mdi-comment-outline' }}
-                  </v-icon>
+                <template #activator="{ props: menuProps }">
+                  <v-icon
+                    v-bind="menuProps"
+                    :icon="item.data.notes ? mdiCommentTextOutline : mdiCommentOutline"
+                  />
                 </template>
                 <v-textarea
-                  solo
+                  variant="solo"
                   class="pa-2"
                   placeholder="..."
-                  :value="item.data.notes"
-                  @change="(value) => setNotes(item, value)"
+                  :model-value="item.data.notes"
+                  @update:model-value="(value) => setNotes(item, value)"
                 />
               </v-menu>
             </div>
@@ -119,16 +104,10 @@
         </v-tooltip>
       </template>
 
-      <template v-slot:[`item.actions`]="{ item }">
-        <v-menu offset-y>
-          <template v-slot:activator="scopeActionDataFromVTooltip">
-            <v-icon
-              dense
-              v-bind="scopeActionDataFromVTooltip.attrs"
-              v-on="scopeActionDataFromVTooltip.on"
-            >
-              mdi-dots-vertical
-            </v-icon>
+      <template #[`item.actions`]="{ item }">
+        <v-menu offset="8">
+          <template #activator="{ props: menuProps }">
+            <v-icon density="compact" v-bind="menuProps" :icon="mdiDotsVertical" />
           </template>
           <v-list>
             <v-list-item
@@ -139,9 +118,7 @@
             >
               <v-list-item-title>
                 <div class="d-flex align-center">
-                  <v-icon dense :color="actionItem.iconColor">
-                    {{ actionItem.icon }}
-                  </v-icon>
+                  <v-icon density="compact" :color="actionItem.iconColor" :icon="actionItem.icon" />
                   <span class="ml-2">
                     {{ actionItem.text }}
                   </span>
@@ -152,10 +129,10 @@
         </v-menu>
       </template>
 
-      <template v-slot:expanded-item="{ headers, item }">
-        <td :colspan="headers.length" class="pa-4">
-          <v-list-item>
-            <v-list-item-content>
+      <template #expanded-row="{ columns, item }">
+        <tr>
+          <td :colspan="columns.length" class="pa-4">
+            <v-list-item>
               <v-list-item-title><b>Context</b></v-list-item-title>
               <v-list-item-subtitle>
                 <span
@@ -163,206 +140,174 @@
                   {{ item.data.contextPortal || 'N/A' }}</span
                 >
               </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-content>
+            </v-list-item>
+            <v-list-item>
               <v-list-item-title><b>Notes</b></v-list-item-title>
               <v-list-item-subtitle>
                 <span>{{ item.data.notes || 'N/A' }}</span>
               </v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </td>
+            </v-list-item>
+          </td>
+        </tr>
       </template>
     </v-data-table>
     <v-snackbar v-model="snackbar">
       <span
-        ><v-icon left color="white">mdi-content-copy</v-icon>{{ copiedId }} copied to clipboard
-        !</span
+        ><v-icon class="mr-1" color="white" :icon="mdiContentCopy" />{{ copiedId }} copied to
+        clipboard !</span
       >
     </v-snackbar>
   </div>
 </template>
 
-<script lang="ts">
-import { Vue, Component, Prop, Emit } from 'vue-property-decorator';
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import {
+  mdiHeart,
+  mdiEmoticon,
+  mdiCommentTextOutline,
+  mdiCommentOutline,
+  mdiDotsVertical,
+  mdiContentCopy,
+  mdiTrashCanOutline,
+} from '@mdi/js';
 import { IFeedback, FeedbackStatus } from '@/types/whisps';
 import { isPromoter, isNeutral, isDetractor } from '@/services/nps.service';
-import {
-  VDataTable,
-  VIcon,
-  VSnackbar,
-  VTooltip,
-  VList,
-  VListItem,
-  VListItemContent,
-  VListItemTitle,
-  VListItemSubtitle,
-  VMenu,
-  VTextarea,
-  VCheckbox,
-  VChip,
-  VDialog,
-  VDivider,
-  VCard,
-  VCardTitle,
-  VCardText,
-  VCardActions,
-  VSpacer,
-  VBtn,
-} from 'vuetify/lib';
-import { DataTableHeader } from 'vuetify';
-import { ConfirmationDialog, ItemActionTypes } from '@/types/feedbackList';
+import dayjs from 'dayjs';
+import type {
+  ConfirmationDialog,
+  ItemActionTypes,
+  FeedbackTableHeader,
+} from '@/types/feedbackList';
 
-@Component({
-  components: {
-    VDataTable,
-    VIcon,
-    VSnackbar,
-    VTooltip,
-    VList,
-    VListItem,
-    VListItemContent,
-    VListItemTitle,
-    VListItemSubtitle,
-    VMenu,
-    VTextarea,
-    VCheckbox,
-    VChip,
-    VDialog,
-    VDivider,
-    VCard,
-    VCardTitle,
-    VCardText,
-    VCardActions,
-    VSpacer,
-    VBtn,
+const props = defineProps<{
+  feedbacks: IFeedback[];
+  loading: boolean;
+  adminPermissions: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: 'changeStatus', payload: { feedback: IFeedback; status: FeedbackStatus }): void;
+  (e: 'removeFeedback', payload: { feedback: IFeedback }): void;
+  (e: 'setNotes', payload: { feedback: IFeedback; notes: string }): void;
+}>();
+
+const snackbar = ref(false);
+const copiedId = ref<string | null>(null);
+const expanded = ref<string[]>([]);
+const confirmationDialog = ref<ConfirmationDialog>({
+  confirmCallback: () => {},
+  title: 'Warning',
+  description:
+    'Confirmation of the operation will cause irreversible changes, do you want to confirm ?',
+  visible: false,
+});
+
+function changeStatus(feedback: IFeedback, status: FeedbackStatus): void {
+  emit('changeStatus', { feedback, status });
+}
+
+function removeFeedback(feedback: IFeedback): void {
+  emit('removeFeedback', { feedback });
+}
+
+function setNotes(feedback: IFeedback, notes: string): void {
+  emit('setNotes', { feedback, notes });
+}
+
+function isActionNeeded(feedback: IFeedback): boolean {
+  return !!feedback.data.status && feedback.data.status !== FeedbackStatus.NO_ACTION_NEEDED;
+}
+
+function isActionDone(feedback: IFeedback): boolean {
+  return feedback.data.status === FeedbackStatus.ACTION_DONE;
+}
+
+function onActionToggled(feedback: IFeedback, value: boolean): void {
+  if (isActionNeeded(feedback)) {
+    changeStatus(feedback, value ? FeedbackStatus.ACTION_DONE : FeedbackStatus.ACTION_NEEDED);
+  }
+}
+
+function openConfirmationDialog({
+  confirmCallback,
+}: {
+  confirmCallback: ConfirmationDialog['confirmCallback'];
+}) {
+  confirmationDialog.value.visible = true;
+  confirmationDialog.value.confirmCallback = confirmCallback;
+}
+
+function onAcceptConfirmationDialog() {
+  confirmationDialog.value.confirmCallback();
+  onCancelConfirmationDialog();
+}
+
+function onCancelConfirmationDialog() {
+  confirmationDialog.value.visible = false;
+  confirmationDialog.value.confirmCallback = () => {};
+}
+
+const itemActionTypes = computed<ItemActionTypes>(() => [
+  {
+    text: 'Remove',
+    icon: mdiTrashCanOutline,
+    iconColor: 'red',
+    onClickHandler: (feedback: IFeedback) =>
+      openConfirmationDialog({
+        confirmCallback: () => removeFeedback(feedback),
+      }),
   },
-})
-export default class FeedbackList extends Vue {
-  @Prop({ required: true }) public feedbacks!: IFeedback[];
-  @Prop({ required: true }) public loading!: boolean;
-  @Prop({ required: true }) public adminPermissions!: boolean;
+]);
 
-  snackbar = false;
-  copiedId: string | null = null;
-  expanded: any[] = [];
-  confirmationDialog: ConfirmationDialog = {
-    confirmCallback: () => {},
-    title: 'Warning',
-    description: 'Confirmation of the operation will cause irreversible changes, do you want to confirm ?',
-    visible: false,
-  };
-
-  @Emit('changeStatus')
-  private changeStatus(
-    feedback: IFeedback,
-    status: FeedbackStatus,
-  ): { feedback: IFeedback; status: FeedbackStatus } {
-    return { feedback, status };
-  }
-
-  @Emit('removeFeedback')
-  private removeFeedback(feedback: IFeedback) {
-    return { feedback };
-  }
-
-  private isActionNeeded(feedback: IFeedback): boolean {
-    return feedback.data.status && feedback.data.status !== FeedbackStatus.NO_ACTION_NEEDED;
-  }
-
-  private isActionDone(feedback: IFeedback): boolean {
-    return feedback.data.status === FeedbackStatus.ACTION_DONE;
-  }
-
-  private onActionToggled(feedback: IFeedback, value: boolean): void {
-    if (this.isActionNeeded(feedback)) {
-      this.changeStatus(
-        feedback,
-        value ? FeedbackStatus.ACTION_DONE : FeedbackStatus.ACTION_NEEDED,
-      );
-    }
-  }
-
-  private openConfirmationDialog({ confirmCallback }: { confirmCallback: ConfirmationDialog['confirmCallback'] }) {
-    this.confirmationDialog.visible = true;
-    this.confirmationDialog.confirmCallback = confirmCallback;
-  }
-
-  private onAcceptConfirmationDialog() {
-    this.confirmationDialog.confirmCallback();
-    this.onCancelConfirmationDialog();
-  }
-
-  private onCancelConfirmationDialog() {
-    this.confirmationDialog.visible = false;
-    this.confirmationDialog.confirmCallback = () => {};
-  }
-
-  @Emit('setNotes')
-  private setNotes(feedback: IFeedback, notes: string): { feedback: IFeedback; notes: string } {
-    return { feedback, notes };
-  }
-
-  private get itemActionTypes(): ItemActionTypes {
-    return [
+const tableHeaders = computed<FeedbackTableHeader[]>(
+  () =>
+    [
+      { title: 'ID', key: '_id', sortable: false, width: '6ch' },
+      { title: 'Date', key: 'timestamp', width: '10em' },
+      { title: 'Application', key: 'applicationID', width: '10em' },
+      { title: 'Name', key: 'data.name', width: '10em' },
+      { title: 'Feedback', key: 'data.feedback', sortable: false, width: '100%' },
+      { title: 'rating', key: 'data.rating', sortable: true, align: 'center', width: '7em' },
       {
-        text: 'Remove',
-        icon: 'mdi-trash-can-outline',
-        iconColor: 'red',
-        onClickHandler: (feedback: IFeedback) => this.openConfirmationDialog({
-          confirmCallback: () => this.removeFeedback(feedback),
-        }),
-      },
-    ];
-  }
-
-  private get tableHeaders(): DataTableHeader[] {
-    return [
-      { text: 'ID', value: '_id', sortable: false, width: '6ch' },
-      { text: 'Date', value: 'timestamp', width: '10em' },
-      { text: 'Application', value: 'applicationID', width: '10em' },
-      { text: 'Name', value: 'data.name', width: '10em' },
-      { text: 'Feedback', value: 'data.feedback', sortable: false, width: '100%' },
-      { text: 'rating', value: 'data.rating', sortable: true, align: 'center', width: '7em' },
-      {
-        text: 'commentSentimentScore',
-        value: 'data.commentSentimentScore',
+        title: 'commentSentimentScore',
+        key: 'data.commentSentimentScore',
         sortable: true,
         align: 'center',
         width: '6em',
       },
-      { text: 'Status', value: 'status', sortable: false, width: '3em' },
-      { text: 'Notes', value: 'notes', sortable: false, width: '3em' },
+      { title: 'Status', key: 'status', sortable: false, width: '3em' },
+      { title: 'Notes', key: 'notes', sortable: false, width: '3em' },
       {
-        text: 'Actions',
-        value: 'actions',
+        title: 'Actions',
+        key: 'actions',
         width: '3em',
         align: 'center',
         adminPermission: true,
       },
-      { text: '', value: 'data-table-expand', width: '3em' },
-    ].filter((header) => header.adminPermission ? this.adminPermissions : true) as DataTableHeader[];
+      { title: '', key: 'data-table-expand', width: '3em' },
+    ].filter((header) =>
+      header.adminPermission ? props.adminPermissions : true,
+    ) as FeedbackTableHeader[],
+);
+
+function getColor(rating: number): string {
+  if (isPromoter(rating)) {
+    return 'green';
   }
-
-  private getColor(rating: number): string {
-    if (isPromoter(rating)) {
-      return 'green';
-    }
-
-    if (isNeutral(rating)) {
-      return 'orange';
-    }
-
-    if (isDetractor(rating)) {
-      return 'red';
-    }
-
-    return '';
+  if (isNeutral(rating)) {
+    return 'orange';
   }
+  if (isDetractor(rating)) {
+    return 'red';
+  }
+  return '';
+}
 
-  copyToClipboard(id: string) {
+async function copyToClipboard(id: string) {
+  try {
+    await navigator.clipboard.writeText(id);
+  } catch {
     const el = document.createElement('textarea');
     el.value = id;
     el.setAttribute('readonly', '');
@@ -372,9 +317,9 @@ export default class FeedbackList extends Vue {
     el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
-    this.copiedId = id;
-    this.snackbar = true;
   }
+  copiedId.value = id;
+  snackbar.value = true;
 }
 </script>
 

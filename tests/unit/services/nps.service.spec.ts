@@ -42,8 +42,8 @@ describe('computeNPSScore', () => {
     expect(computeNPSScore(25, 0, 75)).toBe(-50);
   });
 
-  it('should return NaN if there is no ratings', () => {
-    expect(computeNPSScore(0, 0, 0)).toBeNaN();
+  it('should return 0 if there are no ratings', () => {
+    expect(computeNPSScore(0, 0, 0)).toBe(0);
   });
 });
 

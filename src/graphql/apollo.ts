@@ -1,28 +1,65 @@
-import { ApolloClient } from 'apollo-client';
-import { HttpLink } from 'apollo-link-http';
-import { onError } from 'apollo-link-error';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import VueApollo from 'vue-apollo';
-import fetch from 'node-fetch';
-
-import { split, from } from 'apollo-link';
-import { WebSocketLink } from 'apollo-link-ws';
-import { getMainDefinition } from 'apollo-utilities';
+import {
+  ApolloClient,
+  HttpLink,
+  InMemoryCache,
+  split,
+  from,
+  type NormalizedCacheObject,
+} from '@apollo/client/core';
+import { onError } from '@apollo/client/link/error';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { getMainDefinition } from '@apollo/client/utilities';
+import { createClient } from 'graphql-ws';
 import { WHISP_GQL_CLIENT } from '@/types/whisps';
 
+/** Derives `wss://host/graphql` from `https://host/graphql` when no explicit WS URL is set. */
+export function resolveWhisprWsURL(httpURL: string, wsURL?: string): string | undefined {
+  const explicit = wsURL?.trim();
+  if (explicit) {
+    return explicit;
+  }
+  const http = httpURL?.trim();
+  if (!http) {
+    return undefined;
+  }
+  try {
+    const url = new URL(http);
+    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    return url.href;
+  } catch {
+    return undefined;
+  }
+}
+
+/** True when subscriptions can run over WebSocket (explicit or derived from the HTTP URL). */
+export function isWhisprSubscriptionEnabled(): boolean {
+  const httpURL = import.meta.env.VITE_WHISPR_API_HTTP_URL?.trim() ?? '';
+  return Boolean(resolveWhisprWsURL(httpURL, import.meta.env.VITE_WHISPR_API_WS_URL));
+}
+
+function createApolloClientOptions(link: ReturnType<typeof from>) {
+  return {
+    link,
+    cache: new InMemoryCache(),
+    devtools: { enabled: import.meta.env.DEV },
+  };
+}
+
 // Create the apollo client
-export const apolloClient = (httpURL: string, wsURL?: string, token?: string) => {
+export const apolloClient = (
+  httpURL: string,
+  wsURL?: string,
+  token?: string,
+): ApolloClient<NormalizedCacheObject> => {
   const httpLink = new HttpLink({
-    fetch: fetch as any,
     uri: httpURL,
   });
 
-  // Error Handling
-  const errorLink = onError(({ graphQLErrors, networkError }) => {
+  const errorLink = onError(({ graphQLErrors, networkError, operation }) => {
     if (graphQLErrors) {
-      graphQLErrors.map(({ message, locations, path }) =>
+      graphQLErrors.forEach(({ message, locations, path }) =>
         console.error(
-          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
+          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}, Operation: ${operation?.operationName}`,
         ),
       );
     }
@@ -31,27 +68,25 @@ export const apolloClient = (httpURL: string, wsURL?: string, token?: string) =>
     }
   });
 
-  if (wsURL) {
-    let optionsConnectionParams = {};
-    if (token) {
-      optionsConnectionParams = {
-        connectionParams: {
+  const resolvedWsURL = resolveWhisprWsURL(httpURL, wsURL);
+  if (resolvedWsURL) {
+    const connectionParams = token
+      ? {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
-      };
-    }
-    const wsLink = new WebSocketLink({
-      uri: wsURL,
-      options: {
-        ...optionsConnectionParams,
-        reconnect: true,
+        }
+      : {};
+
+    const wsLink = new GraphQLWsLink(
+      createClient({
+        url: resolvedWsURL,
         lazy: true,
-      },
-    });
+        connectionParams,
+      }),
+    );
+
     const link = split(
-      // split based on operation type
       ({ query }) => {
         const definition = getMainDefinition(query);
         return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
@@ -59,26 +94,33 @@ export const apolloClient = (httpURL: string, wsURL?: string, token?: string) =>
       wsLink,
       httpLink,
     );
-    return new ApolloClient({
-      link: from([errorLink, link]),
-      cache: new InMemoryCache(),
-      connectToDevTools: true,
-    });
+
+    return new ApolloClient(createApolloClientOptions(from([errorLink, link])));
   }
 
-  return new ApolloClient({
-    link: from([errorLink, httpLink]),
-    cache: new InMemoryCache(),
-    connectToDevTools: true,
-  });
+  return new ApolloClient(createApolloClientOptions(from([errorLink, httpLink])));
 };
 
-export const apolloProvider = (httpURL: string, wsURL?: string, token?: string) => {
+// Tracks the most recently created `whispr` client so components can detect
+// whether the named client is actually registered before referencing it.
+let whisprClient: ApolloClient<NormalizedCacheObject> | null = null;
+
+/**
+ * Build the apollo client map consumed by `@vue/apollo-composable`'s `provideApolloClients`.
+ * Keeps backwards compatibility with the named `whispr` client used across the components.
+ */
+export const apolloClients = (httpURL: string, wsURL?: string, token?: string) => {
   const client = apolloClient(httpURL, wsURL, token);
-  return new VueApollo({
-    defaultClient: client,
-    clients: {
-      [WHISP_GQL_CLIENT]: client,
-    },
-  });
+  whisprClient = client;
+  return {
+    default: client,
+    [WHISP_GQL_CLIENT]: client,
+  };
 };
+
+/**
+ * Returns the `whispr` Apollo client if one has been created via {@link apolloClients},
+ * otherwise `null`. Lets components fall back to the default client gracefully instead of
+ * throwing "Apollo client with id whispr not found".
+ */
+export const getWhisprClient = (): ApolloClient<NormalizedCacheObject> | null => whisprClient;

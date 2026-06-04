@@ -1,140 +1,159 @@
 <template>
-  <div class="pa-4" style="width:100%">
+  <div class="pa-4" style="width: 100%; min-height: 400px">
     <apexchart
-      v-if="!isEmpty"
       type="line"
-      height="400px"
+      height="400"
+      width="100%"
       :options="chartOptions"
       :series="[{ name: 'NPS', data: npsScores }]"
     />
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script setup lang="ts">
+import { computed } from 'vue';
 import { computeNPSScoreEvolution } from '@/services/nps.service';
-import VueApexCharts from 'vue-apexcharts';
-import { ApexOptions } from 'apexcharts';
-import dayjs, { Dayjs } from 'dayjs';
+import type { ApexOptions } from 'apexcharts';
+import dayjs, { type Dayjs } from 'dayjs';
 import { chain } from 'lodash';
-import { DurationUnitType } from 'dayjs/plugin/duration';
+import type { DurationUnitType } from 'dayjs/plugin/duration';
+import type { TimedRating } from '@/types/charts';
 
-export interface TimedRating {
-  rating: number;
-  timestamp: string;
+const props = withDefaults(
+  defineProps<{
+    timedRatings: TimedRating[];
+    timePeriod: DurationUnitType;
+    displayDateFormat?: string;
+  }>(),
+  {
+    displayDateFormat: 'LL',
+  },
+);
+
+const isEmpty = computed<boolean>(() => props.timedRatings.length === 0);
+
+const timePeriodDuration = computed<number>(() =>
+  dayjs.duration(1, props.timePeriod).asMilliseconds(),
+);
+
+const firstDate = computed<Dayjs>(() => {
+  if (props.timedRatings.length === 0) {
+    return dayjs().startOf(props.timePeriod);
+  }
+
+  const minTimestamp = chain(props.timedRatings)
+    .map((x) => dayjs(x.timestamp))
+    .min()
+    .value();
+
+  return dayjs(minTimestamp).startOf(props.timePeriod);
+});
+
+const lastDate = computed<Dayjs>(() => {
+  if (props.timedRatings.length === 0) {
+    return dayjs().startOf(props.timePeriod);
+  }
+
+  const maxTimestamp = chain(props.timedRatings)
+    .map((x) => dayjs(x.timestamp))
+    .max()
+    .value();
+
+  return dayjs(maxTimestamp).startOf(props.timePeriod);
+});
+
+const timePeriodsCount = computed<number>(
+  () => Math.floor(lastDate.value.diff(firstDate.value) / timePeriodDuration.value) + 1,
+);
+
+function getTimePeriodIndex(timestamp: Dayjs): number {
+  return Math.floor(timestamp.diff(firstDate.value) / timePeriodDuration.value);
 }
 
-@Component({
-  components: {
-    apexchart: VueApexCharts,
+const ratingsPerTimePeriod = computed<number[][]>(() => {
+  const ratings: number[][] = Array.from(Array(timePeriodsCount.value)).map(() => []);
+
+  for (const timedRating of props.timedRatings) {
+    const index = getTimePeriodIndex(dayjs(timedRating.timestamp));
+    if (ratings[index]) {
+      ratings[index].push(timedRating.rating);
+    }
+  }
+
+  return ratings;
+});
+
+const npsScores = computed<number[]>(() => computeNPSScoreEvolution(ratingsPerTimePeriod.value));
+
+const timePeriods = computed<string[]>(() => {
+  const periods = [firstDate.value];
+
+  for (let index = 1; index < timePeriodsCount.value; index++) {
+    const last = periods[periods.length - 1];
+    periods.push(last.clone().add(timePeriodDuration.value, 'ms'));
+  }
+
+  return periods.map((x) => x.format(props.displayDateFormat));
+});
+
+const chartOptions = computed<ApexOptions>(() => ({
+  title: {
+    text: 'Net Promoter Score (week over week)',
+    align: 'left',
+    style: {
+      fontSize: '16px',
+      fontWeight: 600,
+    },
   },
-})
-export default class NpsLineChart extends Vue {
-  @Prop({ required: true }) public timedRatings!: TimedRating[];
-  @Prop({ required: true }) public timePeriod!: DurationUnitType;
-  @Prop({ default: 'LL' }) public displayDateFormat!: string;
-
-  private get npsScores(): number[] {
-    return computeNPSScoreEvolution(this.ratingsPerTimePeriod);
-  }
-
-  private get isEmpty(): boolean {
-    return !this.timedRatings;
-  }
-
-  private getTimePeriodIndex(timestamp: Dayjs): number {
-    return Math.floor(timestamp.diff(this.firstDate) / this.timePeriodDuration);
-  }
-
-  private get ratingsPerTimePeriod(): number[][] {
-    const ratingsPerTimePeriod: number[][] = Array.from(
-      Array(this.timePeriodsCount),
-    ).map((x) => []);
-
-    for (const timedRating of this.timedRatings) {
-      const index = this.getTimePeriodIndex(dayjs(timedRating.timestamp));
-      if (ratingsPerTimePeriod[index]) {
-        ratingsPerTimePeriod[index].push(timedRating.rating);
-      }
-    }
-
-    return ratingsPerTimePeriod;
-  }
-
-  private get firstDate(): Dayjs {
-    const minTimestamp = chain(this.timedRatings)
-      .map((x) => dayjs(x.timestamp))
-      .min()
-      .value();
-
-    return dayjs(minTimestamp).startOf(this.timePeriod);
-  }
-
-  private get lastDate(): Dayjs {
-    const maxTimestamp = chain(this.timedRatings)
-      .map((x) => dayjs(x.timestamp))
-      .max()
-      .value();
-
-    return dayjs(maxTimestamp).startOf(this.timePeriod);
-  }
-
-  private get timePeriodsCount(): number {
-    return Math.floor(this.lastDate.diff(this.firstDate) / this.timePeriodDuration) + 1;
-  }
-
-  private get timePeriodDuration(): number {
-    return dayjs.duration(1, this.timePeriod).asMilliseconds();
-  }
-
-  private get timePeriods(): string[] {
-    const timePeriods = [this.firstDate];
-
-    for (let index = 1; index < this.timePeriodsCount; index++) {
-      const lastDate = timePeriods[timePeriods.length - 1];
-      timePeriods.push(lastDate.clone().add(this.timePeriodDuration, 'ms'));
-    }
-    return timePeriods.map((x) => x.format(this.displayDateFormat));
-  }
-
-  private get chartOptions(): ApexOptions {
-    return {
-      title: {
-        text: 'Net Promoter Score (week over week) ',
-      },
-      chart: {
-        type: 'line',
-        stacked: true,
-        toolbar: {
-          show: false,
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-        },
-      },
-      stroke: {
-        curve: 'straight',
-      },
-      xaxis: {
-        categories: this.timePeriods,
-        labels: {
-          format: 'MMM d yyyy',
-        },
-      },
-      yaxis: {
-        labels: {
-          formatter: (value) => value.toFixed(0),
-        },
-      },
-      legend: {
+  noData: {
+    text: isEmpty.value ? 'No data available' : undefined,
+  },
+  chart: {
+    type: 'line',
+    toolbar: {
+      show: false,
+    },
+    zoom: {
+      enabled: false,
+    },
+  },
+  colors: ['#008FFB'],
+  stroke: {
+    curve: 'straight',
+    width: 3,
+  },
+  grid: {
+    borderColor: '#e0e0e0',
+    strokeDashArray: 0,
+    xaxis: {
+      lines: {
         show: false,
       },
-      dataLabels: {
-        enabled: false,
-      },
-    };
-  }
-}
+    },
+  },
+  xaxis: {
+    categories: timePeriods.value,
+    axisBorder: {
+      show: false,
+    },
+    axisTicks: {
+      show: false,
+    },
+  },
+  yaxis: {
+    min: 0,
+    max: 120,
+    tickAmount: 4,
+    decimalsInFloat: 0,
+  },
+  legend: {
+    show: false,
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  markers: {
+    size: 0,
+  },
+}));
 </script>

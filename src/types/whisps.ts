@@ -7,64 +7,25 @@ export const WHISP_GQL_CLIENT = 'whispr';
 export const WhispSchema = z.object({
   _id: z.string(),
   readableID: z.string(),
-  type: z
-    .string()
-    .optional()
-    .nullable(),
-  severity: z
-    .number()
-    .optional()
-    .nullable(),
-  description: z
-    .string()
-    .optional()
-    .nullable(),
-  closed: z
-    .boolean()
-    .optional()
-    .nullable(),
-  applicationID: z
-    .string()
-    .optional()
-    .nullable(),
-  plantID: z
-    .string()
-    .optional()
-    .nullable(),
-  locationID: z
-    .string()
-    .optional()
-    .nullable(),
-  manual: z
-    .boolean()
-    .optional()
-    .nullable(),
-  openedBy: z
-    .string()
-    .optional()
-    .nullable(),
-  openedById: z
-    .string()
-    .optional()
-    .nullable(),
-  closedBy: z
-    .string()
-    .optional()
-    .nullable(),
-  closedById: z
-    .string()
-    .optional()
-    .nullable(),
+  type: z.string().optional().nullable(),
+  severity: z.number().optional().nullable(),
+  description: z.string().optional().nullable(),
+  closed: z.boolean().optional().nullable(),
+  applicationID: z.string().optional().nullable(),
+  plantID: z.string().optional().nullable(),
+  locationID: z.string().optional().nullable(),
+  manual: z.boolean().optional().nullable(),
+  openedBy: z.string().optional().nullable(),
+  openedById: z.string().optional().nullable(),
+  closedBy: z.string().optional().nullable(),
+  closedById: z.string().optional().nullable(),
   timestamp: z.string().refine((x) => dayjs(x).isValid()),
   updated: z.string().refine((x) => dayjs(x).isValid()),
   data: z.any(),
   attachments: z
     .array(
       z.object({
-        dataMappingPath: z
-          .string()
-          .optional()
-          .nullable(),
+        dataMappingPath: z.string().optional().nullable(),
         file: z.string(),
       }),
     )
@@ -84,39 +45,15 @@ export const FeedbackStatusEnumSchema = z.nativeEnum(FeedbackStatus);
 export const FeedbackSchema = WhispSchema.extend({
   data: z.object({
     status: FeedbackStatusEnumSchema,
-    feedback: z
-      .string()
-      .optional()
-      .nullable(),
+    feedback: z.string().optional().nullable(),
     rating: z.number(),
-    commentSentimentScore: z
-      .number()
-      .optional()
-      .nullable(),
-    name: z
-      .string()
-      .optional()
-      .nullable(),
-    anonymous: z
-      .boolean()
-      .optional()
-      .nullable(),
-    contextPage: z
-      .string()
-      .optional()
-      .nullable(),
-    contextPortal: z
-      .string()
-      .optional()
-      .nullable(),
-    notes: z
-      .string()
-      .optional()
-      .nullable(),
-    category: z
-      .string()
-      .optional()
-      .nullable(),
+    commentSentimentScore: z.number().optional().nullable(),
+    name: z.string().optional().nullable(),
+    anonymous: z.boolean().optional().nullable(),
+    contextPage: z.string().optional().nullable(),
+    contextPortal: z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
+    category: z.string().optional().nullable(),
   }),
 });
 

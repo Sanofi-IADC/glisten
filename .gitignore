@@ -31,3 +31,5 @@ src/assets/datas/routes.json
 # docs
 /website
 /docs/.vuepress/dist/
+/docs/.vuepress/.temp/
+/docs/.vuepress/.cache/

@@ -1,54 +1,36 @@
 {
   "env": {
     "browser": true,
-    "es6": true,
+    "es2021": true,
     "node": true
   },
   "extends": [
-    "plugin:vue/recommended",
-    "standard",
-    "@vue/standard",
-    "@vue/typescript",
-    "prettier"
+    "plugin:vue/vue3-recommended",
+    "@vue/eslint-config-typescript",
+    "@vue/eslint-config-prettier"
   ],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
   "parserOptions": {
-    "ecmaVersion": 2018,
-    "parser": "@typescript-eslint/parser",
+    "ecmaVersion": 2021,
     "sourceType": "module"
   },
-  "plugins": [
-    "vue",
-    "@typescript-eslint"
-  ],
   "rules": {
-    "semi": [
-      "error",
-      "always"
-    ],
+    "semi": ["error", "always"],
     "no-unused-vars": "off",
-    "space-before-function-paren": [
-      "error",
-      "never"
-    ],
-    "comma-dangle": [
-      "error",
-      "always-multiline"
-    ],
-    "import/no-duplicates": "off",
-    "no-array-constructor": "off"
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "comma-dangle": ["error", "always-multiline"],
+    "vue/multi-word-component-names": "off"
   },
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts", "*.vue"],
       "rules": {
-        "no-useless-constructor": "off",
-        "no-var-requires": "off"
+        "no-useless-constructor": "off"
       }
     }
   ],

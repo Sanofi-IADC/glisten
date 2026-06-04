@@ -6,7 +6,7 @@ const getEnvVariablesRuntimeByElement = (id: string) => {
 
 const runtimeEnvironmentVariables = () => {
   const runtimeEnv = getEnvVariablesRuntimeByElement('#__RUNTIME_ENV__');
-  return { ...runtimeEnv, ...process.env };
+  return { ...runtimeEnv, ...import.meta.env };
 };
 
 export default runtimeEnvironmentVariables;

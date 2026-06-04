@@ -1,12 +1,32 @@
-import { VueConstructor } from 'vue';
-import VueApollo from 'vue-apollo';
+import type { App, DefineComponent } from 'vue';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client/core';
 
-export const GlistenClient: VueConstructor;
-export const GlistenDashboard: VueConstructor;
-export const GlistenCsat: VueConstructor;
+export const GlistenClient: DefineComponent<Record<string, unknown>>;
+export const GlistenDashboard: DefineComponent<Record<string, unknown>>;
+export const GlistenCsat: DefineComponent<Record<string, unknown>>;
 
-export const ApolloProvider: (httpURL: string, wsURL?: string, token?: string) => VueApollo;
+export function apolloClient(
+  httpURL: string,
+  wsURL?: string,
+  token?: string,
+): ApolloClient<NormalizedCacheObject>;
 
-declare module '@sanofi-iadc/glisten' {
-  export function install(vue: VueConstructor, options: any): void;
+export function apolloClients(
+  httpURL: string,
+  wsURL?: string,
+  token?: string,
+): Record<string, ApolloClient<NormalizedCacheObject>>;
+
+export { ApolloClients } from '@vue/apollo-composable';
+
+export interface GlistenPluginOptions {
+  httpURL?: string;
+  wsURL?: string;
+  token?: string;
 }
+
+declare const Plugin: {
+  install: (app: App, options?: GlistenPluginOptions) => void;
+};
+
+export default Plugin;

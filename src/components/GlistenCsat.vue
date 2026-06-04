@@ -2,153 +2,122 @@
   <csat-score-card v-if="ratings.length > 0" :ratings="ratings" />
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
 import {
-  FeedbackQueryResult,
-  FeedbackQuerySortVariable,
-  FeedbackQueryVariables,
-  FeedbackSubcriptionResult,
-  FeedbackSubscriptionVariables,
+  type FeedbackQueryResult,
+  type FeedbackQuerySortVariable,
+  type FeedbackQueryVariables,
+  type FeedbackSubcriptionResult,
   GET_FEEDBACKS,
-  SUBCRIPTION_FEEDBACKS,
 } from '@/graphql/queries/whispQueries';
+import { useFeedbackSubscription } from '@/composables/useFeedbackSubscription';
 import { FeedbackSchema, IFeedback, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
 import dayjs from 'dayjs';
-import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
-import { Component, Prop, Vue } from 'vue-property-decorator';
 import CsatScoreCard from '@/components/CsatScoreCard.vue';
 import * as z from 'zod';
 
-/**
- * @description Customer Satisfaction score for given applications in a period of time
- */
-@Component({
-  components: {
-    CsatScoreCard,
+const props = withDefaults(
+  defineProps<{
+    endDate?: Date;
+    startDate?: Date;
+    filteredApplications?: string[];
+  }>(),
+  {
+    endDate: () => new Date(),
+    startDate: () => dayjs().subtract(2, 'month').toDate(),
+    filteredApplications: () => [],
   },
-})
-export default class GlistenCsat extends Vue {
-  // Ending date of the interval
-  @Prop({ default: () => new Date() })
-  private endDate!: Date;
+);
 
-  // Starting date of the interval
-  @Prop({
-    default: () =>
-      dayjs()
-        .subtract(2, 'month')
-        .toDate(),
-  })
-  private startDate!: Date;
+const queryFilter = computed<Partial<IFeedback>>(() => {
+  let filter: any = {
+    type: WHISP_FEEDBACK_TYPE,
+    data: { $ne: null },
+    'data.status': { $in: ['ACTION_NEEDED', 'ACTION_DONE', 'NO_ACTION_NEEDED'] },
+    'data.feedback': { $ne: null },
+    'data.rating': { $gte: 0, $lte: 5 },
+  };
 
-  // Array of applications name
-  @Prop({ required: true, default: [] })
-  private filteredApplications!: string[];
-
-  @SmartQuery<GlistenCsat, IFeedback[], FeedbackQueryVariables, FeedbackQueryResult>({
-    query: GET_FEEDBACKS,
-    update(data) {
-      return z.array(FeedbackSchema).parse(data.feedbacks);
-    }, // validates data and trim extra properties
-    variables() {
-      return {
-        filter: this.queryFilter,
-        limit: 1000,
-        sort: this.querySort,
-      };
-    },
-    client: WHISP_GQL_CLIENT,
-  })
-  @SubscribeToMore<
-    GlistenCsat,
-    FeedbackQueryResult,
-    FeedbackSubscriptionVariables,
-    FeedbackSubcriptionResult
-  >({
-    document: SUBCRIPTION_FEEDBACKS,
-    variables() {
-      return {
-        filter: {
-          type: WHISP_FEEDBACK_TYPE,
-        },
-      };
-    },
-    updateQuery(previous, options) {
-      return this.updateFeedbacksOnSubscriptionEvent(previous, options);
-    },
-  })
-  private feedbacks: IFeedback[] = [];
-
-  private get queryFilter(): Partial<IFeedback> {
-    let filter: any = {
-      type: WHISP_FEEDBACK_TYPE,
-      data: { $ne: null },
-      'data.status': { $in: ['ACTION_NEEDED', 'ACTION_DONE', 'NO_ACTION_NEEDED'] },
-      'data.feedback': { $ne: null },
-      'data.rating': { $gte: 0, $lte: 5 },
+  if (props.startDate && props.endDate) {
+    const startOfDay = (date: Date) => dayjs(date).startOf('day').toDate();
+    const endOfDay = (date: Date) => dayjs(date).endOf('day').toDate();
+    filter = {
+      ...filter,
+      timestamp: { $gte: startOfDay(props.startDate), $lte: endOfDay(props.endDate) },
     };
-
-    if (this.startDate && this.endDate) {
-      const startOfDay = (date: Date) =>
-        dayjs(date)
-          .startOf('day')
-          .toDate();
-      const endOfDay = (date: Date) =>
-        dayjs(date)
-          .endOf('day')
-          .toDate();
-      filter = {
-        ...filter,
-        timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) },
-      };
-    }
-
-    if (this.filteredApplications.length > 0) {
-      filter = { ...filter, applicationID: { $in: this.filteredApplications } };
-    }
-
-    return filter;
   }
 
-  private get querySort(): FeedbackQuerySortVariable {
-    return { timestamp: -1 };
+  if (props.filteredApplications.length > 0) {
+    filter = { ...filter, applicationID: { $in: props.filteredApplications } };
   }
 
-  private get ratings(): number[] {
-    return this.feedbacks.map((x) => x.data.rating);
+  return filter;
+});
+
+const querySort = computed<FeedbackQuerySortVariable>(() => ({ timestamp: -1 }));
+
+const { result, subscribeToMore } = useQuery<FeedbackQueryResult, FeedbackQueryVariables>(
+  GET_FEEDBACKS,
+  () => ({
+    filter: queryFilter.value,
+    limit: 1000,
+    sort: querySort.value,
+  }),
+  () => ({
+    clientId: WHISP_GQL_CLIENT,
+  }),
+);
+
+useFeedbackSubscription(subscribeToMore, updateFeedbacksOnSubscriptionEvent);
+
+const feedbacks = computed<IFeedback[]>(() => {
+  if (!result.value?.feedbacks) {
+    return [];
   }
+  try {
+    return z.array(FeedbackSchema).parse(result.value.feedbacks);
+  } catch {
+    return [];
+  }
+});
 
-  private updateFeedbacksOnSubscriptionEvent(
-    previous: FeedbackQueryResult,
-    update: { subscriptionData: { data: FeedbackSubcriptionResult } },
-  ): FeedbackQueryResult {
-    try {
-      const HasTypename = z.object({ __typename: z.string() });
-      const Schema = FeedbackSchema.merge(HasTypename); // validates data but keep property __typename that is useful for caching purpose
+const ratings = computed<number[]>(() => feedbacks.value.map((x) => x.data.rating));
 
-      const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
-      const existingFeedbackIndex = previous.feedbacks.findIndex(
-        (f: IFeedback) => feedback._id === f._id,
-      );
-
-      // If the whisp is already in the collection we update it
-      // Else we add it to the top
-      if (existingFeedbackIndex >= 0) {
-        return {
-          feedbacks: Object.assign([], previous.feedbacks, {
-            [existingFeedbackIndex]: feedback,
-          }),
-        };
-      }
-
-      if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
-        return { feedbacks: [feedback, ...previous.feedbacks] };
-      }
-    } catch (err) {
-      console.log('Invalid Data received.');
-    }
-
+function updateFeedbacksOnSubscriptionEvent(
+  previous: FeedbackQueryResult,
+  update: { subscriptionData: { data: FeedbackSubcriptionResult } },
+): FeedbackQueryResult {
+  const added = update.subscriptionData.data?.feedbackAdded;
+  if (!added) {
     return previous;
   }
+
+  try {
+    const HasTypename = z.object({ __typename: z.string() });
+    const Schema = FeedbackSchema.merge(HasTypename);
+
+    const feedback = Schema.parse(added);
+    const existingFeedbackIndex = previous.feedbacks.findIndex(
+      (f: IFeedback) => feedback._id === f._id,
+    );
+
+    if (existingFeedbackIndex >= 0) {
+      return {
+        feedbacks: Object.assign([], previous.feedbacks, {
+          [existingFeedbackIndex]: feedback,
+        }),
+      };
+    }
+
+    if (dayjs(feedback.timestamp).isBetween(props.startDate, props.endDate, 'day', '[]')) {
+      return { feedbacks: [feedback, ...previous.feedbacks] };
+    }
+  } catch {
+    console.log('Invalid Data received.');
+  }
+
+  return previous;
 }
 </script>

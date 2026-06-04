@@ -13,100 +13,58 @@
   </v-app>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
 import GlistenClient from '@/components/GlistenClient.vue';
 import EventEmitter from '@/microfrontends/common/event-emitter';
-import Vue from 'vue';
-
-import {
-  VApp,
-  VIcon,
-  VSnackbar,
-  VTextarea,
-  VBtn,
-  VBottomSheet,
-  VSheet,
-  VRating,
-  VSelect,
-  VRow,
-  VCol,
-  VContainer,
-  VSwitch,
-  VTextField,
-} from 'vuetify/lib';
 
 interface GlistenClientState {
   sheet: boolean;
   userName: string;
-  customTracker: Object;
+  customTracker: Record<string, unknown>;
   applicationId: string;
   greetings: string;
   textFieldLabel: string;
   heartColor: string;
-};
+}
 
-/**
- * MicrofrontendGlistenClient component entry default
- */
-export default Vue.extend({
-  /* eslint-disable vue/no-unused-components */
-  components: {
-    GlistenClient,
-    VApp,
-    VIcon,
-    VSnackbar,
-    VTextarea,
-    VBtn,
-    VBottomSheet,
-    VSheet,
-    VRating,
-    VSelect,
-    VRow,
-    VCol,
-    VContainer,
-    VSwitch,
-    VTextField,
-  },
-  data() {
-    return {
-      sheet: false,
-      userName: '',
-      customTracker: {},
-      applicationId: '',
-      greetings: '',
-      textFieldLabel: '',
-      heartColor: '',
-    };
-  },
-  mounted() {
-    this.setupInitialState();
-    EventEmitter.instance().on(
-      'onGlistenClientStateChanged',
-      (payload: GlistenClientState) => this.onGlistenClientStateChangedHandler(payload),
-    );
-  },
-  methods: {
-    setupInitialState() {
-      this.sheet = false;
-      this.userName = '';
-      this.customTracker = {};
-      this.applicationId = '';
-      this.greetings = 'Thank you so much for taking the time to share your feedback with us! We appreciate hearing your thoughts on how we\'re doing, and we\'re excited to use your feedback to become even better.';
-      this.textFieldLabel = 'We\'re always looking to improve. Please share your feedback with us';
-      this.heartColor = 'red';
-    },
-    onCloseHandler() {
-      this.setupInitialState();
-    },
-    onGlistenClientStateChangedHandler(payload: GlistenClientState) {
-      this.sheet = payload.sheet ?? this.userName;;
-      this.userName = payload.userName ?? this.userName;
-      this.customTracker = payload.customTracker ?? this.customTracker;
-      this.applicationId = payload.applicationId ?? this.applicationId;
-      this.greetings = payload.greetings ?? this.greetings;
-      this.textFieldLabel = payload.textFieldLabel ?? this.textFieldLabel;
-      this.heartColor = payload.heartColor ?? this.heartColor;
-    },
-  },
+const sheet = ref(false);
+const userName = ref('');
+const customTracker = ref<Record<string, unknown>>({});
+const applicationId = ref('');
+const greetings = ref('');
+const textFieldLabel = ref('');
+const heartColor = ref('');
+
+function setupInitialState() {
+  sheet.value = false;
+  userName.value = '';
+  customTracker.value = {};
+  applicationId.value = '';
+  greetings.value =
+    "Thank you so much for taking the time to share your feedback with us! We appreciate hearing your thoughts on how we're doing, and we're excited to use your feedback to become even better.";
+  textFieldLabel.value = "We're always looking to improve. Please share your feedback with us";
+  heartColor.value = 'red';
+}
+
+function onCloseHandler() {
+  setupInitialState();
+}
+
+function onGlistenClientStateChangedHandler(payload: GlistenClientState) {
+  sheet.value = payload.sheet ?? sheet.value;
+  userName.value = payload.userName ?? userName.value;
+  customTracker.value = payload.customTracker ?? customTracker.value;
+  applicationId.value = payload.applicationId ?? applicationId.value;
+  greetings.value = payload.greetings ?? greetings.value;
+  textFieldLabel.value = payload.textFieldLabel ?? textFieldLabel.value;
+  heartColor.value = payload.heartColor ?? heartColor.value;
+}
+
+onMounted(() => {
+  setupInitialState();
+  EventEmitter.instance().on('onGlistenClientStateChanged', (payload: GlistenClientState) =>
+    onGlistenClientStateChangedHandler(payload),
+  );
 });
 </script>
