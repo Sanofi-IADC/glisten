@@ -37,6 +37,15 @@ jobs:
       - name: Package build
         run: npm run build-bundle
 
+      - name: E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          start: npm run serve
+          wait-on: 'http://localhost:8080'
+          wait-on-timeout: 120
+          command: npx cypress run
+
   release:
     name: Release
     needs: quality
