@@ -1,99 +1,73 @@
 <template>
-  <div class="container pa-4 d-flex flex-column align-center">
-    <div v-if="!isEmpty" ref="chartContainer">
-      <apexchart
-        width="300px"
-        height="300px"
-        type="radialBar"
-        :options="chartOptions"
-        :series="[normalizedScore * 100]"
-      />
-    </div>
+  <div class="container pa-4 d-flex flex-column align-center" style="min-height: 200px">
+    <apexchart
+      width="280"
+      height="200"
+      type="radialBar"
+      :options="chartOptions"
+      :series="[normalizedScore * 100]"
+    />
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script setup lang="ts">
+import { computed } from 'vue';
 import { isPromoter, isDetractor, isNeutral, computeNPSScore } from '@/services/nps.service';
-import VueApexCharts from 'vue-apexcharts';
-import { ApexOptions } from 'apexcharts';
+import type { ApexOptions } from 'apexcharts';
 
-@Component({
-  components: {
-    apexchart: VueApexCharts,
+const props = defineProps<{
+  ratings: number[];
+}>();
+
+const promoters = computed<number>(() => props.ratings.filter(isPromoter).length);
+const detractors = computed<number>(() => props.ratings.filter(isDetractor).length);
+const neutrals = computed<number>(() => props.ratings.filter(isNeutral).length);
+const score = computed<number>(() =>
+  computeNPSScore(promoters.value, neutrals.value, detractors.value),
+);
+const normalizedScore = computed<number>(() => (100 + score.value) / 200);
+
+const chartOptions = computed<ApexOptions>(() => ({
+  chart: {
+    type: 'radialBar',
   },
-})
-export default class NpsScoreGauge extends Vue {
-  @Prop({ required: true }) public ratings!: number[];
-
-  private get isEmpty(): boolean {
-    return !this.ratings;
-  }
-
-  private get promoters(): number {
-    return this.ratings.filter(isPromoter).length;
-  }
-
-  private get detractors(): number {
-    return this.ratings.filter(isDetractor).length;
-  }
-
-  private get neutrals(): number {
-    return this.ratings.filter(isNeutral).length;
-  }
-
-  private get score(): number {
-    return computeNPSScore(this.promoters, this.neutrals, this.detractors);
-  }
-
-  private get normalizedScore(): number {
-    return (100 + this.score) / 200;
-  }
-
-  private get chartOptions(): ApexOptions {
-    return {
-      chart: {
-        type: 'radialBar',
-      },
-      legend: {
-        show: false,
-      },
+  legend: {
+    show: false,
+  },
+  dataLabels: {
+    enabled: false,
+  },
+  colors: [score.value > 0 ? '#00E396' : '#FF4560'],
+  tooltip: {
+    enabled: false,
+    enabledOnSeries: undefined,
+    onDatasetHover: {
+      highlightDataSeries: false,
+    },
+  },
+  plotOptions: {
+    radialBar: {
+      startAngle: -90,
+      endAngle: 90,
       dataLabels: {
-        enabled: false,
-      },
-      colors: [this.score > 0 ? '#00E396' : '#FF4560'],
-      tooltip: {
-        enabled: false,
-        enabledOnSeries: undefined,
-        onDatasetHover: {
-          highlightDataSeries: false,
+        show: true,
+        total: {
+          show: true,
+          label: score.value.toFixed(0),
+          fontSize: '30px',
+          formatter: () => 'NPS',
+        },
+        value: {
+          fontSize: '20px',
         },
       },
-      plotOptions: {
-        radialBar: {
-          startAngle: -90,
-          endAngle: 90,
-          dataLabels: {
-            show: true,
-            total: {
-              show: true,
-              label: this.score.toFixed(0),
-              fontSize: '30px',
-              formatter: () => 'NPS',
-            },
-            value: {
-              fontSize: '20px',
-            },
-          },
-        },
-      },
-    };
-  }
-}
+    },
+  },
+}));
 </script>
 
 <style lang="scss" scoped>
-.container >>> .apexcharts-datalabels-group {
+.container :deep(.apexcharts-datalabels-group) {
   transform: translateY(-30px);
 }
 </style>

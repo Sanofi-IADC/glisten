@@ -1,3 +1,6 @@
 /tests
 dist/
 node_modules/
+docs/
+*.config.ts
+vite.config.ts

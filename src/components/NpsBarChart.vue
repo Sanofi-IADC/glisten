@@ -1,9 +1,9 @@
 <template>
-  <div class="pa-4" style="width:100%">
+  <div class="pa-4" style="width: 100%; min-height: 400px">
     <apexchart
-      v-if="!isEmpty"
       type="bar"
-      height="400px"
+      height="400"
+      width="100%"
       :options="chartOptions"
       :series="[
         { name: 'Promoters', data: promoters },
@@ -14,129 +14,128 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+<script setup lang="ts">
+import { computed } from 'vue';
 import { isPromoter, isDetractor, isNeutral } from '@/services/nps.service';
-import VueApexCharts from 'vue-apexcharts';
-import { ApexOptions } from 'apexcharts';
-import dayjs, { Dayjs, UnitTypeShort } from 'dayjs';
+import type { ApexOptions } from 'apexcharts';
+import dayjs, { type Dayjs } from 'dayjs';
+import type { DurationUnitType } from 'dayjs/plugin/duration';
 import { chain } from 'lodash';
+import type { TimedRating } from '@/types/charts';
 
-export interface TimedRating {
-  rating: number;
-  timestamp: string;
-}
-
-@Component({
-  components: {
-    apexchart: VueApexCharts,
+const props = withDefaults(
+  defineProps<{
+    timedRatings: TimedRating[];
+    timePeriod: DurationUnitType;
+    displayDateFormat?: string;
+  }>(),
+  {
+    displayDateFormat: 'LL',
   },
-})
-export default class NpsBarChart extends Vue {
-  @Prop({ required: true }) public timedRatings!: TimedRating[];
-  @Prop({ required: true }) public timePeriod!: UnitTypeShort;
-  @Prop({ default: 'LL' }) public displayDateFormat!: string;
+);
 
-  private get isEmpty(): boolean {
-    return !this.timedRatings;
+const isEmpty = computed<boolean>(() => props.timedRatings.length === 0);
+
+const timePeriodDuration = computed<number>(() =>
+  dayjs.duration(1, props.timePeriod).asMilliseconds(),
+);
+
+const firstDate = computed<Dayjs>(() => {
+  if (props.timedRatings.length === 0) {
+    return dayjs().startOf(props.timePeriod);
   }
 
-  private getTimePeriodIndex(timestamp: Dayjs): number {
-    return Math.floor(timestamp.diff(this.firstDate) / this.timePeriodDuration);
+  const minTimestamp = chain(props.timedRatings)
+    .map((x) => dayjs(x.timestamp))
+    .min()
+    .value();
+
+  return dayjs(minTimestamp).startOf(props.timePeriod);
+});
+
+const lastDate = computed<Dayjs>(() => {
+  if (props.timedRatings.length === 0) {
+    return dayjs().startOf(props.timePeriod);
   }
 
-  private get ratingsPerTimePeriod(): number[][] {
-    const ratingsPerTimePeriod: number[][] = Array.from(
-      Array(this.timePeriodsCount),
-    ).map((x) => []);
+  const maxTimestamp = chain(props.timedRatings)
+    .map((x) => dayjs(x.timestamp))
+    .max()
+    .value();
 
-    for (const timedRating of this.timedRatings) {
-      const index = this.getTimePeriodIndex(dayjs(timedRating.timestamp));
-      if (ratingsPerTimePeriod[index]) {
-        ratingsPerTimePeriod[index].push(timedRating.rating);
-      }
-    }
+  return dayjs(maxTimestamp).startOf(props.timePeriod);
+});
 
-    return ratingsPerTimePeriod;
-  }
+const timePeriodsCount = computed<number>(
+  () => Math.floor(lastDate.value.diff(firstDate.value) / timePeriodDuration.value) + 1,
+);
 
-  private get firstDate(): Dayjs {
-    const minTimestamp = chain(this.timedRatings)
-      .map((x) => dayjs(x.timestamp))
-      .min()
-      .value();
-
-    return dayjs(minTimestamp).startOf(this.timePeriod);
-  }
-
-  private get lastDate(): Dayjs {
-    const maxTimestamp = chain(this.timedRatings)
-      .map((x) => dayjs(x.timestamp))
-      .max()
-      .value();
-
-    return dayjs(maxTimestamp).startOf(this.timePeriod);
-  }
-
-  private get timePeriodsCount(): number {
-    return Math.floor(this.lastDate.diff(this.firstDate) / this.timePeriodDuration) + 1;
-  }
-
-  private get timePeriodDuration(): number {
-    return dayjs.duration(1, this.timePeriod).asMilliseconds();
-  }
-
-  private get timePeriods(): string[] {
-    const timePeriods = [this.firstDate];
-
-    for (let index = 1; index < this.timePeriodsCount; index++) {
-      const lastDate = timePeriods[timePeriods.length - 1];
-      timePeriods.push(lastDate.clone().add(this.timePeriodDuration, 'ms'));
-    }
-
-    return timePeriods.map((x) => x.format(this.displayDateFormat));
-  }
-
-  private get promoters(): number[] {
-    return this.ratingsPerTimePeriod.map((ratings) => ratings.filter(isPromoter).length);
-  }
-
-  private get detractors(): number[] {
-    return this.ratingsPerTimePeriod.map((ratings) => ratings.filter(isDetractor).length);
-  }
-
-  private get neutrals(): number[] {
-    return this.ratingsPerTimePeriod.map((ratings) => ratings.filter(isNeutral).length);
-  }
-
-  private get chartOptions(): ApexOptions {
-    return {
-      title: {
-        text: 'Responses (week over week) ',
-      },
-      chart: {
-        type: 'bar',
-        stacked: true,
-        toolbar: {
-          show: false,
-        },
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-        },
-      },
-      xaxis: {
-        categories: this.timePeriods,
-      },
-      colors: ['#00E396', '#FEB019', '#FF4560'],
-      legend: {
-        show: false,
-      },
-      dataLabels: {
-        enabled: false,
-      },
-    };
-  }
+function getTimePeriodIndex(timestamp: Dayjs): number {
+  return Math.floor(timestamp.diff(firstDate.value) / timePeriodDuration.value);
 }
+
+const ratingsPerTimePeriod = computed<number[][]>(() => {
+  const ratings: number[][] = Array.from(Array(timePeriodsCount.value)).map(() => []);
+
+  for (const timedRating of props.timedRatings) {
+    const index = getTimePeriodIndex(dayjs(timedRating.timestamp));
+    if (ratings[index]) {
+      ratings[index].push(timedRating.rating);
+    }
+  }
+
+  return ratings;
+});
+
+const timePeriods = computed<string[]>(() => {
+  const periods = [firstDate.value];
+
+  for (let index = 1; index < timePeriodsCount.value; index++) {
+    const last = periods[periods.length - 1];
+    periods.push(last.clone().add(timePeriodDuration.value, 'ms'));
+  }
+
+  return periods.map((x) => x.format(props.displayDateFormat));
+});
+
+const promoters = computed<number[]>(() =>
+  ratingsPerTimePeriod.value.map((ratings) => ratings.filter(isPromoter).length),
+);
+const detractors = computed<number[]>(() =>
+  ratingsPerTimePeriod.value.map((ratings) => ratings.filter(isDetractor).length),
+);
+const neutrals = computed<number[]>(() =>
+  ratingsPerTimePeriod.value.map((ratings) => ratings.filter(isNeutral).length),
+);
+
+const chartOptions = computed<ApexOptions>(() => ({
+  title: {
+    text: 'Responses (week over week) ',
+  },
+  noData: {
+    text: isEmpty.value ? 'No data available' : undefined,
+  },
+  chart: {
+    type: 'bar',
+    stacked: true,
+    toolbar: {
+      show: false,
+    },
+  },
+  plotOptions: {
+    bar: {
+      horizontal: false,
+    },
+  },
+  xaxis: {
+    categories: timePeriods.value,
+  },
+  colors: ['#00E396', '#FEB019', '#FF4560'],
+  legend: {
+    show: false,
+  },
+  dataLabels: {
+    enabled: false,
+  },
+}));
 </script>

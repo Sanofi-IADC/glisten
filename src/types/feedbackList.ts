@@ -1,5 +1,4 @@
-import { DataTableHeader } from 'vuetify';
-import { IFeedback } from './whisps';
+import type { IFeedback } from './whisps';
 
 export type ItemActionTypes = {
   text: string;
@@ -13,4 +12,13 @@ export type ConfirmationDialog = {
   title: string;
   description: string;
   visible: boolean;
+};
+
+export interface FeedbackTableHeader {
+  title: string;
+  key: string;
+  sortable?: boolean;
+  align?: 'start' | 'center' | 'end';
+  width?: string | number;
+  adminPermission?: boolean;
 }

@@ -3,33 +3,33 @@
     <div class="dashoard-container">
       <v-card class="filter pt-3">
         <filters
-          :start-date.sync="startDate"
-          :end-date.sync="endDate"
+          v-model:start-date="startDate"
+          v-model:end-date="endDate"
+          v-model:filtered-applications="filteredApplications"
           :available-applications="availableApplications"
-          :filtered-applications.sync="filteredApplications"
         />
       </v-card>
 
       <div class="nps-detail-card">
-        <nps-details-card v-if="ratings.length > 0" :ratings="ratings" />
+        <nps-details-card :ratings="ratings" />
       </div>
       <div class="csat-score-card">
-        <csat-score-card v-if="ratings.length > 0" :ratings="ratings" />
+        <csat-score-card :ratings="ratings" />
       </div>
       <div class="nps-score-gauge">
-        <nps-score-gauge v-if="ratings.length > 0" :ratings="ratings" />
+        <nps-score-gauge :ratings="ratings" />
       </div>
       <div class="nps-line-chart">
         <nps-line-chart
           :timed-ratings="timedRatings"
-          time-period="weeks"
+          time-period="week"
           display-date-format="MMM D YYYY"
         />
       </div>
       <div class="nps-bar-chart">
         <nps-bar-chart
           :timed-ratings="timedRatings"
-          time-period="weeks"
+          time-period="week"
           display-date-format="MMM D YYYY"
         />
       </div>
@@ -38,38 +38,36 @@
           :feedbacks="feedbacks"
           :loading="loading"
           :admin-permissions="adminPermissions"
-          @changeStatus="changeStatus"
-          @setNotes="setNotes"
-          @removeFeedback="removeFeedback"
+          @change-status="changeStatus"
+          @set-notes="setNotes"
+          @remove-feedback="removeFeedback"
         />
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import { useQuery, useMutation } from '@vue/apollo-composable';
 import FeedbackList from '@/components/FeedbackList.vue';
 import Filters from '@/components/Filters.vue';
 import NpsScoreGauge from '@/components/NpsScoreGauge.vue';
 import NpsLineChart from '@/components/NpsLineChart.vue';
 import NpsDetailsCard from '@/components/NpsDetailsCard.vue';
 import CsatScoreCard from '@/components/CsatScoreCard.vue';
-import NpsBarChart, { TimedRating } from '@/components/NpsBarChart.vue';
+import NpsBarChart from '@/components/NpsBarChart.vue';
 import {
-  SUBCRIPTION_FEEDBACKS,
   UPDATE_WHISP,
   GET_FEEDBACKS,
-  FeedbackQueryResult,
-  FeedbackQueryVariables,
-  FeedbackSubscriptionVariables,
-  FeedbackSubcriptionResult,
-  FeedbackQuerySortVariable,
-  UpdateWhispVariables,
-  UpdateWhispResult,
-  DeleteWhispResult,
-  DeleteWhispVariables,
+  type FeedbackQueryResult,
+  type FeedbackQueryVariables,
+  type FeedbackSubcriptionResult,
+  type FeedbackQuerySortVariable,
+  type UpdateWhispVariables,
+  type UpdateWhispResult,
+  type DeleteWhispResult,
+  type DeleteWhispVariables,
   DELETE_WHISP,
 } from '@/graphql/queries/whispQueries';
 import {
@@ -79,243 +77,199 @@ import {
   WHISP_GQL_CLIENT,
   FeedbackSchema,
 } from '@/types/whisps';
+import type { TimedRating } from '@/types/charts';
 import { chain } from 'lodash';
 import dayjs from 'dayjs';
-import { SmartQuery, SubscribeToMore } from 'vue-apollo-decorators';
 import * as z from 'zod';
-import { VCard } from 'vuetify/lib';
+import { useFeedbackSubscription } from '@/composables/useFeedbackSubscription';
 
-/**
- * @description All in one dashboard to display and filter feedbacks from glisten
- */
-@Component({
-  components: {
-    FeedbackList,
-    NpsScoreGauge,
-    NpsLineChart,
-    NpsBarChart,
-    NpsDetailsCard,
-    CsatScoreCard,
-    Filters,
-    VCard,
+const props = withDefaults(
+  defineProps<{
+    adminAccessRights?: boolean;
+  }>(),
+  {
+    adminAccessRights: false,
   },
-})
-export default class GlistenDashboard extends Vue {
-  @Prop({ required: false, default: () => false })
-  public adminAccessRights!: boolean;
+);
 
-  private get adminPermissions(): boolean {
-    return this.adminAccessRights ?? false;
-  }
+const adminPermissions = computed<boolean>(() => props.adminAccessRights ?? false);
 
-  private get ratings(): number[] {
-    return this.feedbacks.map((x) => x.data.rating);
-  }
+const endDate = ref<Date>(new Date());
+const startDate = ref<Date>(dayjs(endDate.value).subtract(2, 'month').toDate());
 
-  private get timedRatings(): TimedRating[] {
-    return this.feedbacks.map((x) => ({ rating: x.data.rating, timestamp: x.timestamp }));
-  }
+const filteredApplications = ref<string[]>([]);
+const availableApplicationsCache = ref<string[]>([]);
+const removedIds = ref<Set<string>>(new Set());
 
-  private endDate: Date = new Date();
-  private startDate: Date = dayjs(this.endDate)
-    .subtract(2, 'month')
-    .toDate();
+const queryFilter = computed<Partial<IFeedback>>(() => {
+  let filter: any = {
+    type: WHISP_FEEDBACK_TYPE,
+    data: { $ne: null },
+    'data.status': { $in: ['ACTION_NEEDED', 'ACTION_DONE', 'NO_ACTION_NEEDED'] },
+    'data.feedback': { $ne: null },
+    'data.rating': { $gte: 0, $lte: 5 },
+  };
 
-  private filteredApplications: string[] = [];
-
-  private _availableApplications: string[] = [];
-
-  private hasMounted: boolean = false;
-
-  mounted() {
-    this.hasMounted = true;
-  }
-
-  private get availableApplications(): string[] {
-    const newAvailableApplications = chain(this.feedbacks)
-      .map((x) => x.applicationID)
-      .filter((x): x is string => !!x)
-      .concat(this._availableApplications ?? [])
-      .uniq()
-      .sort()
-      .value();
-
-    this._availableApplications = newAvailableApplications;
-
-    return newAvailableApplications;
-  }
-
-  get loading(): boolean {
-    if (this.hasMounted) {
-      return this.$apollo.loading;
-    }
-    return true;
-  }
-
-  private get queryFilter(): Partial<IFeedback> {
-    let filter: any = {
-      type: WHISP_FEEDBACK_TYPE,
-      data: { $ne: null },
-      'data.status': { $in: ['ACTION_NEEDED', 'ACTION_DONE', 'NO_ACTION_NEEDED'] },
-      'data.feedback': { $ne: null },
-      'data.rating': { $gte: 0, $lte: 5 },
+  if (startDate.value && endDate.value) {
+    const startOfDay = (date: Date) => dayjs(date).startOf('day').toDate();
+    const endOfDay = (date: Date) => dayjs(date).endOf('day').toDate();
+    filter = {
+      ...filter,
+      timestamp: { $gte: startOfDay(startDate.value), $lte: endOfDay(endDate.value) },
     };
-
-    if (this.startDate && this.endDate) {
-      const startOfDay = (date: Date) =>
-        dayjs(date)
-          .startOf('day')
-          .toDate();
-      const endOfDay = (date: Date) =>
-        dayjs(date)
-          .endOf('day')
-          .toDate();
-      filter = {
-        ...filter,
-        timestamp: { $gte: startOfDay(this.startDate), $lte: endOfDay(this.endDate) },
-      };
-    }
-
-    if (this.filteredApplications.length > 0) {
-      filter = { ...filter, applicationID: { $in: this.filteredApplications } };
-    }
-
-    return filter;
   }
 
-  private get querySort(): FeedbackQuerySortVariable {
-    return { timestamp: -1 };
+  if (filteredApplications.value.length > 0) {
+    filter = { ...filter, applicationID: { $in: filteredApplications.value } };
   }
 
-  @SmartQuery<GlistenDashboard, IFeedback[], FeedbackQueryVariables, FeedbackQueryResult>({
-    query: GET_FEEDBACKS,
-    update(data) {
-      return z.array(FeedbackSchema).parse(data.feedbacks);
-    }, // validates data and trim extra properties
-    variables() {
-      return {
-        filter: this.queryFilter,
-        limit: 1000,
-        sort: this.querySort,
-      };
-    },
-    client: WHISP_GQL_CLIENT,
-  })
-  @SubscribeToMore<
-    GlistenDashboard,
-    FeedbackQueryResult,
-    FeedbackSubscriptionVariables,
-    FeedbackSubcriptionResult
-  >({
-    document: SUBCRIPTION_FEEDBACKS,
-    variables() {
-      return {
-        filter: {
-          type: WHISP_FEEDBACK_TYPE,
-        },
-      };
-    },
-    updateQuery(previous, options) {
-      return this.updateFeedbacksOnSubscriptionEvent(previous, options);
-    },
-  })
-  private feedbacks: IFeedback[] = [];
+  return filter;
+});
 
-  private updateFeedbacksOnSubscriptionEvent(
-    previous: FeedbackQueryResult,
-    update: { subscriptionData: { data: FeedbackSubcriptionResult } },
-  ): FeedbackQueryResult {
-    try {
-      const HasTypename = z.object({ __typename: z.string() });
+const querySort = computed<FeedbackQuerySortVariable>(() => ({ timestamp: -1 }));
 
-      // validates data but keep property __typename that is useful for caching purpose
-      const Schema = FeedbackSchema.merge(HasTypename);
+const {
+  result,
+  loading: queryLoading,
+  subscribeToMore,
+} = useQuery<FeedbackQueryResult, FeedbackQueryVariables>(
+  GET_FEEDBACKS,
+  () => ({
+    filter: queryFilter.value,
+    limit: 1000,
+    sort: querySort.value,
+  }),
+  () => ({
+    clientId: WHISP_GQL_CLIENT,
+  }),
+);
 
-      const feedback = Schema.parse(update.subscriptionData.data.feedbackAdded);
-      const existingFeedbackIndex = previous.feedbacks.findIndex(
-        (f: IFeedback) => feedback._id === f._id,
-      );
+useFeedbackSubscription(subscribeToMore, updateFeedbacksOnSubscriptionEvent);
 
-      // If the whisp is already in the collection we update it
-      // Else we add it to the top
-      if (existingFeedbackIndex >= 0) {
-        return {
-          feedbacks: Object.assign([], previous.feedbacks, {
-            [existingFeedbackIndex]: feedback,
-          }),
-        };
-      }
+const loading = computed<boolean>(() => queryLoading.value);
 
-      if (dayjs(feedback.timestamp).isBetween(this.startDate, this.endDate, 'days', '[]')) {
-        return { feedbacks: [feedback, ...previous.feedbacks] };
-      }
-    } catch (err) {
-      console.log('Invalid Data received.');
+const feedbacks = computed<IFeedback[]>(() => {
+  if (!result.value?.feedbacks) {
+    return [];
+  }
+  try {
+    return z
+      .array(FeedbackSchema)
+      .parse(result.value.feedbacks)
+      .filter((feedback) => !removedIds.value.has(feedback._id));
+  } catch {
+    return [];
+  }
+});
+
+const ratings = computed<number[]>(() => feedbacks.value.map((x) => x.data.rating));
+
+const timedRatings = computed<TimedRating[]>(() =>
+  feedbacks.value.map((x) => ({ rating: x.data.rating, timestamp: x.timestamp })),
+);
+
+const availableApplications = computed<string[]>(() =>
+  chain(feedbacks.value)
+    .map((x) => x.applicationID)
+    .filter((x): x is string => !!x)
+    .concat(availableApplicationsCache.value ?? [])
+    .uniq()
+    .sort()
+    .value(),
+);
+
+// Persist the union of applications seen so far so the filter list never shrinks
+// when the active filter narrows the returned feedbacks.
+watch(
+  availableApplications,
+  (apps) => {
+    const prev = availableApplicationsCache.value ?? [];
+    if (apps.length === prev.length && apps.every((app, i) => app === prev[i])) {
+      return;
     }
+    availableApplicationsCache.value = apps;
+  },
+  { flush: 'post' },
+);
+
+function updateFeedbacksOnSubscriptionEvent(
+  previous: FeedbackQueryResult,
+  update: { subscriptionData: { data: FeedbackSubcriptionResult } },
+): FeedbackQueryResult {
+  const added = update.subscriptionData.data?.feedbackAdded;
+  if (!added) {
     return previous;
   }
 
-  private async changeStatus({
-    feedback,
-    status,
-  }: {
-    feedback: IFeedback;
-    status: FeedbackStatus;
-  }): Promise<void> {
-    this.$apollo.mutate<UpdateWhispResult, UpdateWhispVariables>({
-      mutation: UPDATE_WHISP,
-      client: WHISP_GQL_CLIENT,
-      variables: {
-        id: feedback._id,
-        whisp: {
-          ...feedback,
-          data: { ...feedback.data, status },
-        },
-      },
-    });
-  }
+  try {
+    const HasTypename = z.object({ __typename: z.string() });
+    const Schema = FeedbackSchema.merge(HasTypename);
 
-  private async setNotes({
-    feedback,
-    notes,
-  }: {
-    feedback: IFeedback;
-    notes: string;
-  }): Promise<void> {
-    this.$apollo.mutate<UpdateWhispResult, UpdateWhispVariables>({
-      mutation: UPDATE_WHISP,
-      client: WHISP_GQL_CLIENT,
-      variables: {
-        id: feedback._id,
-        whisp: {
-          ...feedback,
-          data: { ...feedback.data, notes },
-        },
-      },
-    });
-  }
-
-  private updateFeedbackListAfterRemove(feedback: IFeedback) {
-    this.feedbacks = this.feedbacks.filter(({ _id }: IFeedback) =>
-      _id !== feedback._id,
+    const feedback = Schema.parse(added);
+    const existingFeedbackIndex = previous.feedbacks.findIndex(
+      (f: IFeedback) => feedback._id === f._id,
     );
-  }
 
-  private async removeFeedback({
-    feedback,
-  }: {
-    feedback: IFeedback;
-  }): Promise<void> {
-    this.$apollo.mutate<DeleteWhispResult, DeleteWhispVariables>({
-      mutation: DELETE_WHISP,
-      client: WHISP_GQL_CLIENT,
-      variables: {
-        id: feedback._id,
-      },
-    }).then(() => {
-      this.updateFeedbackListAfterRemove(feedback);
-    });
+    if (existingFeedbackIndex >= 0) {
+      return {
+        feedbacks: Object.assign([], previous.feedbacks, {
+          [existingFeedbackIndex]: feedback,
+        }),
+      };
+    }
+
+    if (dayjs(feedback.timestamp).isBetween(startDate.value, endDate.value, 'day', '[]')) {
+      return { feedbacks: [feedback, ...previous.feedbacks] };
+    }
+  } catch {
+    console.log('Invalid Data received.');
   }
+  return previous;
+}
+
+const { mutate: updateWhisp } = useMutation<UpdateWhispResult, UpdateWhispVariables>(UPDATE_WHISP, {
+  clientId: WHISP_GQL_CLIENT,
+});
+
+const { mutate: deleteWhisp } = useMutation<DeleteWhispResult, DeleteWhispVariables>(DELETE_WHISP, {
+  clientId: WHISP_GQL_CLIENT,
+});
+
+async function changeStatus({
+  feedback,
+  status,
+}: {
+  feedback: IFeedback;
+  status: FeedbackStatus;
+}): Promise<void> {
+  await updateWhisp({
+    id: feedback._id,
+    whisp: {
+      ...feedback,
+      data: { ...feedback.data, status },
+    },
+  });
+}
+
+async function setNotes({
+  feedback,
+  notes,
+}: {
+  feedback: IFeedback;
+  notes: string;
+}): Promise<void> {
+  await updateWhisp({
+    id: feedback._id,
+    whisp: {
+      ...feedback,
+      data: { ...feedback.data, notes },
+    },
+  });
+}
+
+async function removeFeedback({ feedback }: { feedback: IFeedback }): Promise<void> {
+  await deleteWhisp({ id: feedback._id });
+  removedIds.value = new Set([...removedIds.value, feedback._id]);
 }
 </script>
 
@@ -330,7 +284,7 @@ export default class GlistenDashboard extends Vue {
 .dashoard-container {
   display: grid;
   grid-template-columns: 350px 1fr 1fr 1fr;
-  grid-template-rows: 200px 200px auto auto;
+  grid-template-rows: minmax(220px, auto) minmax(220px, auto) auto auto;
   grid-template-areas:
     'filter nps-line-chart nps-line-chart nps-line-chart'
     'filter nps-line-chart nps-line-chart nps-line-chart'
@@ -344,6 +298,8 @@ export default class GlistenDashboard extends Vue {
 .dashoard-container > * {
   display: grid;
   place-items: center;
+  width: 100%;
+  min-width: 0;
 }
 
 .filter {
@@ -365,10 +321,12 @@ export default class GlistenDashboard extends Vue {
 
 .nps-line-chart {
   grid-area: nps-line-chart;
+  overflow: visible;
 }
 
 .nps-bar-chart {
   grid-area: nps-bar-chart;
+  overflow: visible;
 }
 
 .feedback-list {

@@ -1,23 +1,27 @@
 <template>
   <div class="text-center">
-    <v-bottom-sheet v-model="show" inset>
+    <v-bottom-sheet
+      :model-value="props.sheet"
+      scroll-strategy="none"
+      inset
+      @update:model-value="onSheetUpdate"
+    >
       <v-sheet class="text-center sheet--feedback">
         <v-container fluid>
-          <div class="title py-3">
+          <div class="text-h6 py-3">
             {{ greetings }}
           </div>
 
           <v-rating
             v-model="glistenWhisp.data.rating"
             :color="heartColor"
-            background-color="grey darken-1"
             half-increments
             hover
             clearable
-            x-large
-            empty-icon="mdi-heart-outline"
-            full-icon="mdi-heart"
-            half-icon="mdi-heart-half-full"
+            size="x-large"
+            :empty-icon="mdiHeartOutline"
+            :full-icon="mdiHeart"
+            :half-icon="mdiHeartHalfFull"
           />
 
           <v-select
@@ -25,37 +29,52 @@
             v-model="glistenWhisp.data.category"
             :items="customTracker.categories"
             label="Choose category"
-            outlined
+            variant="outlined"
           />
 
           <v-textarea
             v-model="glistenWhisp.data.feedback"
-            outlined
+            variant="outlined"
             name="input-7-4"
             :label="textFieldLabel"
             rows="4"
           />
-          <v-row no-gutters row wrap>
-            <v-col xs12 sm6 md4>
+          <v-row no-gutters>
+            <v-col cols="12" sm="6" md="4">
               <v-switch
                 v-model="glistenWhisp.data.anonymous"
                 class="my-0 py-0 px-1"
+                color="primary"
+                hide-details
+                density="compact"
                 label="Make my feedback anonymous"
               />
-              <v-switch v-model="actionRequired" class="my-0 py-0 px-1" label="Action expected" />
+              <v-switch
+                v-model="actionRequired"
+                class="my-0 py-0 px-1"
+                color="primary"
+                hide-details
+                density="compact"
+                label="Action expected"
+              />
             </v-col>
 
-            <v-col xs12 sm6 md4>
+            <v-col cols="12" sm="6" md="4">
               <v-text-field
                 v-if="glistenWhisp.data.anonymous === false"
                 v-model="glistenWhisp.data.name"
-                outlined
+                variant="outlined"
                 label="Your name"
               />
             </v-col>
           </v-row>
 
-          <v-btn color="primary" :disabled="!glistenWhisp.data.feedback" @click="submitFeedback">
+          <v-btn
+            color="primary"
+            :disabled="!glistenWhisp.data.feedback || submitting"
+            :loading="submitting"
+            @click="submitFeedback"
+          >
             Submit feedback
           </v-btn>
         </v-container>
@@ -66,193 +85,172 @@
       v-model="snackbarDisplayed"
       :timeout="snackbarTimeout"
       :color="snackbarColor"
-      outlined
+      variant="outlined"
       class="glisten-snackbar pa-10"
     >
       <p>{{ snackbarText }}</p>
-      <template v-slot:action="{ attrs }">
-        <v-btn color="primary" text v-bind="attrs" @click="snackbarDisplayed = false">
-          Close
-        </v-btn>
+      <template #actions>
+        <v-btn color="primary" variant="text" @click="snackbarDisplayed = false"> Close </v-btn>
       </template>
     </v-snackbar>
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
+<script setup lang="ts">
+import { reactive, ref, watch } from 'vue';
+import { useMutation } from '@vue/apollo-composable';
+import { mdiHeart, mdiHeartOutline, mdiHeartHalfFull } from '@mdi/js';
 import { IFeedback, FeedbackStatus, WHISP_FEEDBACK_TYPE, WHISP_GQL_CLIENT } from '@/types/whisps';
 import {
   CREATE_WHISP,
-  CreateWhispVariables,
-  CreateWhispResult,
+  type CreateWhispVariables,
+  type CreateWhispResult,
 } from '@/graphql/queries/whispQueries';
-import {
-  VIcon,
-  VSnackbar,
-  VTextarea,
-  VBtn,
-  VBottomSheet,
-  VSheet,
-  VRating,
-  VSelect,
-  VRow,
-  VCol,
-  VContainer,
-  VSwitch,
-  VTextField,
-} from 'vuetify/lib';
+import { getWhisprClient } from '@/graphql/apollo';
+// @ts-expect-error - wink-sentiment ships without bundled type declarations
+import sentiment from 'wink-sentiment';
 
-/**
- * @description Modal component to submit a feeback to glisten
- */
-@Component({
-  components: {
-    VIcon,
-    VSnackbar,
-    VTextarea,
-    VBtn,
-    VBottomSheet,
-    VSheet,
-    VRating,
-    VSelect,
-    VRow,
-    VCol,
-    VContainer,
-    VSwitch,
-    VTextField,
+const props = withDefaults(
+  defineProps<{
+    sheet: boolean;
+    userName: string;
+    customTracker: any;
+    applicationId: string;
+    greetings?: string;
+    textFieldLabel?: string;
+    heartColor?: string;
+  }>(),
+  {
+    greetings:
+      "Thank you so much for taking the time to share your feedback with us! We appreciate hearing your thoughts on how we're doing, and we're excited to use your feedback to become even better.",
+    textFieldLabel: "We're always looking to improve. Please share your feedback with us",
+    heartColor: 'red',
   },
-})
-export default class GlistenClient extends Vue {
-  // Modal is showed whenever true
-  @Prop({ required: true })
-  public sheet!: boolean;
+);
 
-  // The default username
-  @Prop({ required: true })
-  public userName!: string;
+const emit = defineEmits<{
+  (e: 'close', value: unknown): void;
+}>();
 
-  // Tracks context of the feedback (like current page URL)
-  @Prop({ required: true })
-  public customTracker!: any;
+function onSheetUpdate(value: boolean) {
+  if (!value) {
+    emit('close', value);
+  }
+}
 
-  // Identify the feedback's application
-  @Prop({ required: true })
-  public applicationId!: string;
+const actionRequired = ref(false);
+const submitting = ref(false);
+const snackbarDisplayed = ref(false);
+const snackbarTimeout = ref(3000);
+const snackbarText = ref('');
+const snackbarColor = ref('success');
 
-  // Greetings displayed at the top of the component
-  @Prop({ required: false, default: 'Thank you so much for taking the time to share your feedback with us! We appreciate hearing your thoughts on how we\'re doing, and we\'re excited to use your feedback to become even better.' })
-  public greetings!: string;
+type GlistenWhisp = Omit<IFeedback, '_id' | 'readableID' | 'timestamp' | 'updated'>;
 
-  // Label displayed in text field
-  @Prop({ required: false, default: 'We\'re always looking to improve. Please share your feedback with us' })
-  public textFieldLabel!: string;
+const glistenWhisp = reactive<GlistenWhisp>({
+  type: WHISP_FEEDBACK_TYPE,
+  applicationID: props.applicationId,
+  openedBy: '',
+  description: '',
+  data: {
+    status: FeedbackStatus.NO_ACTION_NEEDED,
+    anonymous: false,
+    feedback: null,
+    rating: 4.5,
+    name: '',
+    commentSentimentScore: 0,
+    category: null,
+  },
+});
 
-  // Color of rating hearts
-  @Prop({ required: false, default: 'red' })
-  public heartColor!: string;
+watch(
+  () => glistenWhisp.data.anonymous,
+  (val) => {
+    glistenWhisp.data.name = val ? '' : props.userName;
+  },
+  { immediate: true },
+);
 
-  get show() {
-    return this.sheet;
+watch(
+  actionRequired,
+  (val) => {
+    glistenWhisp.data.status = val ? FeedbackStatus.ACTION_NEEDED : FeedbackStatus.NO_ACTION_NEEDED;
+  },
+  { immediate: true },
+);
+
+watch(
+  () => props.applicationId,
+  (val) => {
+    glistenWhisp.applicationID = val;
+  },
+  { immediate: true },
+);
+
+// Use the named `whispr` client when it has been registered; otherwise fall back to
+// the default Apollo client so the component never throws "Apollo client with id whispr
+// not found" when the host app wires GraphQL up differently.
+const { mutate: createWhisp } = useMutation<CreateWhispResult, CreateWhispVariables>(CREATE_WHISP, {
+  clientId: getWhisprClient() ? WHISP_GQL_CLIENT : undefined,
+});
+
+function calculateSentiment(comment: string): number {
+  const sentimentResult = sentiment(comment);
+  return sentimentResult.normalizedScore;
+}
+
+function truncateDescription(str: string): string {
+  const n = 200;
+  if (str.length <= n) {
+    return str;
+  }
+  const subString = str.substr(0, n - 1);
+  return subString.substr(0, subString.lastIndexOf(' ')) + '...';
+}
+
+async function submitFeedback() {
+  if (!glistenWhisp.data.feedback) {
+    return;
   }
 
-  set show(val) {
-    this.$emit('close', val);
-  }
+  submitting.value = true;
 
-  private actionRequired = false;
-  private snackbarDisplayed = false;
-  private snackbarTimeout = 3000;
-  private snackbarText = '';
-  private snackbarColor = 'success';
+  glistenWhisp.data.commentSentimentScore = calculateSentiment(glistenWhisp.data.feedback);
+  glistenWhisp.openedBy = glistenWhisp.data.name ?? '';
+  glistenWhisp.description = truncateDescription(glistenWhisp.data.feedback);
+  glistenWhisp.data = { ...glistenWhisp.data, ...props.customTracker };
 
-  private glistenWhisp: Omit<IFeedback, '_id' | 'readableID' | 'timestamp' | 'updated'> = {
-    type: WHISP_FEEDBACK_TYPE,
-    applicationID: this.applicationId,
-    openedBy: '',
-    description: '',
-    data: {
-      status: FeedbackStatus.NO_ACTION_NEEDED, // OPENED | CLOSED | NONE
-      anonymous: false,
-      feedback: null,
-      rating: 4.5,
-      name: '',
-      commentSentimentScore: 0,
-      category: null,
-    },
-  };
+  try {
+    const res = await createWhisp({ whisp: glistenWhisp as CreateWhispVariables['whisp'] });
 
-  @Watch('glistenWhisp.data.anonymous', { immediate: true })
-  private onAnonymousChanged(val: boolean, oldVal: boolean) {
-    this.glistenWhisp.data.name = val ? '' : this.userName;
-  }
-
-  @Watch('actionRequired', { immediate: true })
-  private onActionChanged(val: boolean, oldVal: boolean) {
-    this.glistenWhisp.data.status = val
-      ? FeedbackStatus.ACTION_NEEDED
-      : FeedbackStatus.NO_ACTION_NEEDED;
-  }
-
-  @Watch('applicationId', { immediate: true })
-  private onApplicationIdChanged(val: string) {
-    this.glistenWhisp.applicationID = val;
-  }
-
-  private calculateSentiment(comment: string): number {
-    const sentiment = require('wink-sentiment');
-    const sentimentResult = sentiment(comment);
-    return sentimentResult.normalizedScore;
-  }
-
-  private truncateDescription(str: string) {
-    const n = 200;
-    if (str.length <= n) {
-      return str;
+    if (res?.data) {
+      const name = glistenWhisp.openedBy ? glistenWhisp.openedBy : '';
+      snackbarText.value = `Thanks for your feedback ${name} !`;
+      snackbarColor.value = 'success';
+      snackbarDisplayed.value = true;
+      glistenWhisp.data = {
+        ...glistenWhisp.data,
+        status: FeedbackStatus.NO_ACTION_NEEDED,
+        feedback: null,
+        rating: 4.5,
+        commentSentimentScore: 0,
+        category: null,
+      };
+    } else {
+      throw new Error('No data returned from createWhisp mutation');
     }
-    const subString = str.substr(0, n - 1); // the original check
-    return subString.substr(0, subString.lastIndexOf(' ')) + '...';
+  } catch (error) {
+    console.error('Failed to submit feedback:', error);
+    snackbarText.value = 'An error occured';
+    snackbarColor.value = 'error';
+    snackbarDisplayed.value = true;
+  } finally {
+    submitting.value = false;
   }
 
-  // emitted whenever close button is pressed
-  private async submitFeedback() {
-    this.glistenWhisp.data.commentSentimentScore = this.calculateSentiment(
-      this.glistenWhisp.data.feedback!,
-    );
-    this.glistenWhisp.openedBy = this.glistenWhisp.data.name;
-    this.glistenWhisp.description = this.truncateDescription(this.glistenWhisp.data.feedback!);
-    this.glistenWhisp.data = { ...this.glistenWhisp.data, ...this.customTracker };
+  actionRequired.value = false;
 
-    this.$apollo
-      .mutate<CreateWhispResult, CreateWhispVariables>({
-        mutation: CREATE_WHISP,
-        client: WHISP_GQL_CLIENT,
-        variables: { whisp: this.glistenWhisp },
-      })
-      .then((res) => {
-        if (res.data) {
-          const name = this.glistenWhisp.openedBy ? this.glistenWhisp.openedBy : '';
-          this.snackbarText = `Thanks for your feedback ${name} !`;
-          this.snackbarColor = 'success';
-          this.snackbarDisplayed = true;
-          this.glistenWhisp.data = {
-            ...this.glistenWhisp.data,
-            status: FeedbackStatus.NO_ACTION_NEEDED,
-            feedback: null,
-            rating: 4.5,
-            commentSentimentScore: 0,
-            category: null,
-          };
-        } else {
-          this.snackbarText = `An error occured`;
-          this.snackbarColor = 'error';
-          this.snackbarDisplayed = true;
-        }
-        this.actionRequired = false;
-      });
-
-    this.$emit('close', this.glistenWhisp);
-  }
+  emit('close', glistenWhisp);
 }
 </script>
 
