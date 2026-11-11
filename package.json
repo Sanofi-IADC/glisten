@@ -104,10 +104,10 @@
     "systemjs-webpack-interop": "^2.3.7",
     "ts-jest": "23.10.5",
     "typescript": "3.9.10",
-    "vue": "2.6.12",
+    "vue": "2.7.16",
     "vue-cli-plugin-apollo": "0.22.2",
     "vue-cli-plugin-vuetify": "0.6.3",
-    "vue-template-compiler": "2.6.12",
+    "vue-template-compiler": "2.7.16",
     "vuepress": "1.8.2",
     "vuetify": "2.4.8",
     "webpack-node-externals": "3.0.0"
